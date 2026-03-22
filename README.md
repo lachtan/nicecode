@@ -1,11 +1,10 @@
 # NiceCode
 
-Sdruzuje best practice pro viceo jazyku.
-Primarnim cilem je prinest skills, rules, commands a hooks, ktere 
-Claude agentum pomuzou psat cistsi, citelnejsi, prehlednejsi a jednodussi kod.
-Simplicity at first place.
+A collection of best practices for multiple programming languages.
+The primary goal is to provide skills, rules, commands, and hooks that help Claude agents write cleaner, more readable, and simpler code.
+Simplicity first.
 
-## Jazyky
+## Languages
 
 - C#
 - F#
@@ -13,14 +12,14 @@ Simplicity at first place.
 - Python
 - Bash
 
-## Instalace
+## Installation
 
 ```
 /plugin marketplace add lachtan/nicecode
 /plugin install core@nicecode
 ```
 
-## Dokumentace
+## Documentation
 
 - [Create and distribute a plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces)
 - [Create plugins](https://code.claude.com/docs/en/plugins)
