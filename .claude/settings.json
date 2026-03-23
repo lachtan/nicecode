@@ -1,0 +1,36 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -File .claude/hooks/nicecode/fix-markdown.ps1",
+            "statusMessage": "Auto-fix markdown formatting after edits"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -File .claude/hooks/nicecode/mermaid-lint.ps1",
+            "statusMessage": "Validate Mermaid diagrams in markdown files"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -File .claude/hooks/nicecode/remove-nul.ps1",
+            "statusMessage": "Remove spurious NUL files (Windows bug workaround)"
+          }
+        ]
+      }
+    ]
+  }
+}

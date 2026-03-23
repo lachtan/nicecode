@@ -1,0 +1,44 @@
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+
+config:
+  # --- Vypnutá pravidla ---
+
+  # MD013/line-length: Dokumentace obsahuje dlouhé popisy, tabulky a URL
+  MD013: false
+  # MD024/no-duplicate-heading: Povolujeme duplicitní nadpisy v rámci sourozenců
+  # (opakující se "Example", "Usage" apod.)
+  MD024:
+    siblings_only: true
+  # MD029/ol-prefix: Číslované seznamy s reálnými čísly (1. 2. 3.),
+  # i přerušené code bloky (linter je pak vidí jako oddělené seznamy)
+  MD029: false
+  # MD033/no-inline-html: V textu se vyskytují C# generické typy (<TLogType>),
+  # HTML tabulky v NRT.md a další legitimní HTML
+  MD033: false
+  # MD060/table-column-style: Příliš striktní formátování tabulek
+  MD060: false
+
+  # --- Zapnutá pravidla s konfigurací ---
+
+  # MD004/ul-style: Jednotný styl odrážek - pomlčka
+  MD004:
+    style: dash
+  # MD010/no-hard-tabs: Zakázat hard taby, ale povolit je v code blocích
+  MD010:
+    code_blocks: false
+  # MD046/code-block-style: Fenced code bloky (```) místo indentovaných
+  MD046:
+    style: fenced
+  # MD049/emphasis-style: Konzistentní styl kurzívy
+  MD049:
+    style: asterisk
+  # MD050/strong-style: Konzistentní styl tučného písma
+  MD050:
+    style: asterisk
+
+# Ignorovat adresáře, které nejsou naše dokumentace
+ignorePatterns:
+  - "node_modules"
+  - "**/bin/**"
+  - "**/obj/**"
+  - ".git"

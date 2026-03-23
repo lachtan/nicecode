@@ -4,15 +4,14 @@
     "name": "NiceCode"
   },
   "metadata": {
-    "description": "Best practices for writing clean, readable, and simple code across multiple languages",
-    "version": "0.1.0"
+    "description": "Best practices for writing clean, readable, and simple code across multiple languages"
   },
   "plugins": [
     {
       "name": "core",
       "source": "./plugins/core",
       "description": "Core coding best practices — skills and rules for cleaner code",
-      "version": "0.1.0"
+      "version": "1.0.0"
     }
   ]
 }
