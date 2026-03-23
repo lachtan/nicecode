@@ -11,3 +11,7 @@ NiceCode is a Claude Code plugin marketplace. The guiding principle is **simplic
 Marketplace (`.claude-plugin/marketplace.json`) → Plugins (`plugins/<name>/.claude-plugin/plugin.json`) → rules, commands, skills.
 
 Each plugin is a self-contained bundle. Currently there is one plugin: `core`.
+
+## Git
+
+- Do not add `Co-Authored-By` lines to commit messages.
