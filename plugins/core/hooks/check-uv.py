@@ -21,7 +21,8 @@ FORBIDDEN = [
 
 def verify(command: str) -> bool:
     for forbidden in FORBIDDEN:
-        if forbidden in command:
+        pattern = r"\b" + re.sub(r"\s+", r"\\s+", forbidden) + r"\b"
+        if re.search(pattern, command):
             return False
     return True
 
@@ -34,7 +35,9 @@ def main():
     command = " ".join(command.split())
     if not verify(command):
         print(f"Forbidden: '{command}' detected. Use 'uv' instead.", file=sys.stderr)
-        print("See .claude/skills/python-env/SKILL.md for alternatives.", file=sys.stderr)
+        print(
+            "See .claude/skills/python-env/SKILL.md for alternatives.", file=sys.stderr
+        )
         sys.exit(2)
 
 

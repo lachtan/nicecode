@@ -20,6 +20,7 @@ def run_hook(command: str) -> subprocess.CompletedProcess:
 
 # --- Povolené příkazy (exit 0) ---
 
+
 def test_uv_pip_install_allowed():
     assert run_hook("uv pip install requests").returncode == 0
 
@@ -52,6 +53,7 @@ def test_missing_command_key_allowed():
 
 
 # --- Zakázané příkazy (exit 2) ---
+
 
 def test_pip_blocked():
     assert run_hook("pip install requests").returncode == 2
@@ -95,6 +97,7 @@ def test_easy_install_blocked():
 
 # --- Edge cases ---
 
+
 def test_pip_in_longer_command_blocked():
     assert run_hook("sudo pip install something").returncode == 2
 
@@ -106,3 +109,27 @@ def test_extra_whitespace_normalized_blocked():
 def test_stderr_message_on_block():
     result = run_hook("pip install requests")
     assert "Forbidden" in result.stderr or "uv" in result.stderr.lower()
+
+
+# --- False positives: substring nesmí matchovat ---
+
+
+def test_catpipe_in_path_allowed():
+    assert (
+        run_hook(
+            "git restore --staged trading-servers/ansible/playbooks/config_catpipe_servers.yaml"
+        ).returncode
+        == 0
+    )
+
+
+def test_pipeline_allowed():
+    assert run_hook("cat pipeline.yaml").returncode == 0
+
+
+def test_pipenv_allowed():
+    assert run_hook("pipenv install requests").returncode == 0
+
+
+def test_pip_as_part_of_filename_allowed():
+    assert run_hook("cat /tmp/pip_backup.txt").returncode == 0
