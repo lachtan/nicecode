@@ -16,9 +16,16 @@ Simplicity first.
 
 ## Installation
 
-```
+```text
 /plugin marketplace add lachtan/nicecode
 /plugin install core@nicecode
+```
+
+Per project:
+
+```bash
+claude plugin marketplace add lachtan/nicecode --scope=project
+claude plugin install core@nicecode --scope=project
 ```
 
 ## Rules
