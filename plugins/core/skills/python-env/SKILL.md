@@ -5,6 +5,7 @@ description: >
   managing Python dependencies, or setting up Python projects.
   Triggers on: pip, pip3, python -m pip, python -m venv, pipx, easy_install,
   "add dependency", "install package", "set up Python project".
+user-invocable: false
 ---
 
 # uv-tool
