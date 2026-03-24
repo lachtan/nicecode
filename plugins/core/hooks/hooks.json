@@ -26,6 +26,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "pwsh -File ${CLAUDE_PLUGIN_ROOT}/hooks/format-powershell.ps1"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
             "command": "pwsh -File ${CLAUDE_PLUGIN_ROOT}/hooks/fix-markdown.ps1"
           }
         ]
