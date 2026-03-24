@@ -15,3 +15,4 @@ Each plugin is a self-contained bundle. Currently there is one plugin: `core`.
 ## Git
 
 - Do not add `Co-Authored-By` lines to commit messages.
+- Write commit messages in English.
