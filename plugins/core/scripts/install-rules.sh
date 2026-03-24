@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RULES_DIR="${SCRIPT_DIR}/../rules"
+RULES_DIR="$(realpath "${SCRIPT_DIR}/../rules")"
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
 TARGET_DIR="$PROJECT_DIR/.claude/rules/nicecode"
 
@@ -12,16 +12,12 @@ if [ ! -d "$RULES_DIR" ]; then
     exit 1
 fi
 
-mkdir -p "$TARGET_DIR"
+# Remove old install (copy-based directory or stale symlink)
+if [ -L "$TARGET_DIR" ] || [ -d "$TARGET_DIR" ]; then
+    rm -rf "$TARGET_DIR"
+fi
 
-installed=0
+mkdir -p "$(dirname "$TARGET_DIR")"
+ln -s "$RULES_DIR" "$TARGET_DIR"
 
-for rule in "$RULES_DIR"/*.md; do
-    filename="$(basename "$rule")"
-    cp "$rule" "$TARGET_DIR/$filename"
-    echo "  Installed: $filename"
-    installed=$((installed + 1))
-done
-
-echo ""
-echo "Done. Installed $installed rules to $TARGET_DIR."
+echo "Linked $TARGET_DIR -> $RULES_DIR"
