@@ -4,7 +4,6 @@ A collection of best practices for multiple programming languages.
 The primary goal is to provide skills, rules, commands, and hooks that help Claude agents write cleaner, more readable, and simpler code.
 Simplicity first.
 
-
 ## Languages
 
 - C#
@@ -12,7 +11,6 @@ Simplicity first.
 - Rust
 - Python
 - Bash
-
 
 ## Installation
 
@@ -37,10 +35,10 @@ To install them into your project, run:
 /install-rules
 ```
 
-This copies all rules into `.claude/rules/nicecode/` in your project directory.
-Existing rules are overwritten on re-install.
+This creates a symlink from `.claude/rules/nicecode/` to the plugin's `rules/` directory.
+After a plugin update, a `SessionStart` hook automatically re-creates the symlink to the new version.
 
-To remove all installed rules:
+To remove the symlink:
 
 ```
 /uninstall-rules
