@@ -24,7 +24,8 @@ def is_plugin_enabled(project_dir):
     settings = project_dir / ".claude" / "settings.json"
     if not settings.is_file():
         return False
-    return "core@nicecode" in settings.read_text()
+    data = json.loads(settings.read_text())
+    return bool(data.get("enabledPlugins", {}).get("core@nicecode"))
 
 
 def is_already_linked(target, rules_dir):

@@ -16,5 +16,5 @@ $original = Get-Content -Path $filePath -Raw
 $formatted = Invoke-Formatter -ScriptDefinition $original
 
 if ($formatted -ne $original) {
-    Set-Content -Path $filePath -Value $formatted -NoNewline
+    Set-Content -Path $filePath -Value $formatted
 }

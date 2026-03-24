@@ -5,7 +5,7 @@ paths:
 
 # Markdown Style Guide
 
-Formatting (blank lines, trailing whitespace, heading style, list markers) is auto-fixed by the `.claude/hooks/fix-markdown.ps1` PostToolUse hook. Do not run the linter manually.
+Formatting (blank lines, trailing whitespace, heading style, list markers) is auto-fixed by the `fix-markdown.ps1` PostToolUse hook. Do not run the linter manually.
 
 Focus on these rules that the auto-fixer cannot enforce:
 

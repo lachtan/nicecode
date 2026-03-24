@@ -133,3 +133,32 @@ def test_pipenv_allowed():
 
 def test_pip_as_part_of_filename_allowed():
     assert run_hook("cat /tmp/pip_backup.txt").returncode == 0
+
+
+# --- Bypass přes compound commands ---
+
+
+def test_uv_then_pip_via_and_blocked():
+    assert run_hook("uv sync && pip install requests").returncode == 2
+
+
+def test_uv_then_pip_via_or_blocked():
+    assert run_hook("uv sync || pip install requests").returncode == 2
+
+
+def test_uv_then_pip_via_semicolon_blocked():
+    assert run_hook("uv sync; pip install requests").returncode == 2
+
+
+def test_uv_then_pip_via_pipe_blocked():
+    assert run_hook("uv sync | pip install requests").returncode == 2
+
+
+def test_malformed_json_input():
+    result = subprocess.run(
+        [sys.executable, str(HOOK)],
+        input="not json",
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0
