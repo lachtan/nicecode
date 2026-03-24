@@ -36,7 +36,9 @@ To install them into your project, run:
 ```
 
 This creates a symlink from `.claude/rules/nicecode/` to the plugin's `rules/` directory.
-After a plugin update, a `SessionStart` hook automatically re-creates the symlink to the new version.
+
+For project-scoped installations, a `SessionStart` hook automatically creates and updates the symlink.
+For user-scoped installations, rules are not installed automatically — run `/install-rules` manually in each project where you want them.
 
 Since the symlink points to an absolute path specific to each user, add it to `.gitignore`:
 
