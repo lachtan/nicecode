@@ -12,6 +12,10 @@ Marketplace (`.claude-plugin/marketplace.json`) → Plugins (`plugins/<name>/.cl
 
 Each plugin is a self-contained bundle. Currently there is one plugin: `core`.
 
+## Documentation
+
+- When plugins change significantly (added, removed, renamed, or their structure changes), check `README.md` and update it to stay in sync.
+
 ## Git
 
 - Do not add `Co-Authored-By` lines to commit messages.
