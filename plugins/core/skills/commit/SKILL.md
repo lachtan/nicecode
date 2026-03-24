@@ -1,7 +1,8 @@
 ---
 name: commit
 description: Use when committing changes to git — provides commit message formatting rules and an interactive commit workflow.
-disable-model-invocation: true
+disable-model-invocation: false
+user-invocable: true
 ---
 
 # Git Commit
@@ -10,8 +11,8 @@ Commit message formatting rules and an interactive commit workflow.
 
 ## Formatting Rules
 
-- **Language:** Czech with diacritics.
-- **Subject line:** first line, max ~100 characters. Concisely describes the essence of the change — choose whether to emphasize *what* changed or *why*, depending on context.
+- **Language:** Czech (with diacritics) or English — choose based on context (existing commit history, language of changes). If unclear, ask the user.
+- **Subject line:** first line, max ~100 characters. Concisely describes the essence of the change — choose whether to emphasize _what_ changed or _why_, depending on context.
 - **Body:** separated from the subject by a blank line, optional. Keep it brief and to the point — only what is not obvious from the diff. Avoid unnecessarily long descriptions.
 - **Free format:** do not use prefixes like `feat:`, `docs:`, `refactor:`.
 - **No co-authorship:** do not add a `Co-Authored-By: ...` line to commit messages unless the user explicitly requests it.

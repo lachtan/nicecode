@@ -2,6 +2,7 @@
 name: explain
 description: Thoroughly examine and analyze a file or module — what it does, how it connects, and how it could break.
 disable-model-invocation: true
+user-invocable: true
 ---
 
 Thoroughly examine and analyze: $ARGUMENTS
