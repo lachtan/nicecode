@@ -5,7 +5,7 @@ disable-model-invocation: true
 
 Run the following command and show its output to the user:
 
-```
+```bash
 bash ${CLAUDE_PLUGIN_ROOT}/scripts/uninstall-rules.sh
 ```
 

@@ -38,6 +38,14 @@ To install them into your project, run:
 This creates a symlink from `.claude/rules/nicecode/` to the plugin's `rules/` directory.
 After a plugin update, a `SessionStart` hook automatically re-creates the symlink to the new version.
 
+Since the symlink points to an absolute path specific to each user, add it to `.gitignore`:
+
+```text
+.claude/rules/nicecode/
+```
+
+The plugin warns you automatically if this entry is missing.
+
 To remove the symlink:
 
 ```
