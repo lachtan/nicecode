@@ -1,75 +1,77 @@
 #!/usr/bin/env python3
 
+import re
+import json
 import os
-import shutil
-import subprocess
 import sys
 from pathlib import Path
+from typing import NoReturn
+
+PLUGIN_NAME = "nicecode"
 
 
-def resolve_rules_dir() -> Path:
-    plugin_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
-    if plugin_root:
-        return Path(plugin_root) / "rules"
-    plugin_dir = Path(__file__).resolve().parent.parent
-    return plugin_dir / "rules"
+def exit_with_error(message: str) -> NoReturn:
+    print(f"Error: {message}", file=sys.stderr)
+    sys.exit(1)
 
 
-def is_already_linked(target: Path, rules_dir: Path) -> bool:
-    return target.is_symlink() and target.resolve() == rules_dir.resolve()
+def validate_dir(path: Path, name: str) -> None:
+    if not path.is_dir():
+        exit_with_error(f"{name} directory does not exist: {path}")
 
 
-def warn_gitignore(project_dir: Path) -> None:
+def resolve_env_dir(var_name: str) -> Path:
+    value = os.environ.get(var_name)
+    if not value:
+        exit_with_error(f"{var_name} environment variable is not set.")
+    directory = Path(value).resolve()
+    validate_dir(directory, var_name)
+    return directory
+
+
+def is_plugin_installed_by_project(project_dir: Path) -> bool:
+    config_file = project_dir / ".claude" / "config.json"
+    if not config_file.is_file():
+        return False
     try:
-        subprocess.run(
-            ["git", "-C", str(project_dir), "rev-parse", "--is-inside-work-tree"],
-            capture_output=True,
-            check=True,
-        )
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return
+        config = json.loads(config_file.read_text())
+    except (json.JSONDecodeError, OSError):
+        return False
+    enabled_plugins = config.get("enabledPlugins", {})
+    return any(key.endswith(f"@{PLUGIN_NAME}") for key in enabled_plugins)
+
+
+def is_rules_in_gitignore(project_dir: Path) -> bool:
     gitignore = project_dir / ".gitignore"
-    if not gitignore.is_file() or ".claude/rules/nicecode" not in gitignore.read_text():
-        print(
-            "Warning: .claude/rules/nicecode/ is not in .gitignore. "
-            "Add it to prevent committing user-specific symlinks."
-        )
+    return gitignore.is_file() and bool(
+        re.search(rf"^\.claude/rules/{PLUGIN_NAME}\b", gitignore.read_text(), re.MULTILINE)
+    )
 
 
-def create_symlink(target: Path, rules_dir: Path) -> None:
-    is_real_dir = target.is_dir() and not target.is_symlink()
-    needs_cleanup = target.exists() or target.is_symlink()
-
-    if is_real_dir:
-        shutil.rmtree(target)
-    elif needs_cleanup:
-        target.unlink()
-
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.symlink_to(rules_dir)
+def link_rules(plugin_rules_dir: Path, project_rules_dir: Path) -> None:
+    if project_rules_dir.is_symlink() and project_rules_dir.resolve() == plugin_rules_dir:
+        return
+    if project_rules_dir.is_symlink():
+        project_rules_dir.unlink()
+    project_rules_dir.parent.mkdir(parents=True, exist_ok=True)
+    project_rules_dir.symlink_to(plugin_rules_dir)
 
 
 def main() -> None:
-    quiet = "--quiet" in sys.argv
-    rules_dir = resolve_rules_dir()
-    project_dir = Path(os.environ.get("CLAUDE_PROJECT_DIR", "."))
-    target = project_dir / ".claude" / "rules" / "nicecode"
+    plugin_root = resolve_env_dir("CLAUDE_PLUGIN_ROOT")
+    project_dir = resolve_env_dir("CLAUDE_PROJECT_DIR")
 
-    if quiet and not os.environ.get("CLAUDE_PLUGIN_ROOT"):
+    if is_rules_in_gitignore(project_dir) or not is_plugin_installed_by_project(project_dir):
         return
 
-    if not rules_dir.is_dir():
-        print(f"Error: Rules directory not found at {rules_dir}", file=sys.stderr)
-        sys.exit(1)
+    project_rules_dir = project_dir / ".claude" / "rules" / PLUGIN_NAME
+    if project_rules_dir.is_dir() and not project_rules_dir.is_symlink():
+        return
 
-    if is_already_linked(target, rules_dir):
-        if not quiet:
-            print(f"Rules already linked to {rules_dir}")
-    else:
-        create_symlink(target, rules_dir)
-        print(f"Linked {target} -> {rules_dir}")
+    plugin_rules_dir = plugin_root / "rules"
+    validate_dir(plugin_rules_dir, "Plugin rules")
 
-    warn_gitignore(project_dir)
+    link_rules(plugin_rules_dir, project_rules_dir)
 
 
 if __name__ == "__main__":
