@@ -29,7 +29,7 @@ def resolve_env_dir(var_name: str) -> Path:
     return directory
 
 
-def is_plugin_installed_by_project(project_dir: Path) -> bool:
+def is_plugin_enabled_in_project(project_dir: Path) -> bool:
     config_file = project_dir / ".claude" / "config.json"
     if not config_file.is_file():
         return False
@@ -38,7 +38,7 @@ def is_plugin_installed_by_project(project_dir: Path) -> bool:
     except (json.JSONDecodeError, OSError):
         return False
     enabled_plugins = config.get("enabledPlugins", {})
-    return any(key.endswith(f"@{PLUGIN_NAME}") for key in enabled_plugins)
+    return any(plugin.endswith(f"@{PLUGIN_NAME}") and enabled for plugin, enabled in enabled_plugins.items())
 
 
 def is_rules_in_gitignore(project_dir: Path) -> bool:
@@ -61,7 +61,7 @@ def main() -> None:
     plugin_root = resolve_env_dir("CLAUDE_PLUGIN_ROOT")
     project_dir = resolve_env_dir("CLAUDE_PROJECT_DIR")
 
-    if is_rules_in_gitignore(project_dir) or not is_plugin_installed_by_project(project_dir):
+    if is_rules_in_gitignore(project_dir) or not is_plugin_enabled_in_project(project_dir):
         return
 
     project_rules_dir = project_dir / ".claude" / "rules" / PLUGIN_NAME
