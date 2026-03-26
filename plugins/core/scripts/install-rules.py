@@ -7,7 +7,10 @@ import sys
 from pathlib import Path
 from typing import NoReturn
 
-PLUGIN_NAME = "nicecode"
+MARKETPLACE = "nicecode"
+PLUGIN = "core"
+FULL_PLUGIN_NAME = f"{PLUGIN}@{MARKETPLACE}"
+RULES_SUBDIR = MARKETPLACE
 
 
 def exit_with_error(message: str) -> NoReturn:
@@ -38,13 +41,13 @@ def is_plugin_enabled_in_project(project_dir: Path) -> bool:
     except (json.JSONDecodeError, OSError):
         return False
     enabled_plugins = config.get("enabledPlugins", {})
-    return any(plugin.endswith(f"@{PLUGIN_NAME}") and enabled for plugin, enabled in enabled_plugins.items())
+    return any(plugin == FULL_PLUGIN_NAME and enabled for plugin, enabled in enabled_plugins.items())
 
 
 def is_rules_in_gitignore(project_dir: Path) -> bool:
     gitignore = project_dir / ".gitignore"
     return gitignore.is_file() and bool(
-        re.search(rf"^\.claude/rules/{PLUGIN_NAME}\b", gitignore.read_text(), re.MULTILINE)
+        re.search(rf"^\.claude/rules/{RULES_SUBDIR}\b", gitignore.read_text(), re.MULTILINE)
     )
 
 
@@ -64,7 +67,7 @@ def main() -> None:
     if is_rules_in_gitignore(project_dir) or not is_plugin_enabled_in_project(project_dir):
         return
 
-    project_rules_dir = project_dir / ".claude" / "rules" / PLUGIN_NAME
+    project_rules_dir = project_dir / ".claude" / "rules" / RULES_SUBDIR
     if project_rules_dir.is_dir() and not project_rules_dir.is_symlink():
         return
 

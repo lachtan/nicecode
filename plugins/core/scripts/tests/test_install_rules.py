@@ -12,6 +12,9 @@ _spec = importlib.util.spec_from_file_location("install_rules", _mod_path)
 install_rules = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(install_rules)
 
+PLUGIN_KEY = "core@nicecode"
+RULES_SUBDIR = "nicecode"
+
 
 # -- helpers ------------------------------------------------------------------
 
@@ -41,15 +44,15 @@ def setup_main_env(monkeypatch, tmp_path: Path) -> tuple[Path, Path]:
 
 class TestIsPluginEnabledInProject:
     def test_enabled(self, tmp_path):
-        write_config(tmp_path, {"https://example.com@nicecode": True})
+        write_config(tmp_path, {PLUGIN_KEY: True})
         assert install_rules.is_plugin_enabled_in_project(tmp_path) is True
 
     def test_disabled(self, tmp_path):
-        write_config(tmp_path, {"https://example.com@nicecode": False})
+        write_config(tmp_path, {PLUGIN_KEY: False})
         assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
 
     def test_plugin_missing(self, tmp_path):
-        write_config(tmp_path, {"https://example.com@otherplugin": True})
+        write_config(tmp_path, {"other@plugin": True})
         assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
 
     def test_no_config_file(self, tmp_path):
@@ -73,7 +76,7 @@ class TestIsPluginEnabledInProject:
 
 class TestIsRulesInGitignore:
     def test_present(self, tmp_path):
-        (tmp_path / ".gitignore").write_text(".claude/rules/nicecode\n")
+        (tmp_path / ".gitignore").write_text(f".claude/rules/{RULES_SUBDIR}\n")
         assert install_rules.is_rules_in_gitignore(tmp_path) is True
 
     def test_absent(self, tmp_path):
@@ -91,7 +94,7 @@ class TestLinkRules:
     def test_creates_symlink(self, tmp_path):
         plugin_rules = tmp_path / "plugin" / "rules"
         plugin_rules.mkdir(parents=True)
-        project_rules = tmp_path / "project" / ".claude" / "rules" / "nicecode"
+        project_rules = tmp_path / "project" / ".claude" / "rules" / RULES_SUBDIR
 
         install_rules.link_rules(plugin_rules, project_rules)
 
@@ -104,7 +107,7 @@ class TestLinkRules:
         old_target = tmp_path / "old"
         old_target.mkdir()
 
-        project_rules = tmp_path / "project" / ".claude" / "rules" / "nicecode"
+        project_rules = tmp_path / "project" / ".claude" / "rules" / RULES_SUBDIR
         project_rules.parent.mkdir(parents=True)
         project_rules.symlink_to(old_target)
 
@@ -116,7 +119,7 @@ class TestLinkRules:
         plugin_rules = tmp_path / "plugin" / "rules"
         plugin_rules.mkdir(parents=True)
 
-        project_rules = tmp_path / "project" / ".claude" / "rules" / "nicecode"
+        project_rules = tmp_path / "project" / ".claude" / "rules" / RULES_SUBDIR
         project_rules.parent.mkdir(parents=True)
         project_rules.symlink_to(plugin_rules)
 
@@ -132,30 +135,30 @@ class TestLinkRules:
 class TestMain:
     def test_creates_symlink(self, tmp_path, monkeypatch):
         plugin_root, project_dir = setup_main_env(monkeypatch, tmp_path)
-        write_config(project_dir, {"https://example.com@nicecode": True})
+        write_config(project_dir, {PLUGIN_KEY: True})
 
         install_rules.main()
 
-        symlink = project_dir / ".claude" / "rules" / "nicecode"
+        symlink = project_dir / ".claude" / "rules" / RULES_SUBDIR
         assert symlink.is_symlink()
         assert symlink.resolve() == (plugin_root / "rules").resolve()
 
     def test_noop_when_plugin_disabled(self, tmp_path, monkeypatch):
         plugin_root, project_dir = setup_main_env(monkeypatch, tmp_path)
-        write_config(project_dir, {"https://example.com@nicecode": False})
+        write_config(project_dir, {PLUGIN_KEY: False})
 
         install_rules.main()
 
-        assert not (project_dir / ".claude" / "rules" / "nicecode").exists()
+        assert not (project_dir / ".claude" / "rules" / RULES_SUBDIR).exists()
 
     def test_noop_when_in_gitignore(self, tmp_path, monkeypatch):
         plugin_root, project_dir = setup_main_env(monkeypatch, tmp_path)
-        write_config(project_dir, {"https://example.com@nicecode": True})
-        (project_dir / ".gitignore").write_text(".claude/rules/nicecode\n")
+        write_config(project_dir, {PLUGIN_KEY: True})
+        (project_dir / ".gitignore").write_text(f".claude/rules/{RULES_SUBDIR}\n")
 
         install_rules.main()
 
-        assert not (project_dir / ".claude" / "rules" / "nicecode").exists()
+        assert not (project_dir / ".claude" / "rules" / RULES_SUBDIR).exists()
 
     def test_exits_when_env_var_missing(self, monkeypatch):
         monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
