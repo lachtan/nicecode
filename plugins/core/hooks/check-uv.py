@@ -28,7 +28,11 @@ def verify(command: str) -> bool:
 
 
 def main():
-    data = json.load(sys.stdin)
+    try:
+        data = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"check-uv: failed to parse stdin: {e}", file=sys.stderr)
+        sys.exit(1)
     command = data.get("tool_input", {}).get("command", "").strip()
     command = " ".join(command.split())
     if re.match(r"^uvx?\s", command) and not re.search(r"[;&|]", command):

@@ -161,4 +161,5 @@ def test_malformed_json_input():
         capture_output=True,
         text=True,
     )
-    assert result.returncode == 0
+    assert result.returncode == 1
+    assert "failed to parse stdin" in result.stderr
