@@ -59,6 +59,15 @@
         ]
       },
       {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/check-bash.sh"
+          }
+        ]
+      },
+      {
         "matcher": "Edit|Write|Bash",
         "hooks": [
           {
