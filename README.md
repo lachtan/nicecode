@@ -1,7 +1,7 @@
 # NiceCode
 
 A collection of best practices for multiple programming languages.
-The primary goal is to provide skills, rules, commands, and hooks that help Claude agents write cleaner, more readable, and simpler code.
+The primary goal is to provide skills, rules, and hooks that help Claude agents write cleaner, more readable, and simpler code.
 Simplicity first.
 
 ## Languages
@@ -29,16 +29,9 @@ claude plugin install core@nicecode --scope=project
 ## Rules
 
 The plugin includes coding rules (clean code, C# style, PowerShell, testing, etc.) that are not loaded automatically by the plugin system.
-To install them into your project, run:
+A `SessionStart` hook automatically creates a symlink from `.claude/rules/nicecode/` to the plugin's `rules/` directory when the plugin is enabled in the project.
 
-```
-/install-rules
-```
-
-This creates a symlink from `.claude/rules/nicecode/` to the plugin's `rules/` directory.
-
-For project-scoped installations, a `SessionStart` hook automatically creates and updates the symlink.
-For user-scoped installations, rules are not installed automatically — run `/install-rules` manually in each project where you want them.
+To manually install or reinstall rules, run `/install-rules`. To remove them, run `/uninstall-rules`.
 
 Since the symlink points to an absolute path specific to each user, add it to `.gitignore`:
 
@@ -47,12 +40,6 @@ Since the symlink points to an absolute path specific to each user, add it to `.
 ```
 
 The plugin warns you automatically if this entry is missing.
-
-To remove the symlink:
-
-```
-/uninstall-rules
-```
 
 ## Documentation
 

@@ -8,7 +8,7 @@ NiceCode is a Claude Code plugin marketplace. The guiding principle is **simplic
 
 ## Architecture
 
-Marketplace (`.claude-plugin/marketplace.json`) → Plugins (`plugins/<name>/.claude-plugin/plugin.json`) → rules, commands, skills.
+Marketplace (`.claude-plugin/marketplace.json`) → Plugins (`plugins/<name>/.claude-plugin/plugin.json`) → rules, skills, hooks.
 
 Each plugin is a self-contained bundle. Currently there is one plugin: `core`.
 
@@ -32,7 +32,7 @@ Hook tests: `pytest plugins/core/hooks/tests/`
 
 ## Documentation
 
-- When plugins change significantly (added, removed, renamed, or their structure changes), check `README.md` and update it to stay in sync.
+- When plugins change significantly (added, removed, renamed, or their structure changes), check `README.md` and update it to stay in sync with the code.
 - [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces) — official docs for marketplace structure.
 - [Plugins](https://code.claude.com/docs/en/plugins) — official docs for plugin creation.
 

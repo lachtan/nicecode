@@ -1,5 +1,7 @@
 ---
+name: install-rules
 description: Install NiceCode coding rules into .claude/rules/nicecode/
+user-invocable: true
 disable-model-invocation: true
 ---
 

@@ -1,5 +1,7 @@
 ---
+name: uninstall-rules
 description: Remove NiceCode coding rules from .claude/rules/nicecode/
+user-invocable: true
 disable-model-invocation: true
 ---
 
