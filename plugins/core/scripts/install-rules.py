@@ -12,7 +12,8 @@ MARKETPLACE = "nicecode"
 PLUGIN = "core"
 FULL_PLUGIN_NAME = f"{PLUGIN}@{MARKETPLACE}"
 RULES_SUBDIR = Path("plugins") / MARKETPLACE / PLUGIN
-DEBUG = bool(os.environ.get("NICECODE_DEBUG"))
+# DEBUG = bool(os.environ.get("NICECODE_DEBUG"))
+DEBUG = True
 LOG_FILE = Path(tempfile.gettempdir()) / "install-rules.log" if DEBUG else None
 
 
@@ -58,7 +59,7 @@ def is_plugin_enabled(config_file: Path) -> bool:
         return False
     enabled_plugins = config.get("enabledPlugins", {})
     plugin_enabled = any(plugin == FULL_PLUGIN_NAME and enabled for plugin, enabled in enabled_plugins.items())
-    log(f"Plugin enabled: {plugin_enabled}")
+    log(f"Plugin enabled: {plugin_enabled} in {config_file}")
     return plugin_enabled
 
 
