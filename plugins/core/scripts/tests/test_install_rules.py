@@ -23,10 +23,11 @@ RULES_SUBDIR = Path("plugins") / "nicecode" / "core"
 # -- helpers ------------------------------------------------------------------
 
 
-def write_config(project_dir: Path, enabled_plugins: dict) -> None:
+def write_config(project_dir: Path, enabled_plugins: dict, *, local: bool = False) -> None:
     config_dir = project_dir / ".claude"
     config_dir.mkdir(parents=True, exist_ok=True)
-    (config_dir / "settings.json").write_text(json.dumps({"enabledPlugins": enabled_plugins}))
+    filename = "settings.local.json" if local else "settings.json"
+    (config_dir / filename).write_text(json.dumps({"enabledPlugins": enabled_plugins}))
 
 
 def setup_main_env(monkeypatch, tmp_path: Path) -> tuple[Path, Path]:
@@ -72,6 +73,20 @@ class TestIsPluginEnabledInProject:
         config_dir = tmp_path / ".claude"
         config_dir.mkdir(parents=True)
         (config_dir / "settings.json").write_text(json.dumps({"other": "data"}))
+        assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
+
+    def test_enabled_in_local_only(self, tmp_path):
+        write_config(tmp_path, {PLUGIN_KEY: True}, local=True)
+        assert install_rules.is_plugin_enabled_in_project(tmp_path) is True
+
+    def test_enabled_in_settings_disabled_in_local(self, tmp_path):
+        write_config(tmp_path, {PLUGIN_KEY: True})
+        write_config(tmp_path, {PLUGIN_KEY: False}, local=True)
+        assert install_rules.is_plugin_enabled_in_project(tmp_path) is True
+
+    def test_disabled_in_both(self, tmp_path):
+        write_config(tmp_path, {PLUGIN_KEY: False})
+        write_config(tmp_path, {PLUGIN_KEY: False}, local=True)
         assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
 
 

@@ -28,7 +28,9 @@ Bump `version` in `.claude-plugin/marketplace.json` on release.
 
 ### Tests
 
-Hook tests: `pytest plugins/core/hooks/tests/`
+Always run tests via `uvx pytest`, never bare `pytest`.
+
+Hook tests: `uvx pytest plugins/core/hooks/tests/`
 
 ## Documentation
 
