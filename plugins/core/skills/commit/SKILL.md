@@ -11,8 +11,8 @@ Commit message formatting rules and an interactive commit workflow.
 
 ## Formatting Rules
 
-- **Language:** Czech (with diacritics) or English — choose based on context (existing commits, documentation, code comments). If unclear, ask the user.
-- **Subject line:** first line, max ~100 characters. Concisely describes the essence of the change — choose whether to emphasize *what* changed or *why*, depending on context.
+- **Language:** Choose based on context of existing commits. If unclear, ask the user.
+- **Subject line:** first line, max ~100 characters. Concisely describes the essence of the change — choose whether to emphasize _what_ changed or _why_, depending on context.
 - **Body:** separated from the subject by a blank line, optional. Keep it brief and to the point — only what is not obvious from the diff. Avoid unnecessarily long descriptions.
 - **Free format:** do not use prefixes like `feat:`, `docs:`, `refactor:`.
 - **No co-authorship:** do not add a `Co-Authored-By: ...` line to commit messages unless the user explicitly requests it.

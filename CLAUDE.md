@@ -39,4 +39,3 @@ Hook tests: `pytest plugins/core/hooks/tests/`
 ## Git
 
 - Do not add `Co-Authored-By` lines to commit messages.
-- Write commit messages in English.
