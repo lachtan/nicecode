@@ -2,6 +2,7 @@
 
 import importlib
 import json
+import os
 import pytest
 from pathlib import Path
 
@@ -11,6 +12,8 @@ _mod_path = Path(__file__).resolve().parent.parent / "install-rules.py"
 _spec = importlib.util.spec_from_file_location("install_rules", _mod_path)
 install_rules = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(install_rules)
+
+install_rules.LOG_FILE = Path(os.devnull)
 
 PLUGIN_KEY = "core@nicecode"
 RULES_SUBDIR = "nicecode"
