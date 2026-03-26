@@ -1,11 +1,3 @@
----
-paths:
-  - "**/*.cs"
-  - "**/*.ps1"
-  - "**/*.psm1"
-  - "**/*.py"
----
-
 # Clean Code Principles
 
 General principles for all languages.
