@@ -13,13 +13,17 @@ MARKETPLACE = "nicecode"
 PLUGIN = "core"
 FULL_PLUGIN_NAME = f"{PLUGIN}@{MARKETPLACE}"
 RULES_SUBDIR = MARKETPLACE
-LOG_FILE = Path(tempfile.gettempdir()) / "install-rules.log"
+DEBUG = bool(os.environ.get("NICECODE_DEBUG"))
+LOG_FILE = Path(tempfile.gettempdir()) / "install-rules.log" if DEBUG else None
 
 
 def log(message: str) -> None:
+    if not DEBUG:
+        return
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     line = f"{stamp} {message}"
     print(line, file=sys.stderr)
+    assert LOG_FILE is not None
     with LOG_FILE.open("a") as file:
         file.write(f"{line}\n")
 

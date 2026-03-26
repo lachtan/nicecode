@@ -13,6 +13,7 @@ _spec = importlib.util.spec_from_file_location("install_rules", _mod_path)
 install_rules = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(install_rules)
 
+install_rules.DEBUG = True
 install_rules.LOG_FILE = Path(os.devnull)
 
 PLUGIN_KEY = "core@nicecode"
