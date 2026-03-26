@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import re
 import json
 import os
 import sys
@@ -64,13 +63,6 @@ def is_plugin_enabled_in_project(project_dir: Path) -> bool:
     return plugin_enabled
 
 
-def is_rules_in_gitignore(project_dir: Path) -> bool:
-    gitignore = project_dir / ".gitignore"
-    return gitignore.is_file() and bool(
-        re.search(rf"^\.claude/rules/{RULES_SUBDIR}\b", gitignore.read_text(), re.MULTILINE)
-    )
-
-
 def link_rules(plugin_rules_dir: Path, project_rules_dir: Path) -> None:
     log(f"Linking {plugin_rules_dir} -> {project_rules_dir}")
     if project_rules_dir.is_symlink() and project_rules_dir.resolve() == plugin_rules_dir:
@@ -88,8 +80,8 @@ def main() -> None:
     plugin_root = resolve_env_dir("CLAUDE_PLUGIN_ROOT")
     project_dir = resolve_env_dir("CLAUDE_PROJECT_DIR")
 
-    if is_rules_in_gitignore(project_dir) or not is_plugin_enabled_in_project(project_dir):
-        log("Skipped: gitignored or plugin not enabled")
+    if not is_plugin_enabled_in_project(project_dir):
+        log("Skipped: plugin not enabled")
         return
 
     project_rules_dir = project_dir / ".claude" / "rules" / RULES_SUBDIR

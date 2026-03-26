@@ -75,22 +75,6 @@ class TestIsPluginEnabledInProject:
         assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
 
 
-# -- is_rules_in_gitignore ----------------------------------------------------
-
-
-class TestIsRulesInGitignore:
-    def test_present(self, tmp_path):
-        (tmp_path / ".gitignore").write_text(f".claude/rules/{RULES_SUBDIR}\n")
-        assert install_rules.is_rules_in_gitignore(tmp_path) is True
-
-    def test_absent(self, tmp_path):
-        (tmp_path / ".gitignore").write_text("node_modules\n")
-        assert install_rules.is_rules_in_gitignore(tmp_path) is False
-
-    def test_no_gitignore(self, tmp_path):
-        assert install_rules.is_rules_in_gitignore(tmp_path) is False
-
-
 # -- link_rules ---------------------------------------------------------------
 
 
@@ -150,15 +134,6 @@ class TestMain:
     def test_noop_when_plugin_disabled(self, tmp_path, monkeypatch):
         plugin_root, project_dir = setup_main_env(monkeypatch, tmp_path)
         write_config(project_dir, {PLUGIN_KEY: False})
-
-        install_rules.main()
-
-        assert not (project_dir / ".claude" / "rules" / RULES_SUBDIR).exists()
-
-    def test_noop_when_in_gitignore(self, tmp_path, monkeypatch):
-        plugin_root, project_dir = setup_main_env(monkeypatch, tmp_path)
-        write_config(project_dir, {PLUGIN_KEY: True})
-        (project_dir / ".gitignore").write_text(f".claude/rules/{RULES_SUBDIR}\n")
 
         install_rules.main()
 
