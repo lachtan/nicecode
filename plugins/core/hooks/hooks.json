@@ -5,7 +5,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/install-rules.py --quiet"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/install-rules.py"
+          }
+        ]
+      }
+    ],
+    "ConfigChange": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/install-rules.py"
           }
         ]
       }
