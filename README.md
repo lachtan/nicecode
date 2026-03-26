@@ -28,18 +28,21 @@ claude plugin install core@nicecode --scope=project
 
 ## Rules
 
-The plugin includes coding rules (clean code, C# style, PowerShell, testing, etc.) that are not loaded automatically by the plugin system.
-A `SessionStart` hook automatically creates a symlink from `.claude/rules/nicecode/` to the plugin's `rules/` directory when the plugin is enabled in the project.
-
-To manually install or reinstall rules, run `/install-rules`. To remove them, run `/uninstall-rules`.
-
-Since the symlink points to an absolute path specific to each user, add it to `.gitignore`:
+The plugin includes coding rules (clean code, C# style, PowerShell, testing, etc.) that the plugin system does not load on its own.
+To work around this, a `SessionStart` hook checks whether the plugin is enabled in the project and automatically creates a symlink.
+When the plugin is disabled, the hook removes the symlink.
 
 ```text
-.claude/rules/nicecode/
+.claude/rules/plugins/nicecode/core  →  <plugin-install-dir>/rules/
 ```
 
-The plugin warns you automatically if this entry is missing.
+This makes Claude Code pick up the rules as if they were local project rules.
+
+Since the symlink target is an absolute path specific to each machine, add it to `.gitignore`:
+
+```text
+.claude/rules/plugins/
+```
 
 ## Documentation
 

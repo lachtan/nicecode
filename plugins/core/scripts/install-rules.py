@@ -80,11 +80,16 @@ def main() -> None:
     plugin_root = resolve_env_dir("CLAUDE_PLUGIN_ROOT")
     project_dir = resolve_env_dir("CLAUDE_PROJECT_DIR")
 
+    project_rules_dir = project_dir / ".claude" / "rules" / RULES_SUBDIR
+
     if not is_plugin_enabled_in_project(project_dir):
-        log("Skipped: plugin not enabled")
+        if project_rules_dir.is_symlink():
+            log(f"Plugin disabled, removing symlink: {project_rules_dir}")
+            project_rules_dir.unlink(missing_ok=True)
+        else:
+            log("Skipped: plugin not enabled")
         return
 
-    project_rules_dir = project_dir / ".claude" / "rules" / RULES_SUBDIR
     if project_rules_dir.is_dir() and not project_rules_dir.is_symlink():
         log(f"Skipped: {project_rules_dir} is a real directory")
         return
