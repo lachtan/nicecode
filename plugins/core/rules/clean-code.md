@@ -10,6 +10,14 @@ paths:
 
 General principles for all languages.
 
+## Design
+
+- Write simple, obvious code — a junior developer must understand it at first read.
+- Fewer functions, types, and abstractions — add only when they clearly reduce complexity.
+- Reuse existing code before adding new.
+- Follow existing patterns in the codebase — consistency beats local perfection.
+- Remove dead code immediately.
+
 ## Naming
 
 - Names must reveal intent — a reader should understand purpose without reading the body.
