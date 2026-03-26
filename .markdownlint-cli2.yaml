@@ -15,6 +15,9 @@ config:
   # MD033/no-inline-html: V textu se vyskytují C# generické typy (<TLogType>),
   # HTML tabulky v NRT.md a další legitimní HTML
   MD033: false
+  # MD040/fenced-code-language: U běžného textu (výstupy, slash příkazy) je
+  # language identifier zbytečný
+  MD040: false
   # MD060/table-column-style: Příliš striktní formátování tabulek
   MD060: false
 

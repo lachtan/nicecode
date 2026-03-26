@@ -14,7 +14,7 @@ Simplicity first.
 
 ## Installation
 
-```text
+```
 /plugin marketplace add lachtan/nicecode
 /plugin install core@nicecode
 ```
