@@ -11,7 +11,7 @@ from typing import NoReturn
 MARKETPLACE = "nicecode"
 PLUGIN = "core"
 FULL_PLUGIN_NAME = f"{PLUGIN}@{MARKETPLACE}"
-RULES_SUBDIR = MARKETPLACE
+RULES_SUBDIR = Path("plugins") / MARKETPLACE / PLUGIN
 DEBUG = bool(os.environ.get("NICECODE_DEBUG"))
 LOG_FILE = Path(tempfile.gettempdir()) / "install-rules.log" if DEBUG else None
 

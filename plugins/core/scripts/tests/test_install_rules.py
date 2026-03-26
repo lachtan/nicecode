@@ -17,7 +17,7 @@ install_rules.DEBUG = True
 install_rules.LOG_FILE = Path(os.devnull)
 
 PLUGIN_KEY = "core@nicecode"
-RULES_SUBDIR = "nicecode"
+RULES_SUBDIR = Path("plugins") / "nicecode" / "core"
 
 
 # -- helpers ------------------------------------------------------------------

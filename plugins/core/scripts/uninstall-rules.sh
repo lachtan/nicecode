@@ -2,7 +2,7 @@
 set -euo pipefail
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
-TARGET_DIR="$PROJECT_DIR/.claude/rules/nicecode"
+TARGET_DIR="$PROJECT_DIR/.claude/rules/plugins/nicecode/core"
 
 if [ -L "$TARGET_DIR" ]; then
     rm "$TARGET_DIR"
