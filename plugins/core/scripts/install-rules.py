@@ -4,6 +4,7 @@ import re
 import json
 import os
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import NoReturn
@@ -12,7 +13,7 @@ MARKETPLACE = "nicecode"
 PLUGIN = "core"
 FULL_PLUGIN_NAME = f"{PLUGIN}@{MARKETPLACE}"
 RULES_SUBDIR = MARKETPLACE
-LOG_FILE = Path("/tmp/install-rules.log")
+LOG_FILE = Path(tempfile.gettempdir()) / "install-rules.log"
 
 
 def log(message: str) -> None:
@@ -44,7 +45,7 @@ def resolve_env_dir(var_name: str) -> Path:
 
 
 def is_plugin_enabled_in_project(project_dir: Path) -> bool:
-    config_file = project_dir / ".claude" / "config.json"
+    config_file = project_dir / ".claude" / "settings.json"
     if not config_file.is_file():
         log(f"Config not found: {config_file}")
         return False

@@ -25,7 +25,7 @@ RULES_SUBDIR = "nicecode"
 def write_config(project_dir: Path, enabled_plugins: dict) -> None:
     config_dir = project_dir / ".claude"
     config_dir.mkdir(parents=True, exist_ok=True)
-    (config_dir / "config.json").write_text(json.dumps({"enabledPlugins": enabled_plugins}))
+    (config_dir / "settings.json").write_text(json.dumps({"enabledPlugins": enabled_plugins}))
 
 
 def setup_main_env(monkeypatch, tmp_path: Path) -> tuple[Path, Path]:
@@ -64,13 +64,13 @@ class TestIsPluginEnabledInProject:
     def test_malformed_json(self, tmp_path):
         config_dir = tmp_path / ".claude"
         config_dir.mkdir(parents=True)
-        (config_dir / "config.json").write_text("{bad json")
+        (config_dir / "settings.json").write_text("{bad json")
         assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
 
     def test_missing_enabled_plugins_key(self, tmp_path):
         config_dir = tmp_path / ".claude"
         config_dir.mkdir(parents=True)
-        (config_dir / "config.json").write_text(json.dumps({"other": "data"}))
+        (config_dir / "settings.json").write_text(json.dumps({"other": "data"}))
         assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
 
 
