@@ -29,6 +29,11 @@ paths:
 - Construct proper `[System.Management.Automation.ErrorRecord]` with category, target, and exception.
 - Use `[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]` for destructive operations; call `$PSCmdlet.ShouldProcess()` before making changes.
 
+## Numeric Literals
+
+- PowerShell natively supports binary multiplier suffixes: `1KB` → 1024, `1MB` → 1048576, `1GB`, `1TB`, `1PB`. Use them directly instead of manual multiplication.
+- The `0B` (zero bytes) suffix does **not** work — there is no `B` multiplier. Use plain `0` instead.
+
 ## Style
 
 - No `Read-Host` — accept all input via parameters for automation support.
