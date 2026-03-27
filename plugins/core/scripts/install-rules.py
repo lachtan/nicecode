@@ -47,25 +47,29 @@ def resolve_env_dir(var_name: str) -> Path:
     return directory
 
 
-def is_plugin_enabled(config_file: Path) -> bool:
+def is_plugin_disabled(config_file: Path) -> bool:
     try:
         config = json.loads(config_file.read_text())
-    except FileNotFoundError:
-        log(f"Config not found: {config_file}")
-        return False
     except (json.JSONDecodeError, OSError):
         log(f"Config parse error: {config_file}")
         return False
-    enabled_plugins = config.get("enabledPlugins", {})
-    plugin_enabled = any(plugin == FULL_PLUGIN_NAME and enabled for plugin, enabled in enabled_plugins.items())
-    log(f"Plugin enabled: {plugin_enabled} in {config_file}")
-    return plugin_enabled
+    plugins = config.get("enabledPlugins", {})
+    is_enabled = any(name == FULL_PLUGIN_NAME and value for name, value in plugins.items())
+    disabled = not is_enabled
+    log(f"Plugin disabled: {disabled} in {config_file}")
+    return disabled
 
 
-def is_plugin_enabled_in_project(project_dir: Path) -> bool:
+def is_plugin_disabled_in_project(project_dir: Path) -> bool:
     claude_dir = project_dir / ".claude"
     config_files = [claude_dir / "settings.json", claude_dir / "settings.local.json"]
-    return any(is_plugin_enabled(config_file) for config_file in config_files)
+    existing = [file for file in config_files if file.exists()]
+    if not existing:
+        log("No config files found, plugin not explicitly disabled")
+        return False
+    disabled = all(is_plugin_disabled(file) for file in existing)
+    log(f"Plugin disabled in project: {disabled}")
+    return disabled
 
 
 def link_rules(plugin_rules_dir: Path, project_rules_dir: Path) -> None:
@@ -87,12 +91,10 @@ def main() -> None:
 
     project_rules_dir = project_dir / ".claude" / "rules" / RULES_SUBDIR
 
-    if not is_plugin_enabled_in_project(project_dir):
+    if is_plugin_disabled_in_project(project_dir):
         if project_rules_dir.is_symlink():
             log(f"Plugin disabled, removing symlink: {project_rules_dir}")
             project_rules_dir.unlink(missing_ok=True)
-        else:
-            log("Skipped: plugin not enabled")
         return
 
     if project_rules_dir.is_dir() and not project_rules_dir.is_symlink():
@@ -101,7 +103,6 @@ def main() -> None:
 
     plugin_rules_dir = plugin_root / "rules"
     validate_dir(plugin_rules_dir, "Plugin rules")
-
     link_rules(plugin_rules_dir, project_rules_dir)
 
 

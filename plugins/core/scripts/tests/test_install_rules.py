@@ -44,50 +44,54 @@ def setup_main_env(monkeypatch, tmp_path: Path) -> tuple[Path, Path]:
     return plugin_root, project_dir
 
 
-# -- is_plugin_enabled_in_project ---------------------------------------------
+# -- is_plugin_disabled_in_project --------------------------------------------
 
 
-class TestIsPluginEnabledInProject:
-    def test_enabled(self, tmp_path):
-        write_config(tmp_path, {PLUGIN_KEY: True})
-        assert install_rules.is_plugin_enabled_in_project(tmp_path) is True
-
-    def test_disabled(self, tmp_path):
+class TestIsPluginDisabledInProject:
+    def test_disabled_in_settings(self, tmp_path):
         write_config(tmp_path, {PLUGIN_KEY: False})
-        assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is True
 
-    def test_plugin_missing(self, tmp_path):
+    def test_enabled_in_settings(self, tmp_path):
+        write_config(tmp_path, {PLUGIN_KEY: True})
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is False
+
+    def test_plugin_missing_from_config(self, tmp_path):
         write_config(tmp_path, {"other@plugin": True})
-        assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is True
 
-    def test_no_config_file(self, tmp_path):
-        assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
+    def test_no_config_files(self, tmp_path):
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is False
 
     def test_malformed_json(self, tmp_path):
         config_dir = tmp_path / ".claude"
         config_dir.mkdir(parents=True)
         (config_dir / "settings.json").write_text("{bad json")
-        assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is False
 
     def test_missing_enabled_plugins_key(self, tmp_path):
         config_dir = tmp_path / ".claude"
         config_dir.mkdir(parents=True)
         (config_dir / "settings.json").write_text(json.dumps({"other": "data"}))
-        assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is True
 
     def test_enabled_in_local_only(self, tmp_path):
         write_config(tmp_path, {PLUGIN_KEY: True}, local=True)
-        assert install_rules.is_plugin_enabled_in_project(tmp_path) is True
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is False
 
     def test_enabled_in_settings_disabled_in_local(self, tmp_path):
         write_config(tmp_path, {PLUGIN_KEY: True})
         write_config(tmp_path, {PLUGIN_KEY: False}, local=True)
-        assert install_rules.is_plugin_enabled_in_project(tmp_path) is True
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is False
+
+    def test_disabled_in_settings_local_missing(self, tmp_path):
+        write_config(tmp_path, {PLUGIN_KEY: False})
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is True
 
     def test_disabled_in_both(self, tmp_path):
         write_config(tmp_path, {PLUGIN_KEY: False})
         write_config(tmp_path, {PLUGIN_KEY: False}, local=True)
-        assert install_rules.is_plugin_enabled_in_project(tmp_path) is False
+        assert install_rules.is_plugin_disabled_in_project(tmp_path) is True
 
 
 # -- link_rules ---------------------------------------------------------------
@@ -138,7 +142,6 @@ class TestLinkRules:
 class TestMain:
     def test_creates_symlink(self, tmp_path, monkeypatch):
         plugin_root, project_dir = setup_main_env(monkeypatch, tmp_path)
-        write_config(project_dir, {PLUGIN_KEY: True})
 
         install_rules.main()
 
@@ -146,13 +149,37 @@ class TestMain:
         assert symlink.is_symlink()
         assert symlink.resolve() == (plugin_root / "rules").resolve()
 
-    def test_noop_when_plugin_disabled(self, tmp_path, monkeypatch):
+    def test_removes_symlink_when_disabled(self, tmp_path, monkeypatch):
+        plugin_root, project_dir = setup_main_env(monkeypatch, tmp_path)
+        write_config(project_dir, {PLUGIN_KEY: False})
+
+        symlink = project_dir / ".claude" / "rules" / RULES_SUBDIR
+        symlink.parent.mkdir(parents=True)
+        symlink.symlink_to(plugin_root / "rules")
+
+        install_rules.main()
+
+        assert not symlink.exists()
+        assert not symlink.is_symlink()
+
+    def test_noop_when_disabled_no_symlink(self, tmp_path, monkeypatch):
         plugin_root, project_dir = setup_main_env(monkeypatch, tmp_path)
         write_config(project_dir, {PLUGIN_KEY: False})
 
         install_rules.main()
 
         assert not (project_dir / ".claude" / "rules" / RULES_SUBDIR).exists()
+
+    def test_skips_real_directory(self, tmp_path, monkeypatch):
+        plugin_root, project_dir = setup_main_env(monkeypatch, tmp_path)
+
+        real_dir = project_dir / ".claude" / "rules" / RULES_SUBDIR
+        real_dir.mkdir(parents=True)
+
+        install_rules.main()
+
+        assert real_dir.is_dir()
+        assert not real_dir.is_symlink()
 
     def test_exits_when_env_var_missing(self, monkeypatch):
         monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)

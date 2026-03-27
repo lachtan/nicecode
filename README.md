@@ -1,16 +1,10 @@
 # NiceCode
 
-A collection of best practices for multiple programming languages.
-The primary goal is to provide skills, rules, and hooks that help Claude agents write cleaner, more readable, and simpler code.
-Simplicity first.
+Best practices for writing clean, readable, and simple code with Claude Code. Simplicity first.
 
 ## Languages
 
-- C#
-- F#
-- Rust
-- Python
-- Bash
+C#, PowerShell, Python, Bash, Rust
 
 ## Installation
 
@@ -28,23 +22,27 @@ claude plugin install core@nicecode --scope=project
 
 ## Rules
 
-The plugin includes coding rules (clean code, C# style, PowerShell, testing, etc.) that the plugin system does not load on its own.
-To work around this, a `SessionStart` hook checks whether the plugin is enabled in the project and automatically creates a symlink.
-When the plugin is disabled, the hook removes the symlink.
+The plugin system does not load plugin rules automatically. A `SessionStart` hook creates a symlink so Claude Code picks them up as local project rules:
 
-```text
-.claude/rules/plugins/nicecode/core  →  <plugin-install-dir>/rules/
+```
+.claude/rules/plugins/nicecode/core  ->  <plugin-install-dir>/rules/
 ```
 
-This makes Claude Code pick up the rules as if they were local project rules.
+A `ConfigChange` hook handles the reverse: when the plugin is explicitly disabled in project settings, it removes the symlink.
 
-Since the symlink target is an absolute path specific to each machine, add it to `.gitignore`:
+**Known limitation:** When the plugin is uninstalled (not just disabled), the symlink becomes broken but is not actively cleaned up. Broken symlinks are harmless (Claude Code cannot load rules from a nonexistent target) but remain on disk until manually removed.
 
-```text
+The symlink target is an absolute path specific to each machine. Add it to `.gitignore`:
+
+```
 .claude/rules/plugins/
 ```
 
+## Troubleshooting
+
+Set `NICECODE_DEBUG=1` to enable logging. The log is written to `$TMPDIR/install-rules.log`.
+
 ## Documentation
 
-- [Create and distribute a plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces)
-- [Create plugins](https://code.claude.com/docs/en/plugins)
+- [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
+- [Plugins](https://code.claude.com/docs/en/plugins)
