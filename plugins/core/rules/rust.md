@@ -60,6 +60,7 @@ Always propagate errors with `?` or handle explicitly. Change `()` return types 
 ### Imports
 
 Order `use` statements separated by blank lines:
+
 1. `std` / `core` / `alloc`
 2. External crates
 3. Local modules (`crate::`, `super::`, `self::`)
@@ -69,6 +70,7 @@ Never use glob imports (`use module::*`).
 ### File Organization
 
 Top-to-bottom order:
+
 1. Module documentation (`//!`)
 2. `use` imports
 3. Constants and type aliases

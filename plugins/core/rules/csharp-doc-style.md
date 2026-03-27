@@ -5,8 +5,8 @@ paths:
 
 # C# Documentation Best Practices
 
-- Public members should be documented with XML comments.
-- It is encouraged to document internal members as well, especially if they are complex or not self-explanatory.
+- Add XML comments to public members only when they provide meaningful value beyond the signature — do not restate what is already obvious from the name, type, and parameters.
+- Internal members: document only when the logic is complex or the intent is not self-explanatory.
 
 ## Guidance for all APIs
 

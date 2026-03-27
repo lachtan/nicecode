@@ -22,7 +22,7 @@ General principles for all languages.
 
 - A function must do exactly one thing at one level of abstraction.
 - Prefer low number of parameters (0–3).
-- Do not use boolean flag arguments — split into two well-named functions or use enum.
+- Prefer to avoid boolean flag arguments — consider splitting into two well-named functions or using an enum.
 - Do not use output parameters; return a value instead.
 - Keep functions short; extract logic into well-named helpers.
 - Command-Query Separation: a function that queries state should not change it.
@@ -46,7 +46,6 @@ General principles for all languages.
 - Replace magic numbers and strings with named constants or enums.
 - KISS: choose the simplest solution that works; complexity is a cost.
 - Principle of Least Surprise: code should behave the way a reader expects.
-- Defensive programming belongs only at system boundaries (user input, external APIs).
 
 ## Error Handling
 
