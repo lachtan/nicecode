@@ -42,6 +42,10 @@ The symlink target is an absolute path specific to each machine. Add it to `.git
 
 Set `NICECODE_DEBUG=1` to enable logging. The log is written to `$TMPDIR/install-rules.log`.
 
+## Philosophy
+
+The guiding principle is simplicity first, inspired by [Code Simplicity](https://www.amazon.com/dp/1449313892) by Max Kanat-Alexander: the most important property of software is simplicity, and complexity is the root cause of most bugs and maintenance cost.
+
 ## Documentation
 
 - [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
