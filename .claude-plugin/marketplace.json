@@ -12,6 +12,12 @@
       "source": "./plugins/core",
       "description": "Core coding best practices — skills and rules for cleaner code",
       "version": "1.0.20"
+    },
+    {
+      "name": "gstack",
+      "source": "./plugins/gstack",
+      "description": "Product thinking and engineering review skills — distilled from gstack",
+      "version": "0.1.0"
     }
   ]
 }
