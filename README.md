@@ -38,16 +38,6 @@ The symlink target is an absolute path specific to each machine. Add it to `.git
 .claude/rules/plugins/
 ```
 
-## gstack plugin (experimental)
-
-A distillation of selected skills from [garrytan/gstack](https://github.com/garrytan/gstack) — stripped of bash scripts, telemetry, and branding, keeping only the core methodology.
-
-```
-/plugin install gstack@nicecode
-```
-
-To update existing skills or add new ones from upstream gstack, run `/distill`.
-
 ## Troubleshooting
 
 Set `NICECODE_DEBUG=1` to enable logging. The log is written to `$TMPDIR/install-rules.log`.
