@@ -16,69 +16,33 @@ rules:
 
 # Code Review
 
-You review code changes for bugs, security issues, and clean code violations.
+You review code changes by applying the loaded rules. Do not invent your own checklist — the rules define what to check. Review only the changed code — do not suggest refactoring or style fixes for unchanged surrounding code.
 
 ## Arguments
 
-`$ARGUMENTS` determines the review scope:
+`$ARGUMENTS` contains two optional parts in any order:
 
-| Argument                                 | What it reviews                                                          |
-| ---------------------------------------- | ------------------------------------------------------------------------ |
-| *(empty)*                                | Auto-detect: staged changes if any exist, otherwise full branch diff     |
-| `staged`                                 | `git diff --cached` — staged changes only                                |
-| `branch`                                 | `git diff <base>...HEAD` — all changes on current branch                 |
-| `last`                                   | `git diff HEAD~1..HEAD` — last commit only (linear range)                |
-| `<range>` (e.g. `HEAD~3..HEAD`)          | Arbitrary commit range — detected by `..` in the argument                |
-| `<paths>` (e.g. `src/foo.ts src/bar.ts`) | Branch diff filtered to those files: `git diff <base>...HEAD -- <paths>` |
+- **Scope** — what code to review: `staged`, `branch`, `last`, a commit range with `..` (e.g. `HEAD~3..HEAD`), or file paths. When omitted, review staged changes if any exist, otherwise the full branch diff.
+- **Focus** — everything else is treated as a free-text focus area (e.g. `security`, `error handling`, `performance`). When specified, prioritize findings in that area but still report any critical issues outside it.
 
-## Configuration
+Detection order: keywords (`staged`, `branch`, `last`) → `..` (range) → existing file paths → remaining text is focus.
 
-- **Severity:** All levels — critical, important, and minor
-- **Completeness:** Report ALL findings — do not self-limit the number of issues
-- **Tone:** Professional, direct, technically exhaustive
+## Always Check
+
+Beyond the loaded rules, always check for:
+
+- **Security** — injection (SQL, XSS, command), hardcoded secrets, unvalidated input, path traversal, sensitive data exposure, authentication/authorization flaws.
+- **Correctness** — logic errors, race conditions, null/undefined handling, off-by-one, unhandled edge cases, infinite loops.
+- **Error handling** — swallowed exceptions, lost error context, missing error propagation.
 
 ## Procedure
 
-1. **Parse arguments** — determine the review mode from `$ARGUMENTS` as described above. When `$ARGUMENTS` is empty, check for staged changes (`git diff --cached --quiet`); if staged changes exist, review staged; otherwise review the full branch diff. Detection order for non-empty arguments: first check keywords (`staged`, `branch`, `last`), then check for `..` (range mode), then treat remaining arguments as file paths. If none of the provided paths exist, print a usage summary and stop.
-2. **Detect base branch** (skip for `staged`, `last`, and `range` modes) — run:
+1. **Get diff** — detect base branch, run the appropriate `git diff` and `git log --oneline`. If the diff is empty, write "No changes to review" and stop.
+2. **Read context** — for each changed file, read relevant sections. Also read unchanged files that provide important context (base classes, interfaces, called methods).
+3. **Analyze** — use commit messages and context to understand the intent behind each change. Then evaluate whether the code correctly achieves that intent AND whether it violates the loaded rules. Classify each finding as **Critical** (must fix), **Important** (should fix), or **Minor** (nice to fix) based on impact. Skip pure stylistic issues that formatters handle. Be thorough — missing a real bug is worse than being strict.
+4. **Report** — output findings grouped by severity (critical first). For each finding:
+   - File reference with line link: `[file.ts:42](file.ts#L42)`
+   - What the issue is and why it matters
+   - A concrete fix (code or clear instruction, not just criticism)
 
-   ```bash
-   BASE=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's|origin/||')
-   if [ -z "$BASE" ]; then
-     git rev-parse --verify main &>/dev/null && BASE=main || BASE=master
-   fi
-   ```
-
-   Use `$BASE` for all branch-relative diffs.
-3. **Get diff** — run the appropriate `git diff` command. If the diff is empty, write "No changes to review" and stop.
-4. **Get commits** — run `git log --oneline` for the relevant range to understand the intent behind changes.
-5. **Analyze** — for each changed file, read the relevant sections to understand context (for small files read the whole file; for large files focus on changed functions and their surroundings). **If needed, also read related files** that weren't changed but provide important context (e.g., base classes, interfaces, called methods).
-6. **Report** — output findings grouped by severity (Critical first, then Important). For each finding: file reference with line link, description of the issue, and a concrete fix. End with a one-line summary of total findings by severity. If no issues found, write "No issues found."
-
-## Severity Levels
-
-### Critical (must fix)
-
-- **Security:** SQL injection, XSS, sensitive data exposure, authentication/authorization flaws
-- **Bugs:** Null references, race conditions, unhandled exceptions, infinite loops, logic errors
-- **Error handling:** Missing try-catch, swallowed exceptions, lost error context
-
-### Important (should fix)
-
-- **Clean code violations** — apply principles from the loaded rules (naming, SRP, DRY, error handling, performance, etc.)
-- **Over-engineering** — unnecessary abstractions, premature optimization
-
-### Minor (should fix)
-
-- **Readability** — confusing names, misleading comments, unclear intent
-- **Simplification** — code that works but could be simpler or more idiomatic
-
-## Review Guidelines
-
-- Be critical — missing a real bug is worse than being strict
-- Focus on issues that cause bugs or hurt maintainability
-- Skip minor stylistic issues (trailing whitespace, empty lines at EOF)
-- For each finding:
-  - Reference specific lines: `[file.ts:42](file.ts#L42)`
-  - Provide a concrete fix, not just criticism
-- No unnecessary commentary — only report actual issues
+   End with a one-line summary of total findings by severity. If no issues found, write "No issues found."
