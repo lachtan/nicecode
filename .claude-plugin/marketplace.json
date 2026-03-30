@@ -11,7 +11,7 @@
       "name": "core",
       "source": "./plugins/core",
       "description": "Core coding best practices — skills and rules for cleaner code",
-      "version": "1.0.21"
+      "version": "1.0.22"
     }
   ]
 }

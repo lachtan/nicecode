@@ -39,8 +39,8 @@ You review code changes for bugs, security issues, and clean code violations.
 
 ## Procedure
 
-1. **Parse arguments** — determine the review mode from `$ARGUMENTS` as described above. When `$ARGUMENTS` is empty, check for staged changes (`git diff --cached --quiet`); if staged changes exist, review staged; otherwise review the full branch diff. If `$ARGUMENTS` is non-empty and does not match any recognized pattern (`staged`, `branch`, `last`, contains `..`, or looks like file paths), print a usage summary and stop.
-2. **Detect base branch** (skip for `staged` and `last` modes) — run:
+1. **Parse arguments** — determine the review mode from `$ARGUMENTS` as described above. When `$ARGUMENTS` is empty, check for staged changes (`git diff --cached --quiet`); if staged changes exist, review staged; otherwise review the full branch diff. Detection order for non-empty arguments: first check keywords (`staged`, `branch`, `last`), then check for `..` (range mode), then treat remaining arguments as file paths. If none of the provided paths exist, print a usage summary and stop.
+2. **Detect base branch** (skip for `staged`, `last`, and `range` modes) — run:
 
    ```bash
    BASE=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's|origin/||')
