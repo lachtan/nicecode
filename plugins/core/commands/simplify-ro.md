@@ -1,1 +1,1 @@
-/simplify Don't change anything! Fust show what you found. $ARGUMENTS
+/simplify Don't change anything! Just show what you found. $ARGUMENTS
