@@ -1,0 +1,7 @@
+{
+  "name": "memory",
+  "description": "Session memory — track bugs, gotchas, and decisions across sessions",
+  "author": {
+    "name": "lachtan"
+  }
+}

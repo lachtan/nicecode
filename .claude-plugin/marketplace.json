@@ -12,6 +12,12 @@
       "source": "./plugins/core",
       "description": "Core coding best practices — skills and rules for cleaner code",
       "version": "1.0.23"
+    },
+    {
+      "name": "memory",
+      "source": "./plugins/memory",
+      "description": "Session memory — track bugs, gotchas, and decisions across sessions",
+      "version": "1.0.0"
     }
   ]
 }

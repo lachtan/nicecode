@@ -38,6 +38,13 @@ Hook tests: `uvx pytest plugins/core/hooks/tests/`
 - [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces) — official docs for marketplace structure.
 - [Plugins](https://code.claude.com/docs/en/plugins) — official docs for plugin creation.
 
+## Problem Logging
+
+When you identify or resolve a bug, config issue, or make a significant
+architectural decision, update the appropriate log file.
+Before investigating any issue, check existing logs for prior solutions.
+Format, file routing, and lookup rules: @.claude/skills/problem-log/SKILL.md
+
 ## Git
 
 - Do not add `Co-Authored-By` lines to commit messages.

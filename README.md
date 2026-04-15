@@ -6,11 +6,19 @@ Best practices for writing clean, readable, and simple code with Claude Code. Si
 
 C#, PowerShell, Python, Bash, Rust
 
+## Plugins
+
+| Plugin   | Description                                                         |
+| -------- | ------------------------------------------------------------------- |
+| `core`   | Coding best practices — skills and rules for cleaner code           |
+| `memory` | Session memory — track bugs, gotchas, and decisions across sessions |
+
 ## Installation
 
 ```
 /plugin marketplace add lachtan/nicecode
 /plugin install core@nicecode
+/plugin install memory@nicecode
 ```
 
 Per project:
@@ -18,6 +26,7 @@ Per project:
 ```bash
 claude plugin marketplace add lachtan/nicecode --scope=project
 claude plugin install core@nicecode --scope=project
+claude plugin install memory@nicecode --scope=project
 ```
 
 ## Rules
