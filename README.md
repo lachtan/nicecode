@@ -20,6 +20,10 @@ claude plugin marketplace add lachtan/nicecode --scope=project
 claude plugin install core@nicecode --scope=project
 ```
 
+## Plugins
+
+- [core](plugins/core/README.md) — coding best practices: agents, commands, hooks, rules, and skills.
+
 ## Rules
 
 The plugin system does not load plugin rules automatically. A `SessionStart` hook creates a symlink so Claude Code picks them up as local project rules:
