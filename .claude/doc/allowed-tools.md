@@ -1,68 +1,68 @@
-# Claude Code — seznam tools
+# Claude Code — tool list
 
-Použitelné v `allowed-tools` frontmatteru slash commandů a v `permissions` v `settings.json`.
+Usable in the `allowed-tools` frontmatter of slash commands and in `permissions` in `settings.json`.
 
-## Základní tools
+## Core tools
 
-| Tool | Popis | Scoping |
+| Tool | Description | Scoping |
 |---|---|---|
-| `Read` | Čtení souborů | `Read(src/**)` |
-| `Write` | Vytvoření / přepis souboru | `Write(docs/**)` |
-| `Edit` | Cílené úpravy souboru | `Edit(src/**/*.ts)` |
-| `Glob` | Hledání souborů podle vzoru | — |
-| `Grep` | Hledání v obsahu | — |
-| `Bash` | Spustí shell příkaz | `Bash(git diff:*)`, `Bash(npm run *)` |
-| `WebFetch` | Stažení obsahu z URL | `WebFetch(domain:example.com)` |
-| `WebSearch` | Webové vyhledávání | — |
+| `Read` | Read files | `Read(src/**)` |
+| `Write` | Create / overwrite file | `Write(docs/**)` |
+| `Edit` | Targeted file edits | `Edit(src/**/*.ts)` |
+| `Glob` | Find files by pattern | — |
+| `Grep` | Search file contents | — |
+| `Bash` | Run a shell command | `Bash(git diff:*)`, `Bash(npm run *)` |
+| `WebFetch` | Fetch content from a URL | `WebFetch(domain:example.com)` |
+| `WebSearch` | Web search | — |
 
-## Ostatní tools
+## Other tools
 
-| Tool | Popis | Scoping |
+| Tool | Description | Scoping |
 |---|---|---|
-| `Agent` | Spustí subagenta | `Agent(Explore)`, `Agent(custom-name)` |
-| `SendMessage` | Zpráva teammate / pokračování subagenta | — |
-| `AskUserQuestion` | Zeptá se uživatele (multiple-choice) | — |
-| `TeamCreate` | Vytvoření agent týmu | — |
-| `TeamDelete` | Zrušení agent týmu | — |
+| `Agent` | Run a subagent | `Agent(Explore)`, `Agent(custom-name)` |
+| `SendMessage` | Message a teammate / resume a subagent | — |
+| `AskUserQuestion` | Ask the user (multiple-choice) | — |
+| `TeamCreate` | Create an agent team | — |
+| `TeamDelete` | Delete an agent team | — |
 | `TodoWrite` | Session TODO checklist | — |
-| `TaskCreate` | Vytvoření úkolu v task listu | — |
-| `TaskGet` | Detail konkrétního úkolu | — |
-| `TaskList` | Výpis všech úkolů | — |
-| `TaskUpdate` | Změna statusu / závislostí / smazání úkolu | — |
-| `TaskStop` | Zastavení běžícího background úkolu | — |
-| `TaskOutput` | (Deprecated) Výstup z background úkolu | — |
-| `CronCreate` | Naplánování opakovaného promptu | — |
-| `CronDelete` | Zrušení naplánovaného úkolu | — |
-| `CronList` | Výpis naplánovaných úkolů | — |
-| `EnterPlanMode` | Přepnutí do plan mode | — |
-| `ExitPlanMode` | Opuštění plan mode | — |
-| `EnterWorktree` | Vytvoření git worktree a přepnutí do něj | — |
-| `ExitWorktree` | Opuštění worktree a návrat | — |
-| `Monitor` | Background příkaz s průběžným výstupem | `Monitor(…)` stejně jako Bash |
-| `PowerShell` | Spuštění PowerShell příkazu | `PowerShell(npm run *)` |
-| `NotebookEdit` | Úpravy Jupyter notebooku | `NotebookEdit(/path/*.ipynb)` |
+| `TaskCreate` | Create a task in the task list | — |
+| `TaskGet` | Get details of a specific task | — |
+| `TaskList` | List all tasks | — |
+| `TaskUpdate` | Change status / dependencies / delete a task | — |
+| `TaskStop` | Stop a running background task | — |
+| `TaskOutput` | (Deprecated) Output from a background task | — |
+| `CronCreate` | Schedule a recurring prompt | — |
+| `CronDelete` | Remove a scheduled task | — |
+| `CronList` | List scheduled tasks | — |
+| `EnterPlanMode` | Enter plan mode | — |
+| `ExitPlanMode` | Leave plan mode | — |
+| `EnterWorktree` | Create a git worktree and switch to it | — |
+| `ExitWorktree` | Leave the worktree and return | — |
+| `Monitor` | Background command with streaming output | `Monitor(…)` same as Bash |
+| `PowerShell` | Run a PowerShell command | `PowerShell(npm run *)` |
+| `NotebookEdit` | Edit a Jupyter notebook | `NotebookEdit(/path/*.ipynb)` |
 | `LSP` | Code intelligence (LSP) | — |
-| `Skill` | Spuštění skillu | `Skill(commit)`, `Skill(name *)` |
+| `Skill` | Run a skill | `Skill(commit)`, `Skill(name *)` |
 | `ToolSearch` | Lazy-load deferred tools | — |
-| `ListMcpResourcesTool` | Seznam MCP zdrojů | — |
-| `ReadMcpResourceTool` | Přečtení MCP zdroje podle URI | — |
+| `ListMcpResourcesTool` | List MCP resources | — |
+| `ReadMcpResourceTool` | Read an MCP resource by URI | — |
 
 ## MCP tools
 
-- `mcp__server` — všechny tools z daného serveru
+- `mcp__server` — all tools from the given server
 - `mcp__server__*` — wildcard
-- `mcp__server__tool_name` — konkrétní tool
+- `mcp__server__tool_name` — a specific tool
 
-## Cesty u Read / Edit / Write / NotebookEdit
+## Paths for Read / Edit / Write / NotebookEdit
 
-- `/path` — od root projektu
-- `path` nebo `./path` — od cwd
-- `~/path` — od home
-- `//path` — absolutní
-- `*` — soubory v jednom adresáři
-- `**` — rekurzivně
+- `/path` — from the project root
+- `path` or `./path` — from the cwd
+- `~/path` — from home
+- `//path` — absolute
+- `*` — files in a single directory
+- `**` — recursive
 
-## Příklad `allowed-tools` ve frontmatteru
+## Example `allowed-tools` in frontmatter
 
 ```yaml
 allowed-tools:
@@ -74,7 +74,7 @@ allowed-tools:
   - Grep
 ```
 
-## Zdroje
+## Sources
 
 - [code.claude.com/docs — tools](https://code.claude.com/docs/en/tools)
 - [code.claude.com/docs — permissions](https://code.claude.com/docs/en/permissions)
