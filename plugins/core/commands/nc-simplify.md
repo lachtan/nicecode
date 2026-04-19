@@ -1,1 +1,1 @@
-@code-simplifier $ARGUMENTS
+@nc-simplifier $ARGUMENTS
