@@ -1,5 +1,5 @@
 ---
-name: code-reviewer
+name: nc-reviewer
 description: Reviews code for quality and best practices
 model: sonnet
 tools:
