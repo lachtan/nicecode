@@ -45,6 +45,7 @@ Core coding best practices — skills and rules for cleaner code.
 - `boris` — Claude Code workflow tips from Boris Cherny and the Claude Code team.
 - `commit` — interactive git commit workflow with formatting rules.
 - `explain` — thorough analysis of a file or module: what it does, how it connects, how it can break.
+- `karpathy-guidelines` — behavioral guidelines to reduce common LLM coding mistakes.
 - `nofiles` — constrain Claude to answer without opening any additional files.
 - `python-env` — Python environment and dependency management via `uv`.
 - `skillify` — capture the current session's repeatable process into a reusable skill.
