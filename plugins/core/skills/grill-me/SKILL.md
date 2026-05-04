@@ -16,4 +16,4 @@ For each question, provide your recommended answer.
 Ask the questions one at a time.
 
 If a question can be answered by exploring the codebase, explore the codebase instead.
-Dispatch a subagent for non-trivial exploration.
+Dispatch a subagent for exploration.
