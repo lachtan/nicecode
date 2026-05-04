@@ -17,8 +17,3 @@ Ask the questions one at a time.
 
 If a question can be answered by exploring the codebase, explore the codebase instead.
 Dispatch a subagent for non-trivial exploration.
-
-Before asking, name the assumption your question would resolve.
-
-Stop when you can write a one-paragraph implementation sketch with zero hand-waving
-and no decision deferred to "we'll figure that out later."
