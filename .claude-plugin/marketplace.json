@@ -12,6 +12,14 @@
       "source": "./plugins/core",
       "description": "Core coding best practices — skills and rules for cleaner code",
       "version": "1.0.25"
+    },
+    {
+      "name": "mattpocock",
+      "source": {
+        "source": "github",
+        "repo": "mattpocock/skills"
+      },
+      "description": "Skills for real engineers by Matt Pocock — diagnose, tdd, triage, grill-me, and more"
     }
   ]
 }

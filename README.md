@@ -11,6 +11,7 @@ C#, PowerShell, Python, Bash, Rust
 ```
 /plugin marketplace add lachtan/nicecode
 /plugin install core@nicecode
+/plugin install mattpocock@nicecode
 ```
 
 Per project:
@@ -23,6 +24,7 @@ claude plugin install core@nicecode --scope=project
 ## Plugins
 
 - [core](plugins/core/README.md) — coding best practices: agents, commands, hooks, rules, and skills.
+- mattpocock-skills — skills from [mattpocock/skills](https://github.com/mattpocock/skills) (engineering + productivity).
 
 ## Rules
 
