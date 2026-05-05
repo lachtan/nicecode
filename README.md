@@ -24,7 +24,7 @@ claude plugin install core@nicecode --scope=project
 ## Plugins
 
 - [core](plugins/core/README.md) — coding best practices: agents, commands, hooks, rules, and skills.
-- mattpocock-skills — skills from [mattpocock/skills](https://github.com/mattpocock/skills) (engineering + productivity).
+- mattpocock — skills from [mattpocock/skills](https://github.com/mattpocock/skills) (engineering + productivity).
 
 ## Rules
 
