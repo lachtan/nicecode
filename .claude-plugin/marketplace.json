@@ -16,8 +16,8 @@
     {
       "name": "mattpocock",
       "source": {
-        "source": "github",
-        "repo": "mattpocock/skills"
+        "source": "url",
+        "repo": "https://github.com/mattpocock/skills"
       },
       "description": "Skills for real engineers by Matt Pocock — diagnose, tdd, triage, grill-me, and more"
     }
