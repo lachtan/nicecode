@@ -17,7 +17,7 @@
       "name": "mattpocock",
       "source": "./plugins/mattpocock",
       "description": "Skills for real engineers by Matt Pocock — diagnose, grill-me, tdd, triage and more",
-      "version": "1.0.0"
+      "version": "1.1.0"
     }
   ]
 }
