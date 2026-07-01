@@ -12,6 +12,7 @@ C#, PowerShell, Python, Bash, Rust
 /plugin marketplace add lachtan/nicecode
 /plugin install core@nicecode
 /plugin install mattpocock@nicecode
+/plugin install ponytail@nicecode
 ```
 
 Per project:
@@ -25,6 +26,7 @@ claude plugin install core@nicecode --scope=project
 
 - [core](plugins/core/README.md) — coding best practices: agents, commands, hooks, rules, and skills.
 - mattpocock — skills from [mattpocock/skills](https://github.com/mattpocock/skills) (engineering + productivity).
+- [ponytail](plugins/ponytail/README.md) — anti-over-engineering layer: opt-in lazy-senior-dev reflex toggled with `/ponytail`.
 
 ## Rules
 

@@ -1,0 +1,7 @@
+{
+  "name": "ponytail",
+  "description": "Anti-over-engineering layer — opt-in lazy-senior-dev reflex that forces the simplest solution that works",
+  "author": { "name": "lachtan" },
+  "repository": "https://github.com/DietrichGebert/ponytail",
+  "license": "MIT"
+}
