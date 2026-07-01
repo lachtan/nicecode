@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/load-skill.sh\""
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/skills/ponytail/ponytail.py"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/anchor.sh\""
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/skills/ponytail/ponytail.py"
           }
         ]
       }

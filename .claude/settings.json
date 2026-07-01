@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/plugins/ponytail/hooks/load-skill.sh\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/plugins/ponytail/skills/ponytail/ponytail.py\""
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/plugins/ponytail/hooks/anchor.sh\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/plugins/ponytail/skills/ponytail/ponytail.py\""
           }
         ]
       }

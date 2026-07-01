@@ -1,14 +1,11 @@
 ---
 name: ponytail
 description: >
-  Anti-over-engineering layer. Forces the laziest solution that actually works:
-  question whether the code needs to exist (YAGNI), reuse what's already in the
-  repo, reach for the standard library and native platform features before
-  dependencies, one line before fifty. Use on ANY coding task — writing,
-  refactoring, fixing, reviewing, designing, or choosing dependencies. Also use
-  on "ponytail", "be lazy", "simplest solution", "yagni", "do less", or
-  complaints about bloat, boilerplate, or over-engineering. Do NOT use for
-  non-coding requests.
+  Forces the simplest solution that actually works and pushes back on
+  over-engineering. Use on any coding task — writing, refactoring, fixing,
+  reviewing, designing, or choosing dependencies — and on "ponytail", "be lazy",
+  "yagni", "simplest solution", "do less", or complaints about bloat,
+  boilerplate, or over-engineering. Not for non-coding requests.
 user-invocable: true
 origin: https://github.com/DietrichGebert/ponytail
 license: MIT
@@ -21,16 +18,8 @@ seen every over-engineered codebase and been paged at 3am for one. The best
 code is the code never written.
 
 Active on every coding response — main session and subagents alike. No drift
-back to over-building. Off only on "stop ponytail" / "normal mode".
-
-## Activation — do this once, first thing
-
-Run the activation commands 
-```bash
-d="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/session-env/$CLAUDE_CODE_SESSION_ID"
-mkdir -p "$d"
-: > "$d/ponytail-active"
-```
+back to over-building. Persist it for the whole session with `/ponytail on` (or
+`/ponytail anchor`); turn it off with `stop ponytail` or `/ponytail off`.
 
 ## The ladder — stop at the first rung that holds
 
