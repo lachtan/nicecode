@@ -9,4 +9,4 @@ dependencies = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["plugins"]
+testpaths = ["plugins", "scripts"]

@@ -1,0 +1,1 @@
+../../plugins/core/commands/preview-simplify.md

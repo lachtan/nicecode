@@ -51,6 +51,16 @@
             "statusMessage": "Remove spurious NUL files (Windows bug workaround)"
           }
         ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/scripts/sync-symlinks.py\"",
+            "statusMessage": "Sync .claude/ symlinks with plugin skills/commands/agents"
+          }
+        ]
       }
     ]
   },

@@ -1,0 +1,1 @@
+../../plugins/core/commands/deep-review.md

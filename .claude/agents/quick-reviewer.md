@@ -1,0 +1,1 @@
+../../plugins/core/agents/quick-reviewer.md

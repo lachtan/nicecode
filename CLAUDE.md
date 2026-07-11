@@ -14,7 +14,7 @@ Each plugin is a self-contained bundle. Currently there is one plugin: `core`.
 
 ## Development
 
-`.claude/` contains symlinks into `plugins/core/` — the repo points to itself so the plugin can be tested directly here. Always edit source files in `plugins/core/`, never in `.claude/`.
+`.claude/` contains symlinks into `plugins/*/` — the repo points to itself so every local plugin's skills, commands, and agents can be tested directly here. Always edit source files in `plugins/<plugin>/`, never in `.claude/`. `scripts/sync-symlinks.py` keeps `.claude/{skills,commands,agents}/` in sync with what's under `plugins/*/`; a `PostToolUse` hook in `.claude/settings.json` runs it automatically after every `Write`, so a new/removed skill, command, or agent never needs a manual symlink.
 
 ### Hook conventions
 
@@ -41,3 +41,7 @@ Hook tests: `uvx pytest plugins/core/hooks/tests/`
 ## Git
 
 - Do not add `Co-Authored-By` lines to commit messages.
+
+## Claude Code
+
+All communications, plans and questions should be in Czech.
