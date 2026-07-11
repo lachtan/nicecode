@@ -1,5 +1,5 @@
 ---
-name: karpathy-guidelines
+name: coding-discipline
 description: >
   Behavioral guidelines to reduce common LLM coding mistakes. Use when writing,
   reviewing, or refactoring code to avoid overcomplication, make surgical changes,
@@ -7,11 +7,13 @@ description: >
 disable-model-invocation: false
 user-invocable: true
 origin: https://github.com/forrestchang/andrej-karpathy-skills
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
-# Karpathy Guidelines
+# Coding Discipline
 
-Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
+Guidelines for disciplined coding: think before you act, make minimal and surgical changes, and work toward clearly verifiable goals.
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 

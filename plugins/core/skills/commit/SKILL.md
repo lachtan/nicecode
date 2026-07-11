@@ -3,6 +3,8 @@ name: commit
 description: Use when committing changes to git — provides commit message formatting rules and an interactive commit workflow.
 disable-model-invocation: false
 user-invocable: true
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
 # Git Commit

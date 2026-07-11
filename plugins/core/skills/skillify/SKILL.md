@@ -16,6 +16,8 @@ allowed-tools:
 argument-hint: "[description of the process you want to capture]"
 arguments:
   - description
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
 # Skillify

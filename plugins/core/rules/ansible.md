@@ -2,6 +2,8 @@
 paths:
   - "trading-servers/ansible/**/*.yaml"
   - "trading-servers/ansible/**/*.yml"
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
 # Ansible Conventions

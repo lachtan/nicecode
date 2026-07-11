@@ -2,6 +2,8 @@
 paths:
   - ".claude/settings.json"
   - ".claude/settings.local.json"
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
 # Claude Code Hooks

@@ -3,6 +3,8 @@ name: summary
 description: Summarize the conversation and save it to a markdown file.
 disable-model-invocation: true
 argument-hint: "[file.md]"
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
 Summarize the current conversation and save the result to a file.

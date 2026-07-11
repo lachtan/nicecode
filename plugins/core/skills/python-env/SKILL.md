@@ -7,6 +7,8 @@ description: >
   "add dependency", "install package", "set up Python project".
 disable-model-invocation: false
 user-invocable: false
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
 # uv-tool

@@ -1,109 +1,115 @@
 #!/usr/bin/env python3
 
-import json
-import os
+import argparse
+import shutil
 import sys
-import tempfile
-from datetime import datetime
+from dataclasses import dataclass
 from pathlib import Path
-from typing import NoReturn
 
-MARKETPLACE = "nicecode"
-PLUGIN = "core"
-FULL_PLUGIN_NAME = f"{PLUGIN}@{MARKETPLACE}"
-RULES_SUBDIR = Path("plugins") / MARKETPLACE / PLUGIN
-DEBUG = bool(os.environ.get("NICECODE_DEBUG"))
-LOG_FILE = Path(tempfile.gettempdir()) / "install-rules.log" if DEBUG else None
+RULES_SUBDIR = Path(".claude") / "rules" / "plugins" / "nicecode" / "core"
+FRONTMATTER_DELIMITER = "---"
+MANAGED_BY = "https://github.com/lachtan/nicecode"
 
 
-def log(message: str) -> None:
-    if not DEBUG:
-        return
-    stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    line = f"{stamp} {message}"
-    print(line, file=sys.stderr)
-    assert LOG_FILE is not None
-    with LOG_FILE.open("a") as file:
-        file.write(f"{line}\n")
+@dataclass(order=True, frozen=True)
+class Version:
+    major: int
+    minor: int
+    patch: int
+
+    def __str__(self) -> str:
+        return f"{self.major}.{self.minor}.{self.patch}"
 
 
-def exit_with_error(message: str) -> NoReturn:
-    log(f"Error: {message}")
-    sys.exit(1)
+def extract_frontmatter(text: str) -> list[str] | None:
+    lines = text.splitlines()
+    if not lines or lines[0] != FRONTMATTER_DELIMITER:
+        return None
+    for index, line in enumerate(lines[1:], start=1):
+        if line == FRONTMATTER_DELIMITER:
+            return lines[1:index]
+    return None
 
 
-def validate_dir(path: Path, name: str) -> None:
-    if not path.is_dir():
-        exit_with_error(f"{name} directory does not exist: {path}")
+def frontmatter_value(frontmatter_lines: list[str], key: str) -> str | None:
+    prefix = f"{key}:"
+    for line in frontmatter_lines:
+        if line.startswith(prefix):
+            return line.removeprefix(prefix).strip().strip("\"'")
+    return None
 
 
-def resolve_env_dir(var_name: str) -> Path:
-    value = os.environ.get(var_name)
-    if not value:
-        exit_with_error(f"{var_name} environment variable is not set.")
-    directory = Path(value).resolve()
-    validate_dir(directory, var_name)
-    log(f"{var_name}={directory}")
-    return directory
+def parse_version(frontmatter_lines: list[str]) -> Version | None:
+    raw_value = frontmatter_value(frontmatter_lines, "version")
+    if raw_value is None:
+        return None
+    major, minor, patch = raw_value.split(".")
+    return Version(int(major), int(minor), int(patch))
 
 
-def is_plugin_disabled(config_file: Path) -> bool:
-    try:
-        config = json.loads(config_file.read_text())
-    except (json.JSONDecodeError, OSError):
-        log(f"Config parse error: {config_file}")
-        return False
-    plugins = config.get("enabledPlugins", {})
-    is_enabled = any(name == FULL_PLUGIN_NAME and value for name, value in plugins.items())
-    disabled = not is_enabled
-    log(f"Plugin disabled: {disabled} in {config_file}")
-    return disabled
+def format_version(version: Version | None) -> str:
+    return str(version) if version is not None else "unknown"
 
 
-def is_plugin_disabled_in_project(project_dir: Path) -> bool:
-    claude_dir = project_dir / ".claude"
-    config_files = [claude_dir / "settings.json", claude_dir / "settings.local.json"]
-    existing = [file for file in config_files if file.exists()]
-    if not existing:
-        log("No config files found, plugin not explicitly disabled")
-        return False
-    disabled = all(is_plugin_disabled(file) for file in existing)
-    log(f"Plugin disabled in project: {disabled}")
-    return disabled
+def install_rule(source_file: Path, target_dir: Path) -> str:
+    source_frontmatter = extract_frontmatter(source_file.read_text()) or []
+    source_version = parse_version(source_frontmatter)
+    target_file = target_dir / source_file.name
+
+    if not target_file.exists():
+        shutil.copy2(source_file, target_file)
+        return f"installed {source_file.name} ({format_version(source_version)})"
+
+    target_frontmatter = extract_frontmatter(target_file.read_text())
+    if target_frontmatter is None or frontmatter_value(target_frontmatter, "managed-by") != MANAGED_BY:
+        return f"skipped {source_file.name}: not managed by this repo, not overwriting"
+
+    target_version = parse_version(target_frontmatter)
+    if target_version is None or (source_version is not None and source_version > target_version):
+        shutil.copy2(source_file, target_file)
+        return f"updated {source_file.name}: {format_version(target_version)} -> {format_version(source_version)}"
+
+    return f"up to date {source_file.name} ({format_version(target_version)})"
 
 
-def link_rules(plugin_rules_dir: Path, project_rules_dir: Path) -> None:
-    log(f"Linking {plugin_rules_dir} -> {project_rules_dir}")
-    if project_rules_dir.is_symlink() and project_rules_dir.resolve() == plugin_rules_dir:
-        log("Already linked, skipping")
-        return
-    if project_rules_dir.is_symlink():
-        log(f"Wrong symlink target {project_rules_dir.resolve()}, replacing")
-        project_rules_dir.unlink()
-    project_rules_dir.parent.mkdir(parents=True, exist_ok=True)
-    project_rules_dir.symlink_to(plugin_rules_dir)
-    log(f"Linked {plugin_rules_dir} -> {project_rules_dir}")
+def replace_stale_symlink(target_dir: Path) -> None:
+    if target_dir.is_symlink():
+        target_dir.unlink()
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("project_dir", nargs="?", help="Project directory (only used with --scope project; defaults to cwd)")
+    parser.add_argument("--scope", choices=["project", "user"], required=True, help="Install into the project's .claude/rules or the user's home directory")
+    return parser.parse_args()
+
+
+def resolve_base_dir(args: argparse.Namespace) -> Path:
+    if args.scope == "user":
+        return Path.home()
+    return Path(args.project_dir).resolve() if args.project_dir else Path.cwd()
 
 
 def main() -> None:
-    plugin_root = resolve_env_dir("CLAUDE_PLUGIN_ROOT")
-    project_dir = resolve_env_dir("CLAUDE_PROJECT_DIR")
+    args = parse_args()
+    plugin_rules_dir = Path(__file__).resolve().parent.parent / "rules"
+    target_dir = resolve_base_dir(args) / RULES_SUBDIR
 
-    project_rules_dir = project_dir / ".claude" / "rules" / RULES_SUBDIR
+    if not plugin_rules_dir.is_dir():
+        print(f"Error: plugin rules directory not found: {plugin_rules_dir}", file=sys.stderr)
+        sys.exit(1)
 
-    if is_plugin_disabled_in_project(project_dir):
-        if project_rules_dir.is_symlink():
-            log(f"Plugin disabled, removing symlink: {project_rules_dir}")
-            project_rules_dir.unlink(missing_ok=True)
-        return
+    replace_stale_symlink(target_dir)
+    target_dir.mkdir(parents=True, exist_ok=True)
 
-    if project_rules_dir.is_dir() and not project_rules_dir.is_symlink():
-        log(f"Skipped: {project_rules_dir} is a real directory")
-        return
+    results = [install_rule(source_file, target_dir) for source_file in sorted(plugin_rules_dir.glob("*.md"))]
+    for result in results:
+        print(result)
 
-    plugin_rules_dir = plugin_root / "rules"
-    validate_dir(plugin_rules_dir, "Plugin rules")
-    link_rules(plugin_rules_dir, project_rules_dir)
+    installed = sum(result.startswith("installed ") for result in results)
+    updated = sum(result.startswith("updated ") for result in results)
+    skipped = sum(result.startswith("skipped ") or result.startswith("up to date ") for result in results)
+    print(f"\n{installed} installed, {updated} updated, {skipped} skipped")
 
 
 if __name__ == "__main__":

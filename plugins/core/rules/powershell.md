@@ -1,6 +1,8 @@
 ---
 paths:
   - "**/*.{ps1,psm1}"
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
 # PowerShell Coding Guidelines

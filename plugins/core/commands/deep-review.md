@@ -8,6 +8,8 @@ allowed-tools:
   - Read
   - Glob
   - Grep
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
 Perform a thorough local code review of the user's changes described in `$ARGUMENTS`.

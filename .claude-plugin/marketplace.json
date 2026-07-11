@@ -11,7 +11,7 @@
       "name": "core",
       "source": "./plugins/core",
       "description": "Core coding best practices — skills and rules for cleaner code",
-      "version": "1.0.26"
+      "version": "1.2.0"
     },
     {
       "name": "mattpocock",
@@ -25,7 +25,7 @@
       "name": "ponytail",
       "source": "./plugins/ponytail",
       "description": "Anti-over-engineering layer — opt-in (/ponytail) reflex that keeps Claude reaching for the simplest solution that works",
-      "version": "1.2.0",
+      "version": "1.1.0",
       "repository": "https://github.com/DietrichGebert/ponytail",
       "license": "MIT"
     }

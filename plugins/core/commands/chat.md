@@ -1,6 +1,8 @@
 ---
 description: Answer a question without reading project files or invoking skills
 argument-hint: <question>
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
 ---
 
 Answer the following question.

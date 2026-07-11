@@ -13,9 +13,17 @@ Core coding best practices — skills and rules for cleaner code.
 - `/preview-simplify` — delegates to the `preview-simplifier` agent.
 - `/deep-review` — multi-agent local code review with scope detection, parallel reviewers, and validation.
 
+## Scripts
+
+- `install-rules.py` / `install-rules.ps1` — copy `rules/*.md` into
+  `.claude/rules/plugins/nicecode/core/`, using each file's frontmatter
+  `version` to skip already up-to-date files and overwrite stale ones. Require
+  an explicit `--scope project` (into the current project) or `--scope user`
+  (into the home directory, applies to every project) — run explicitly (see
+  the `install-rules` skill) — there is no automatic trigger.
+
 ## Hooks
 
-- `SessionStart` / `ConfigChange` → `install-rules.py` — installs and refreshes the rule symlink (see top-level README).
 - `PreToolUse` (Bash) → `check-uv.py` — guards against running Python tooling without `uv`.
 - `PostToolUse` (Edit/Write) → `format-python.sh` — auto-formats Python files.
 - `PostToolUse` (Edit/Write) → `format-powershell.ps1` — auto-formats PowerShell files.
@@ -42,10 +50,10 @@ Core coding best practices — skills and rules for cleaner code.
 
 ## Skills
 
-- `boris` — Claude Code workflow tips from Boris Cherny and the Claude Code team.
+- `coding-discipline` — behavioral guidelines to reduce common LLM coding mistakes.
 - `commit` — interactive git commit workflow with formatting rules.
 - `explain` — thorough analysis of a file or module: what it does, how it connects, how it can break.
-- `karpathy-guidelines` — behavioral guidelines to reduce common LLM coding mistakes.
+- `install-rules` — installs/updates the versioned rule files into this project.
 - `nofiles` — constrain Claude to answer without opening any additional files.
 - `python-env` — Python environment and dependency management via `uv`.
 - `skillify` — capture the current session's repeatable process into a reusable skill.
