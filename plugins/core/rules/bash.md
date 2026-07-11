@@ -2,7 +2,7 @@
 paths:
   - "**/*.sh"
 managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # Bash Script Conventions
@@ -41,6 +41,7 @@ version: "1.0.0"
 
 - Resolve script directory: `script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`.
 - Temporary files: `tmp=$(mktemp)` with cleanup via `trap 'rm -f "$tmp"' SIGINT SIGTERM ERR EXIT`.
+- Use `$HOME`, never a literal `~`, for the home directory.
 
 ## ShellCheck
 
