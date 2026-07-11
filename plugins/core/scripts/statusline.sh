@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# managed-by: https://github.com/lachtan/nicecode
+# version: 1.0.0
 
 # Statusline launcher: picks an available interpreter and passes stdin (JSON) through.
 # Prefers Python; PowerShell is the fallback for Windows/git-bash without Python.

@@ -76,6 +76,37 @@ the script (not needed for `--scope user` — that target lives outside any repo
 .claude/rules/plugins/
 ```
 
+## Status line
+
+The plugin system does not let a plugin auto-register a status line either (unlike
+hooks) — installation is the same kind of explicit, on-request action as rules.
+
+Ask Claude to "install statusline" (the `install-statusline` skill). It will ask you to
+choose a scope, then locate its own install script and run it.
+
+`--scope project` copies `statusline.sh`/`statusline.py`/`statusline.ps1` into
+`<project>/.claude/scripts/plugins/nicecode/core/` and points `statusLine` in
+`<project>/.claude/settings.json` at `statusline.sh`. `--scope user` does the same under
+`~/.claude/scripts/plugins/nicecode/core/` and `~/.claude/settings.json`. The three files
+are versioned as one bundle; re-running the script only overwrites them when the
+plugin's version is newer, and never touches a `statusLine` you've already set to
+something else.
+
+If you're developing this repo itself, you can run the script directly instead:
+
+```bash
+bash plugins/core/scripts/install-statusline.sh --scope project   # current directory
+bash plugins/core/scripts/install-statusline.sh --scope user      # every project
+```
+
+This installer is bash-only (needs `bash` and `jq`; git-bash or WSL on Windows) — the
+installed statusline itself still falls back to `pwsh` when `python3` isn't available.
+For `--scope project`, add the install target to `.gitignore`:
+
+```
+.claude/scripts/plugins/
+```
+
 ## Philosophy
 
 The guiding principle is simplicity first, inspired by [Code Simplicity](https://www.amazon.com/dp/1449313892) by Max Kanat-Alexander: the most important property of software is simplicity, and complexity is the root cause of most bugs and maintenance cost.

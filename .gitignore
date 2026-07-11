@@ -1,5 +1,6 @@
 .claude/settings.local.json
 .claude/rules/plugins/
+.claude/scripts/plugins/
 
 __pycache__/
 *.pyc

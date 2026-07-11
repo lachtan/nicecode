@@ -21,6 +21,12 @@ Core coding best practices — skills and rules for cleaner code.
   an explicit `--scope project` (into the current project) or `--scope user`
   (into the home directory, applies to every project) — run explicitly (see
   the `install-rules` skill) — there is no automatic trigger.
+- `install-statusline.sh` — copies `statusline.sh`/`statusline.py`/`statusline.ps1`
+  into `.claude/scripts/plugins/nicecode/core/` and sets `statusLine` in the
+  matching `settings.json`, using a `version` marker in `statusline.sh` to skip
+  up-to-date bundles and never overwriting a `statusLine` already set to
+  something else. Same `--scope project`/`--scope user` convention (see the
+  `install-statusline` skill) — bash + `jq` only, run explicitly.
 
 ## Hooks
 
@@ -54,6 +60,7 @@ Core coding best practices — skills and rules for cleaner code.
 - `commit` — interactive git commit workflow with formatting rules.
 - `explain` — thorough analysis of a file or module: what it does, how it connects, how it can break.
 - `install-rules` — installs/updates the versioned rule files into this project.
+- `install-statusline` — installs/updates the statusline scripts and wires `statusLine` in settings.json.
 - `nofiles` — constrain Claude to answer without opening any additional files.
 - `python-env` — Python environment and dependency management via `uv`.
 - `skillify` — capture the current session's repeatable process into a reusable skill.
