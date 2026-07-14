@@ -43,6 +43,7 @@ Core coding best practices — skills and rules for cleaner code.
 - `clean-code.md` — cross-language clean-code principles (naming, functions, design, error handling).
 - `bash.md` — Bash scripting conventions.
 - `python.md` — Python conventions.
+- `python-uv.md` — always use `uv` for Python (never `pip`/`venv`/`pipx`).
 - `csharp-code-style.md` — C# code style.
 - `csharp-doc-style.md` — C# XML documentation style.
 - `csharp-mstest.md` — C# unit testing with MSTest.
@@ -62,6 +63,5 @@ Core coding best practices — skills and rules for cleaner code.
 - `install-rules` — installs/updates the versioned rule files into this project.
 - `install-statusline` — installs/updates the statusline scripts and wires `statusLine` in settings.json.
 - `nofiles` — constrain Claude to answer without opening any additional files.
-- `python-env` — Python environment and dependency management via `uv`.
 - `skillify` — capture the current session's repeatable process into a reusable skill.
 - `summary` — summarize the current conversation and save it to a markdown file.
