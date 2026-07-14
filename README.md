@@ -11,6 +11,7 @@ C#, PowerShell, Python, Bash, Rust
 ```
 /plugin marketplace add lachtan/nicecode
 /plugin install core@nicecode
+/plugin install lab@nicecode
 /plugin install mattpocock@nicecode
 /plugin install ponytail@nicecode
 ```
@@ -36,6 +37,7 @@ the gitignored `.claude/settings.local.json` and applies only to you, only in th
 ## Plugins
 
 - [core](plugins/core/README.md) — coding best practices: agents, commands, hooks, rules, and skills.
+- [lab](plugins/lab/README.md) — rozpracované/testovací skilly a komponenty před přesunem do core.
 - mattpocock — skills from [mattpocock/skills](https://github.com/mattpocock/skills) (engineering + productivity).
 - [ponytail](plugins/ponytail/README.md) — anti-over-engineering layer: opt-in lazy-senior-dev reflex toggled with `/ponytail`.
 
