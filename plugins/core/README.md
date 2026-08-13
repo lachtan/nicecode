@@ -12,6 +12,7 @@ Core coding best practices — skills and rules for cleaner code.
 - `/quick-review` — delegates to the `quick-reviewer` agent.
 - `/preview-simplify` — delegates to the `preview-simplifier` agent.
 - `/deep-review` — multi-agent local code review with scope detection, parallel reviewers, and validation.
+- `/chat` — answers a question without reading project files or invoking skills.
 
 ## Scripts
 
@@ -57,11 +58,12 @@ Core coding best practices — skills and rules for cleaner code.
 
 ## Skills
 
+- `best-practice` — do a task the idiomatic way from official docs, ignoring how the repo already does it.
 - `coding-discipline` — behavioral guidelines to reduce common LLM coding mistakes.
 - `commit` — interactive git commit workflow with formatting rules.
 - `explain` — thorough analysis of a file or module: what it does, how it connects, how it can break.
 - `install-rules` — installs/updates the versioned rule files into this project.
 - `install-statusline` — installs/updates the statusline scripts and wires `statusLine` in settings.json.
-- `nofiles` — constrain Claude to answer without opening any additional files.
-- `skillify` — capture the current session's repeatable process into a reusable skill.
+- `search-first` — check whether something already exists (repo, dependencies, stdlib) before writing new code.
+- `skill-authoring` — conventions for writing SKILL.md files so skills trigger reliably.
 - `summary` — summarize the current conversation and save it to a markdown file.
