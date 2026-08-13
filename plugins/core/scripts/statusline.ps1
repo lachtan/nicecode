@@ -1,99 +1,117 @@
+# 🖥️ pcmbl04 | 📁 C:\source\work\cat-deda | 🌿 mbl/sf-x4 | 💡 Opus 5 / high | 4% ░░░░░░░░░░ | ↓ 42k ↑ 374
+
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$COMPUTER_ICON = [char]::ConvertFromUtf32(0x1F5A5) + [char]0xFE0F
-$FOLDER_ICON = [char]::ConvertFromUtf32(0x1F4C1)
-$BRANCH_ICON = [char]::ConvertFromUtf32(0x1F33F)
-$EFFORT_ICON = [char]::ConvertFromUtf32(0x1F4A1)
-$BAR_FILLED = [char]0x2593
-$BAR_EMPTY = [char]0x2591
+# U+FE0F is a variation selector — invisible, forces emoji rendering over the text glyph.
+$COMPUTER_ICON = "🖥`u{FE0F}"
+$FOLDER_ICON = '📁'
+$BRANCH_ICON = '🌿'
+$MODEL_ICON = '💡'
+$TOKENS_IN_ICON = '↓'
+$TOKENS_OUT_ICON = '↑'
+$BAR_FILLED = '▓'
+$BAR_EMPTY = '░'
 
-function Format-TokenCount {
-    param([double]$Value)
+$ESC = [char]27
+$ANSI_RESET = "$ESC[0m"
+$ANSI_RED = "$ESC[31m"
+$ANSI_GREEN = "$ESC[32m"
+$ANSI_YELLOW = "$ESC[33m"
+$ANSI_ORANGE = "$ESC[38;5;208m"
+
+$MODEL_COLOR = $ANSI_ORANGE
+$EFFORT_COLOR = $ANSI_YELLOW
+
+function Format-TokenCount([double]$Value) {
     if ($null -eq $Value) { return "0" }
     if ($Value -ge 1000000) {
-        $num = ("{0:N1}" -f ($Value / 1000000)) -replace '\.0$', ''
+        $num = ($Value / 1000000).ToString("F1", [cultureinfo]::InvariantCulture) -replace '\.0$', ''
         return "${num}M"
     }
     if ($Value -ge 1000) {
-        $num = ("{0:N1}" -f ($Value / 1000)) -replace '\.0$', ''
+        $num = ($Value / 1000).ToString("F1", [cultureinfo]::InvariantCulture) -replace '\.0$', ''
         return "${num}k"
     }
     return "$([math]::Round($Value))"
 }
 
-function Get-CumulativeOutputTokens {
-    param([string]$SessionId, [string]$TranscriptPath)
+function New-TokenCacheState {
+    return [PSCustomObject]@{ offset = [long]0; total = 0; lastId = "" }
+}
 
-    # Cumulative output-token count for the session, computed incrementally.
-    # The cache holds the already-processed transcript offset, the running total,
-    # and the last counted message.id (lines of one API response are contiguous,
-    # so this single id is enough to dedup across a read boundary). Dedup is
-    # required because one response spans several transcript lines with the same
-    # output_tokens.
-    if (-not $TranscriptPath -or -not (Test-Path $TranscriptPath)) { return 0 }
+function Read-TokenCacheState([string]$CacheFile) {
+    if (-not (Test-Path $CacheFile)) { return New-TokenCacheState }
+    try {
+        $cache = Get-Content -Raw $CacheFile | ConvertFrom-Json
+        return [PSCustomObject]@{
+            offset = [long]$cache.offset
+            total  = [int]$cache.total
+            lastId = "$($cache.lastId)"
+        }
+    }
+    catch { return New-TokenCacheState }
+}
 
-    $cacheDir = Join-Path $HOME ".claude/session-env/$SessionId"
-    $cacheFile = Join-Path $cacheDir "statusline-out.json"
+function Save-TokenCacheState([string]$CacheFile, [PSCustomObject]$State) {
+    [System.IO.Directory]::CreateDirectory((Split-Path $CacheFile)) | Out-Null
+    $State | ConvertTo-Json -Compress | Set-Content -Path $CacheFile -Encoding UTF8
+}
 
-    $offset = [long]0
-    $total = 0
-    $lastId = ""
-    if (Test-Path $cacheFile) {
+function Read-TranscriptTail([string]$TranscriptPath, [long]$Offset) {
+    $stream = [System.IO.File]::Open($TranscriptPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+    try {
+        $stream.Seek($Offset, [System.IO.SeekOrigin]::Begin) | Out-Null
+        $reader = New-Object System.IO.StreamReader($stream, [System.Text.Encoding]::UTF8)
+        return $reader.ReadToEnd()
+    }
+    finally {
+        $stream.Dispose()
+    }
+}
+
+function Add-OutputTokens([PSCustomObject]$State, [string]$Text) {
+    $lastNewline = $Text.LastIndexOf("`n")
+    if ($lastNewline -lt 0) { return $State }
+
+    $completeText = $Text.Substring(0, $lastNewline + 1)
+    $total = $State.total
+    $lastId = $State.lastId
+
+    foreach ($line in $completeText -split "`n") {
+        if ($line -notlike '*"type":"assistant"*') { continue }
         try {
-            $cache = Get-Content -Raw $cacheFile | ConvertFrom-Json
-            $offset = [long]$cache.offset
-            $total = [int]$cache.total
-            $lastId = "$($cache.lastId)"
+            $entry = $line | ConvertFrom-Json
+            $outputTokens = $entry.message.usage.output_tokens
+            $messageId = "$($entry.message.id)"
+            if ($outputTokens -and $messageId -and $messageId -ne $lastId) {
+                $total += $outputTokens
+                $lastId = $messageId
+            }
         }
         catch {}
     }
 
+    return [PSCustomObject]@{
+        offset = $State.offset + [System.Text.Encoding]::UTF8.GetByteCount($completeText)
+        total  = $total
+        lastId = $lastId
+    }
+}
+
+function Get-CumulativeOutputTokens([string]$SessionId, [string]$TranscriptPath) {
+    if (-not $TranscriptPath -or -not (Test-Path $TranscriptPath)) { return 0 }
+
+    $cacheFile = Join-Path $HOME ".claude/session-env/$SessionId/statusline-out.json"
+    $state = Read-TokenCacheState $cacheFile
+
     $fileLength = (Get-Item $TranscriptPath).Length
-    if ($fileLength -lt $offset) {
-        # New or truncated session — start from zero.
-        $offset = [long]0
-        $total = 0
-        $lastId = ""
-    }
+    if ($fileLength -lt $state.offset) { $state = New-TokenCacheState }
+    if ($fileLength -le $state.offset) { return $state.total }
 
-    if ($fileLength -gt $offset) {
-        $stream = [System.IO.File]::Open($TranscriptPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
-        try {
-            $stream.Seek($offset, [System.IO.SeekOrigin]::Begin) | Out-Null
-            $reader = New-Object System.IO.StreamReader($stream, [System.Text.Encoding]::UTF8)
-            $newText = $reader.ReadToEnd()
-        }
-        finally {
-            $stream.Dispose()
-        }
+    $state = Add-OutputTokens $state (Read-TranscriptTail $TranscriptPath $state.offset)
+    Save-TokenCacheState $cacheFile $state
 
-        # Process only complete lines; leave a partially written last line for next time.
-        $lastNewline = $newText.LastIndexOf("`n")
-        if ($lastNewline -ge 0) {
-            $completeText = $newText.Substring(0, $lastNewline + 1)
-            $offset += [System.Text.Encoding]::UTF8.GetByteCount($completeText)
-
-            foreach ($line in $completeText -split "`n") {
-                if ($line -notlike '*"type":"assistant"*') { continue }
-                try {
-                    $entry = $line | ConvertFrom-Json
-                    $ot = $entry.message.usage.output_tokens
-                    $id = "$($entry.message.id)"
-                    if ($ot -and $id -and $id -ne $lastId) {
-                        $total += $ot
-                        $lastId = $id
-                    }
-                }
-                catch {}
-            }
-        }
-
-        [System.IO.Directory]::CreateDirectory($cacheDir) | Out-Null
-        [PSCustomObject]@{ offset = $offset; total = $total; lastId = $lastId } |
-            ConvertTo-Json -Compress | Set-Content -Path $cacheFile -Encoding UTF8
-    }
-
-    return $total
+    return $state.total
 }
 
 $data = $input | Out-String | ConvertFrom-Json
@@ -110,8 +128,6 @@ $modelName = $data.model.display_name -replace '\s*\(.*\)$', ''
 $ctx = $data.context_window
 $usedPct = 0
 if ($ctx -and $null -ne $ctx.used_percentage) { $usedPct = [math]::Round($ctx.used_percentage) }
-$contextSize = 0
-if ($ctx -and $ctx.context_window_size) { $contextSize = $ctx.context_window_size }
 $totalInput = 0
 if ($ctx -and $null -ne $ctx.total_input_tokens) { $totalInput = $ctx.total_input_tokens }
 $totalOutput = Get-CumulativeOutputTokens -SessionId $data.session_id -TranscriptPath $data.transcript_path
@@ -120,23 +136,23 @@ $barWidth = 10
 $filled = [math]::Min($barWidth, [math]::Floor($usedPct * $barWidth / 100))
 $bar = ("$BAR_FILLED" * $filled) + ("$BAR_EMPTY" * ($barWidth - $filled))
 
-$ESC = [char]27
-$RESET = "$ESC[0m"
-if ($usedPct -ge 90) { $barColor = "$ESC[31m" }
-elseif ($usedPct -ge 70) { $barColor = "$ESC[33m" }
-else { $barColor = "$ESC[32m" }
+if ($usedPct -ge 90) { $barColor = $ANSI_RED }
+elseif ($usedPct -ge 70) { $barColor = $ANSI_YELLOW }
+else { $barColor = $ANSI_GREEN }
 
 $inFmt = Format-TokenCount $totalInput
 $outFmt = Format-TokenCount $totalOutput
-$sizeFmt = Format-TokenCount $contextSize
 $effort = $data.effort.level
 
 $segments = @("$COMPUTER_ICON $hostName", "$FOLDER_ICON $cwd")
 if ($branch) { $segments += "$BRANCH_ICON $branch" }
-$segments += "$modelName $sizeFmt"
-if ($effort) { $segments += "$EFFORT_ICON $effort" }
-$segments += "$usedPct% $barColor$bar$RESET"
-$segments += "$([char]0x2193) $inFmt $([char]0x2191) $outFmt"
+
+$modelSegment = "$MODEL_ICON $MODEL_COLOR$modelName$ANSI_RESET"
+if ($effort) { $modelSegment += " / $EFFORT_COLOR$effort$ANSI_RESET" }
+$segments += $modelSegment
+
+$segments += "$usedPct% $barColor$bar$ANSI_RESET"
+$segments += "$TOKENS_IN_ICON $inFmt $TOKENS_OUT_ICON $outFmt"
 
 Write-Host ($segments -join " | ")
 
