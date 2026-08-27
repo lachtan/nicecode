@@ -19,7 +19,7 @@ of tool calls.
 
 ## Steps
 
-1. **Search this repo** for the concept by name and its synonyms — for _rate limiting_ also
+1. **Search this repo** for the concept by name and its synonyms — for *rate limiting* also
    `throttle`, `quota`, `limiter`, `bucket`. Scan directory names for a module that would own it.
 2. **Read the dependency manifest.** A package already in the project solves it for free.
 3. **If you found a fit, stop** — propose reusing or extending it and skip step 4.

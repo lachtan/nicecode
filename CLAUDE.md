@@ -10,7 +10,8 @@ NiceCode is a Claude Code plugin marketplace. The guiding principle is **simplic
 
 Marketplace (`.claude-plugin/marketplace.json`) → Plugins (`plugins/<name>/.claude-plugin/plugin.json`) → rules, skills, hooks.
 
-Each plugin is a self-contained bundle. Currently there is one plugin: `core`.
+Each plugin is a self-contained bundle: `core` (rules, skills and hooks), `lab`
+(work in progress), `ponytail` (vendored) and `mattpocock` (external source).
 
 ## Development
 
@@ -44,4 +45,8 @@ Hook tests: `uvx pytest plugins/core/hooks/tests/`
 
 ## Claude Code
 
-All communications, plans and questions should be in Czech.
+Talk to the user in Czech — chat, questions, plans and review reports.
+
+Everything committed to the repo is in English: plugin and skill descriptions,
+rules, READMEs, code, comments and commit messages. A file that gets committed
+is English even when the conversation that produced it was Czech.

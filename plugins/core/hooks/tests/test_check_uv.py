@@ -18,7 +18,7 @@ def run_hook(command: str) -> subprocess.CompletedProcess:
     )
 
 
-# --- Povolené příkazy (exit 0) ---
+# --- Allowed commands (exit 0) ---
 
 
 def test_uv_pip_install_allowed():
@@ -52,7 +52,7 @@ def test_missing_command_key_allowed():
     assert result.returncode == 0
 
 
-# --- Zakázané příkazy (exit 2) ---
+# --- Forbidden commands (exit 2) ---
 
 
 def test_pip_blocked():
@@ -111,15 +111,12 @@ def test_stderr_message_on_block():
     assert "Forbidden" in result.stderr or "uv" in result.stderr.lower()
 
 
-# --- False positives: substring nesmí matchovat ---
+# --- False positives: a substring must not match ---
 
 
 def test_catpipe_in_path_allowed():
     assert (
-        run_hook(
-            "git restore --staged trading-servers/ansible/playbooks/config_catpipe_servers.yaml"
-        ).returncode
-        == 0
+        run_hook("git restore --staged trading-servers/ansible/playbooks/config_catpipe_servers.yaml").returncode == 0
     )
 
 
@@ -135,7 +132,7 @@ def test_pip_as_part_of_filename_allowed():
     assert run_hook("cat /tmp/pip_backup.txt").returncode == 0
 
 
-# --- Bypass přes compound commands ---
+# --- Bypass via compound commands ---
 
 
 def test_uv_then_pip_via_and_blocked():

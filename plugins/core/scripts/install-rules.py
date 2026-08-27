@@ -79,8 +79,15 @@ def replace_stale_symlink(target_dir: Path) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("project_dir", nargs="?", help="Project directory (only used with --scope project; defaults to cwd)")
-    parser.add_argument("--scope", choices=["project", "user"], required=True, help="Install into the project's .claude/rules or the user's home directory")
+    parser.add_argument(
+        "project_dir", nargs="?", help="Project directory (only used with --scope project; defaults to cwd)"
+    )
+    parser.add_argument(
+        "--scope",
+        choices=["project", "user"],
+        required=True,
+        help="Install into the project's .claude/rules or the user's home directory",
+    )
     return parser.parse_args()
 
 

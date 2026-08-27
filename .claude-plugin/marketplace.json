@@ -16,7 +16,7 @@
     {
       "name": "lab",
       "source": "./plugins/lab",
-      "description": "Lab pro rozpracované skilly a komponenty před přesunem do core",
+      "description": "Lab for work-in-progress skills and components before they move to core",
       "version": "0.1.0"
     },
     {

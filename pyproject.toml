@@ -1,12 +1,16 @@
 [project]
 name = "nicecode"
 version = "0.1.0"
-description = "Add your description here"
+description = "Claude Code plugin marketplace: coding rules, skills and hooks"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pytest>=9.0.2",
 ]
+
+[tool.ruff]
+# Matches python.md and .editorconfig; ruff's default is 88.
+line-length = 120
 
 [tool.pytest.ini_options]
 testpaths = ["plugins", "scripts"]

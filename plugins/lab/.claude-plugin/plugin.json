@@ -1,6 +1,6 @@
 {
   "name": "lab",
-  "description": "Testovací/rozpracované skilly a komponenty, než se osvědčí a přesunou do core",
+  "description": "Experimental work-in-progress skills and components, until they prove out and move to core",
   "author": {
     "name": "lachtan"
   }

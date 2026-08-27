@@ -1,8 +1,8 @@
 # lab
 
-Rozpracované/testovací skilly a komponenty. Věci sem chodí, dokud se
-neosvědčí — pak se přesunou do `core` (nebo tu zůstanou trvale stranou,
-pokud se neosvědčí).
+Experimental work-in-progress skills and components. Things land here until
+they prove out — then they move to `core` (or stay parked here indefinitely
+if they don't).
 
 ## Skills
 

@@ -14,7 +14,9 @@ _spec.loader.exec_module(install_rules)
 OTHER_REPO = "https://github.com/someone-else/other-repo"
 
 
-def write_rule(path: Path, *, version: str | None, managed_by: str | None = install_rules.MANAGED_BY, body: str = "content") -> None:
+def write_rule(
+    path: Path, *, version: str | None, managed_by: str | None = install_rules.MANAGED_BY, body: str = "content"
+) -> None:
     frontmatter_lines = []
     if managed_by is not None:
         frontmatter_lines.append(f"managed-by: {managed_by}")
@@ -36,7 +38,7 @@ class TestExtractFrontmatter:
         assert install_rules.extract_frontmatter("# No frontmatter\n") is None
 
     def test_no_closing_delimiter(self):
-        assert install_rules.extract_frontmatter("---\nversion: \"1.0.0\"\n") is None
+        assert install_rules.extract_frontmatter('---\nversion: "1.0.0"\n') is None
 
     def test_empty_frontmatter(self):
         assert install_rules.extract_frontmatter("---\n---\ncontent\n") == []
@@ -50,7 +52,10 @@ class TestFrontmatterValue:
         assert install_rules.frontmatter_value(['version: "1.2.3"'], "version") == "1.2.3"
 
     def test_finds_unquoted_value(self):
-        assert install_rules.frontmatter_value(["managed-by: https://example.com/repo"], "managed-by") == "https://example.com/repo"
+        assert (
+            install_rules.frontmatter_value(["managed-by: https://example.com/repo"], "managed-by")
+            == "https://example.com/repo"
+        )
 
     def test_ignores_other_keys(self):
         lines = ["paths:", '  - "**/*.py"', 'version: "2.0.1"']

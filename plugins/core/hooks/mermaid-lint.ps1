@@ -1,4 +1,4 @@
-# PostToolUse hook: validuje Mermaid diagramy v markdown souborech
+# PostToolUse hook: validate Mermaid diagrams in markdown files
 
 $data = $input | Out-String | ConvertFrom-Json
 $filePath = $data.tool_input.file_path

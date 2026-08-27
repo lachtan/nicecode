@@ -1,45 +1,45 @@
 # https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
 
 config:
-  # --- Vypnutá pravidla ---
+  # --- Disabled rules ---
 
-  # MD013/line-length: Dokumentace obsahuje dlouhé popisy, tabulky a URL
+  # MD013/line-length: docs carry long descriptions, tables and URLs
   MD013: false
-  # MD024/no-duplicate-heading: Povolujeme duplicitní nadpisy v rámci sourozenců
-  # (opakující se "Example", "Usage" apod.)
+  # MD024/no-duplicate-heading: duplicate headings are fine among siblings
+  # (repeated "Example", "Usage" and the like)
   MD024:
     siblings_only: true
-  # MD029/ol-prefix: Číslované seznamy s reálnými čísly (1. 2. 3.),
-  # i přerušené code bloky (linter je pak vidí jako oddělené seznamy)
+  # MD029/ol-prefix: ordered lists use real numbers (1. 2. 3.), including lists
+  # broken up by code blocks (the linter then sees them as separate lists)
   MD029: false
-  # MD033/no-inline-html: V textu se vyskytují C# generické typy (<TLogType>),
-  # HTML tabulky v NRT.md a další legitimní HTML
+  # MD033/no-inline-html: the text contains C# generic types (<TLogType>),
+  # HTML tables in NRT.md and other legitimate HTML
   MD033: false
-  # MD040/fenced-code-language: U běžného textu (výstupy, slash příkazy) je
-  # language identifier zbytečný
+  # MD040/fenced-code-language: for plain text (outputs, slash commands) a
+  # language identifier adds nothing
   MD040: false
-  # MD060/table-column-style: Příliš striktní formátování tabulek
+  # MD060/table-column-style: too strict about table formatting
   MD060: false
 
-  # --- Zapnutá pravidla s konfigurací ---
+  # --- Enabled rules with configuration ---
 
-  # MD004/ul-style: Jednotný styl odrážek - pomlčka
+  # MD004/ul-style: one bullet style - dash
   MD004:
     style: dash
-  # MD010/no-hard-tabs: Zakázat hard taby, ale povolit je v code blocích
+  # MD010/no-hard-tabs: forbid hard tabs, but allow them inside code blocks
   MD010:
     code_blocks: false
-  # MD046/code-block-style: Fenced code bloky (```) místo indentovaných
+  # MD046/code-block-style: fenced code blocks (```) instead of indented
   MD046:
     style: fenced
-  # MD049/emphasis-style: Konzistentní styl kurzívy
+  # MD049/emphasis-style: one italic style
   MD049:
     style: asterisk
-  # MD050/strong-style: Konzistentní styl tučného písma
+  # MD050/strong-style: one bold style
   MD050:
     style: asterisk
 
-# Ignorovat adresáře, které nejsou naše dokumentace
+# Ignore directories that are not our documentation
 ignorePatterns:
   - "node_modules"
   - "**/bin/**"

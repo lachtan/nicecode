@@ -11,11 +11,7 @@ def discover_skill_items(plugin_dir: Path) -> dict[str, Path]:
     skills_dir = plugin_dir / "skills"
     if not skills_dir.is_dir():
         return {}
-    return {
-        item.name: item
-        for item in sorted(skills_dir.iterdir())
-        if item.is_dir() and (item / "SKILL.md").is_file()
-    }
+    return {item.name: item for item in sorted(skills_dir.iterdir()) if item.is_dir() and (item / "SKILL.md").is_file()}
 
 
 def discover_file_items(plugin_dir: Path, category: str) -> dict[str, Path]:
