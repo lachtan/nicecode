@@ -9,7 +9,8 @@ if (-not $filePath -or -not $filePath.EndsWith('.md')) {
 }
 
 if (-not (Get-Command markdownlint-cli2 -ErrorAction SilentlyContinue)) {
-    Write-Warning "markdownlint-cli2 not found — markdown lint check was skipped. Install with: npm install -g markdownlint-cli2"
+    Write-Warning ("markdownlint-cli2 not found — markdown lint check was skipped. " +
+        "Install with: npm install -g markdownlint-cli2")
     exit 0
 }
 

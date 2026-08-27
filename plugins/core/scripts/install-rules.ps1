@@ -79,7 +79,12 @@ function Install-Rule {
     }
 
     $targetFrontmatter = Get-FrontmatterLines -Path $targetFile
-    $targetManagedBy = if ($null -eq $targetFrontmatter) { $null } else { Get-FrontmatterValue -FrontmatterLines $targetFrontmatter -Key "managed-by" }
+    $targetManagedBy = if ($null -eq $targetFrontmatter) {
+        $null
+    }
+    else {
+        Get-FrontmatterValue -FrontmatterLines $targetFrontmatter -Key "managed-by"
+    }
 
     if ($targetManagedBy -ne $ManagedBy) {
         return "skipped $($SourceFile.Name): not managed by this repo, not overwriting"
@@ -100,7 +105,12 @@ function Remove-OrphanedRule {
 
     # Deletes a rule this repo installed that the plugin no longer ships. $null = left alone.
     $frontmatter = Get-FrontmatterLines -Path $TargetFile.FullName
-    $managedBy = if ($null -eq $frontmatter) { $null } else { Get-FrontmatterValue -FrontmatterLines $frontmatter -Key "managed-by" }
+    $managedBy = if ($null -eq $frontmatter) {
+        $null
+    }
+    else {
+        Get-FrontmatterValue -FrontmatterLines $frontmatter -Key "managed-by"
+    }
 
     if ($managedBy -ne $ManagedBy) {
         return $null

@@ -58,7 +58,10 @@ function Save-TokenCacheState([string]$CacheFile, [PSCustomObject]$State) {
 }
 
 function Read-TranscriptTail([string]$TranscriptPath, [long]$Offset) {
-    $stream = [System.IO.File]::Open($TranscriptPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+    $mode = [System.IO.FileMode]::Open
+    $access = [System.IO.FileAccess]::Read
+    $share = [System.IO.FileShare]::ReadWrite
+    $stream = [System.IO.File]::Open($TranscriptPath, $mode, $access, $share)
     try {
         $stream.Seek($Offset, [System.IO.SeekOrigin]::Begin) | Out-Null
         $reader = New-Object System.IO.StreamReader($stream, [System.Text.Encoding]::UTF8)

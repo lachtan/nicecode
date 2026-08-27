@@ -8,7 +8,8 @@ if (-not $filePath -or $filePath -notmatch '\.(ps1|psm1|psd1)$') {
 }
 
 if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
-    Write-Warning "PSScriptAnalyzer not found — PowerShell format check was skipped. Install with: Install-Module PSScriptAnalyzer -Scope CurrentUser"
+    Write-Warning ("PSScriptAnalyzer not found — PowerShell format check was skipped. " +
+        "Install with: Install-Module PSScriptAnalyzer -Scope CurrentUser")
     exit 0
 }
 
