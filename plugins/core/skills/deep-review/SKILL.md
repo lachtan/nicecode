@@ -1,6 +1,12 @@
 ---
-description: Multi-agent local code review with scope detection, parallel reviewers, and validation
-origin: https://github.com/anthropics/claude-code/blob/main/plugins/code-review/commands/code-review.md
+name: deep-review
+description: >-
+  Use when reviewing changed code in depth — a multi-agent local review with scope detection,
+  parallel reviewers and a validation pass, auditing against clean-code rules and every
+  applicable CLAUDE.md. Read-only: reports findings, never edits a file.
+argument-hint: "[staged|branch|last|A..B|paths] [focus]"
+disable-model-invocation: true
+user-invocable: true
 allowed-tools:
   - Agent
   - Bash(git diff:*)
@@ -8,8 +14,9 @@ allowed-tools:
   - Read
   - Glob
   - Grep
+origin: https://github.com/anthropics/claude-code/blob/main/plugins/code-review/commands/code-review.md
 managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
+version: "1.2.0"
 ---
 
 Perform a thorough local code review of the user's changes described in `$ARGUMENTS`.
@@ -43,7 +50,7 @@ Follow these steps precisely:
 
 4. **Parallel review (4 agents in parallel).** Launch four agents at once, independently. Each receives: the diff from step 1, the list of CLAUDE.md paths from step 2, the summary from step 3, the focus area (if any), and the HIGH SIGNAL filter below. Each returns a list of issues where each issue is `{description, reason, file, line, severity}` with severity in `Critical` / `Important` / `Minor`.
 
-   - **Agents 1 + 2 — CLAUDE.md compliance (sonnet, parallel).** Read [plugins/core/rules/clean-code.md](../rules/clean-code.md) and every `CLAUDE.md` returned by step 2. Audit the diff for violations. **Scoping rule:** when evaluating a given file, consider only `CLAUDE.md` files that share the file's path or sit in a parent directory — never unrelated branches of the tree.
+   - **Agents 1 + 2 — CLAUDE.md compliance (sonnet, parallel).** Read `${CLAUDE_PLUGIN_ROOT}/rules/clean-code.md` and every `CLAUDE.md` returned by step 2. Audit the diff for violations. **Scoping rule:** when evaluating a given file, consider only `CLAUDE.md` files that share the file's path or sit in a parent directory — never unrelated branches of the tree.
    - **Agent 3 — diff-only bug scan (opus).** Read only the diff. Flag significant bugs visible from the diff itself. Do not read surrounding context. Do not flag anything you cannot validate from the diff alone.
    - **Agent 4 — contextual bug scan (opus).** May read surrounding files. Focus on security issues (injection, hardcoded secrets, unvalidated input, path traversal, auth flaws), correctness (logic errors, race conditions, null handling, off-by-one, unhandled edge cases), and error handling (swallowed exceptions, lost context, missing propagation) within the changed code.
 

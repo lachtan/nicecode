@@ -2,17 +2,16 @@
 
 Core coding best practices — skills and rules for cleaner code.
 
-## Agents
+## Review skills vs. the bundled ones
 
-- `quick-reviewer` — reviews code for quality and best practices.
-- `preview-simplifier` — simplifies and refines code for clarity, consistency, and maintainability while preserving functionality.
+Claude Code ships its own review skills — `/code-review` (several finder angles plus a verify pass,
+`--fix` to apply the findings, `--comment` to post them on a PR) and `/simplify` (applies the
+cleanups straight away). Reach for those when you want the fixes applied for you.
 
-## Commands
-
-- `/quick-review` — delegates to the `quick-reviewer` agent.
-- `/preview-simplify` — delegates to the `preview-simplifier` agent.
-- `/deep-review` — multi-agent local code review with scope detection, parallel reviewers, and validation.
-- `/chat` — answers a question without reading project files or invoking skills.
+`/deep-review` here is the read-only counterpart: it audits explicitly against
+`rules/clean-code.md` and every applicable `CLAUDE.md`, and never touches a file — it reports,
+you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) live in the
+[lab](../lab/README.md) plugin while their overlap with the bundled skills is still unproven.
 
 ## Scripts
 
@@ -57,8 +56,10 @@ Core coding best practices — skills and rules for cleaner code.
 ## Skills
 
 - `best-practice` — do a task the idiomatic way from official docs, ignoring how the repo already does it.
+- `chat` — answers a question without reading project files or invoking skills.
 - `coding-discipline` — behavioral guidelines to reduce common LLM coding mistakes.
 - `commit` — interactive git commit workflow with formatting rules.
+- `deep-review` — multi-agent local code review with scope detection, parallel reviewers, and validation.
 - `explain` — thorough analysis of a file or module: what it does, how it connects, how it can break.
 - `install-rules` — installs/updates the versioned rule files into this project.
 - `install-statusline` — installs/updates the statusline scripts and wires `statusLine` in settings.json.

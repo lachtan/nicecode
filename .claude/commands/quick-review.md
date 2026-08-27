@@ -1,1 +1,0 @@
-../../plugins/core/commands/quick-review.md

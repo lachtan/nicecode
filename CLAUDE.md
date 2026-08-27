@@ -15,7 +15,7 @@ Each plugin is a self-contained bundle: `core` (rules, skills and hooks), `lab`
 
 ## Development
 
-`.claude/` contains symlinks into `plugins/*/` — the repo points to itself so every local plugin's skills, commands, and agents can be tested directly here. Always edit source files in `plugins/<plugin>/`, never in `.claude/`. `scripts/sync-symlinks.py` keeps `.claude/{skills,commands,agents}/` in sync with what's under `plugins/*/`; a `PostToolUse` hook in `.claude/settings.json` runs it automatically after every `Write`, so a new/removed skill, command, or agent never needs a manual symlink.
+`.claude/` contains symlinks into `plugins/*/` — the repo points to itself so every local plugin's skills can be tested directly here. Skills are the only form still in use; `commands/` and `agents/` stay wired up for the sync script but no plugin ships them any more. Always edit source files in `plugins/<plugin>/`, never in `.claude/`. `scripts/sync-symlinks.py` keeps `.claude/{skills,commands,agents}/` in sync with what's under `plugins/*/`; a `PostToolUse` hook in `.claude/settings.json` runs it automatically after every `Write`, so a new/removed skill, command, or agent never needs a manual symlink.
 
 ### Hook conventions
 
