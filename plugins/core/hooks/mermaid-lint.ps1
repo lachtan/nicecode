@@ -9,7 +9,7 @@ if (-not $filePath -or -not $filePath.EndsWith('.md')) {
 
 if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
     Write-Warning "npx not found — Mermaid diagram lint check was skipped. Install with: npm install -g npx"
-    exit 1
+    exit 0
 }
 
 npx --yes md-mermaid-lint $filePath

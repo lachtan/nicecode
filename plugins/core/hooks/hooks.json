@@ -18,39 +18,19 @@
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/format-python.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
+          },
           {
             "type": "command",
             "command": "pwsh -File ${CLAUDE_PLUGIN_ROOT}/hooks/format-powershell.ps1"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
+          },
           {
             "type": "command",
             "command": "pwsh -File ${CLAUDE_PLUGIN_ROOT}/hooks/fix-markdown.ps1"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
+          },
           {
             "type": "command",
             "command": "pwsh -File ${CLAUDE_PLUGIN_ROOT}/hooks/mermaid-lint.ps1"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
+          },
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/check-bash.sh"

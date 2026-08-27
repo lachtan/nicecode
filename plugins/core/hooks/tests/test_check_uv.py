@@ -158,5 +158,6 @@ def test_malformed_json_input():
         capture_output=True,
         text=True,
     )
-    assert result.returncode == 1
+    # A hook that cannot read its input passes the call through, it does not block it.
+    assert result.returncode == 0
     assert "failed to parse stdin" in result.stderr
