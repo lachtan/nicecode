@@ -63,6 +63,7 @@ you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) li
 - `explain` — thorough analysis of a file or module: what it does, how it connects, how it can break.
 - `install-rules` — installs/updates the versioned rule files into this project.
 - `install-statusline` — installs/updates the statusline scripts and wires `statusLine` in settings.json.
+- `ops-guide` — how to write a step-by-step procedure a human will run at a console.
 - `search-first` — check whether something already exists (repo, dependencies, stdlib) before writing new code.
 - `skill-authoring` — conventions for writing SKILL.md files so skills trigger reliably.
 - `summary` — summarize the current conversation and save it to a markdown file.
