@@ -7,6 +7,7 @@ disable-model-invocation: true
 user-invocable: true
 managed-by: https://github.com/lachtan/nicecode
 version: "1.0.0"
+last-change: "2026-07-11 10:06:11"
 ---
 
 # Best practice (outside the repo)

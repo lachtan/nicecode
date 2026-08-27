@@ -8,6 +8,7 @@ user-invocable: true
 disable-model-invocation: true
 managed-by: https://github.com/lachtan/nicecode
 version: "1.0.0"
+last-change: "2026-08-27 05:55:11"
 ---
 
 # Implementation plan review

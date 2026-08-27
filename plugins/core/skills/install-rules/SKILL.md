@@ -10,6 +10,7 @@ user-invocable: true
 disable-model-invocation: false
 managed-by: https://github.com/lachtan/nicecode
 version: "1.2.0"
+last-change: "2026-08-27 05:53:34"
 ---
 
 # Install Rules

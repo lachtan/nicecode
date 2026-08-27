@@ -5,6 +5,7 @@ disable-model-invocation: true
 argument-hint: "[file.md]"
 managed-by: https://github.com/lachtan/nicecode
 version: "1.0.0"
+last-change: "2026-03-23 08:18:20"
 ---
 
 Summarize the current conversation and save the result to a file.
