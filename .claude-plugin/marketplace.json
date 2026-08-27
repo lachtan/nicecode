@@ -11,13 +11,13 @@
       "name": "core",
       "source": "./plugins/core",
       "description": "Core coding best practices — skills and rules for cleaner code",
-      "version": "1.4.0"
+      "version": "1.5.0"
     },
     {
       "name": "lab",
       "source": "./plugins/lab",
       "description": "Lab for work-in-progress skills and components before they move to core",
-      "version": "0.1.0"
+      "version": "0.2.0"
     },
     {
       "name": "mattpocock",
