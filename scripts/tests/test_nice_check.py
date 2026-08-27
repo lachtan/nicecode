@@ -537,8 +537,8 @@ class TestCheckTextHygiene:
         assert "does not end with a newline" in findings[0].message
 
     def test_reports_accented_letters(self, tmp_path):
-        # Escaped so this test file itself stays ASCII - nice-check scans its own repo.
-        tracked = [write(tmp_path, "a.md", "kontrola není hotová\n")]
+        # The accents are \u escapes so this test file itself stays ASCII - nice-check scans its own repo.
+        tracked = [write(tmp_path, "a.md", "kontrola nen\u00ed hotov\u00e1\n")]
 
         findings = nice_check.check_text_hygiene(make_repo(tmp_path, tracked))
 
@@ -550,8 +550,9 @@ class TestCheckTextHygiene:
         assert nice_check.check_text_hygiene(make_repo(tmp_path, tracked)) == []
 
     def test_reports_a_generator_placeholder(self, tmp_path):
-        # Two spaces so the literal phrase never appears in this file either.
-        tracked = [write(tmp_path, "a.md", "Add your  description here\n")]
+        # Split so the literal phrase never appears in this file either - the check
+        # matches "Add your" and "description here" across any run of whitespace.
+        tracked = [write(tmp_path, "a.md", "Add your " + "description here\n")]
 
         findings = nice_check.check_text_hygiene(make_repo(tmp_path, tracked))
 
