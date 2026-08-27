@@ -20,9 +20,12 @@ version: "1.2.0"
 last-change: "2026-08-27 05:54:13"
 ---
 
+# Deep code review
+
 Perform a thorough local code review of the user's changes described in `$ARGUMENTS`.
 
 **Agent assumptions (apply to all subagents you launch):**
+
 - All tools are functional and will work without error. Do not test tools or make exploratory calls. Make sure this is clear to every subagent that is launched.
 - Only call a tool if it is required to complete the task. Every tool call should have a clear purpose.
 

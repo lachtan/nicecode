@@ -1,6 +1,6 @@
 ---
 name: install-rules
-description: >
+description: >-
   Installs or updates the nicecode core plugin's rule files
   (coding conventions) into this project's .claude/rules directory, or into
   the user's home directory so they apply across every project.

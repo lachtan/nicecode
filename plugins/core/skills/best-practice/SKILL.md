@@ -1,6 +1,6 @@
 ---
 name: best-practice
-description: >
+description: >-
   Do a task the idiomatic way from official docs and best practices, ignoring
   how the repo already does it.
 disable-model-invocation: true

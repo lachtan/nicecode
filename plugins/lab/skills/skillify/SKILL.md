@@ -1,10 +1,12 @@
 ---
 name: skillify
-description: >
+description: >-
   Capture the current session's repeatable process into a reusable SKILL.md skill file.
   Use when the user wants to create a skill, save a workflow as a skill, turn a process into a reusable skill,
   or mentions "skillify", "create skill", "make a skill", "save as skill", "capture workflow",
   "turn this into a skill", "new skill", or wants to automate a repeatable process they just performed.
+disable-model-invocation: false
+user-invocable: true
 allowed-tools:
   - Read
   - Write

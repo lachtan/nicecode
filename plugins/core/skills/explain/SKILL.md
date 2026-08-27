@@ -8,6 +8,8 @@ version: "1.0.0"
 last-change: "2026-03-23 08:18:20"
 ---
 
+# Explain a file or module
+
 Thoroughly examine and analyze: $ARGUMENTS
 
 Explain:

@@ -11,6 +11,8 @@ version: "1.1.0"
 last-change: "2026-08-27 05:54:13"
 ---
 
+# Chat
+
 Answer the following question.
 
 Web and MCP docs are fine, but **do not read any project files** (no Read/Grep/Glob/Bash on the repo)

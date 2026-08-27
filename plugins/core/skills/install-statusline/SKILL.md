@@ -1,6 +1,6 @@
 ---
 name: install-statusline
-description: >
+description: >-
   Installs or updates the nicecode core plugin's statusline scripts into this
   project's .claude/scripts directory (or the user's home directory) and wires
   the "statusLine" key in settings.json to point at it.
