@@ -15,13 +15,27 @@ Each plugin is a self-contained bundle: `core` (rules, skills and hooks), `lab`
 
 ## Development
 
-`.claude/` contains symlinks into `plugins/*/` — the repo points to itself so every local plugin's skills can be tested directly here. Skills are the only form still in use; `commands/` and `agents/` stay wired up for the sync script but no plugin ships them any more. Always edit source files in `plugins/<plugin>/`, never in `.claude/`. `scripts/sync-symlinks.py` keeps `.claude/{skills,commands,agents}/` in sync with what's under `plugins/*/`; a `PostToolUse` hook in `.claude/settings.json` runs it automatically after every `Write`, so a new/removed skill, command, or agent never needs a manual symlink.
+`.claude/` contains symlinks into `plugins/*/` — the repo points to itself so every local plugin's skills can be tested directly here. Skills are the only form still in use; `commands/` and `agents/` stay wired up for the sync script but no plugin ships them any more. Always edit source files in `plugins/<plugin>/`, never in `.claude/`. `scripts/sync-symlinks.py` keeps `.claude/{skills,commands,agents}/` in sync with what's under `plugins/*/`; a `PostToolUse` hook in `.claude/settings.json` runs it automatically after every `Write`, so a new/removed skill, command, or agent never needs a manual symlink. The one exception is `.claude/skills/nice-check/` — a real directory, not a symlink: a repo-local skill with no plugin behind it, so `sync-symlinks.py` reports it as `skipped` and leaves it alone.
 
 ### Hook conventions
 
 - Hook scripts in `hooks/` receive JSON via stdin (`json.load(sys.stdin)` in Python).
 - Exit code 2 = block the tool call, 0 = pass.
 - Use `${CLAUDE_PLUGIN_ROOT}` for paths in `hooks.json` and `|` in the matcher to combine tools (e.g., `Edit|Write`).
+
+### Skill frontmatter
+
+`scripts/nice-check.py` (check B) enforces these on every authored `SKILL.md`:
+
+- `name` must match the skill's directory name.
+- `disable-model-invocation` and `user-invocable` are always set explicitly.
+- `managed-by` and `version` on plugin skills — provenance bookkeeping only; no installer reads
+  them, `install-rules.py` handles `rules/` alone.
+- `last-change: "YYYY-MM-DD HH:MM:SS"` — local time, quoted (unquoted it parses as a YAML
+  timestamp, not a string). Rewrite it when the body changes — what the skill tells Claude to do.
+  A frontmatter-only edit (version bump, a new flag) or a formatting sweep leaves it alone.
+
+A vendored skill (one carrying `license:`) is exempt from all of it — it belongs to its author.
 
 ### Versioning
 
