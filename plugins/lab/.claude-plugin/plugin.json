@@ -1,6 +1,6 @@
 {
   "name": "lab",
-  "description": "Experimental work-in-progress skills and components, until they prove out and move to core",
+  "description": "Lab for work-in-progress skills and components before they move to core",
   "author": {
     "name": "lachtan"
   }

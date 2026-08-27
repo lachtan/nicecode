@@ -29,12 +29,7 @@
             "type": "command",
             "command": "pwsh -File .claude/hooks/nicecode/fix-markdown.ps1",
             "statusMessage": "Auto-fix markdown formatting after edits"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
+          },
           {
             "type": "command",
             "command": "pwsh -File .claude/hooks/nicecode/mermaid-lint.ps1",

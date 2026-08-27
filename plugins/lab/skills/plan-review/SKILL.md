@@ -8,7 +8,7 @@ user-invocable: true
 disable-model-invocation: true
 managed-by: https://github.com/lachtan/nicecode
 version: "1.0.0"
-last-change: "2026-08-27 05:55:11"
+last-change: "2026-08-27 10:00:15"
 ---
 
 # Implementation plan review
@@ -83,7 +83,7 @@ Plans may be written in any language. Match the *meaning* below, not English key
 9. **Unverified assumptions** — the plan rests on a claim about foreign code, a library or a protocol
    that it never checks. If the claim is false, part of the plan collapses with it.
 10. **Speculative scope** — an abstraction, layer, generality or extension point the request did not
-    ask for. See [clean-code.md](../../rules/clean-code.md) ("Prefer the simpler solution").
+    ask for. See `clean-code.md` under `.claude/rules/` ("Prefer the simpler solution").
 11. **Order and divisibility** — steps depend on each other in the wrong order, or the plan cannot be
     done in parts that each leave the build and tests green.
     *Not a finding:* a small plan that is naturally a single step.
