@@ -72,6 +72,15 @@ def install_rule(source_file: Path, target_dir: Path) -> str:
     return f"up to date {source_file.name} ({format_version(target_version)})"
 
 
+def remove_orphaned_rule(target_file: Path) -> str | None:
+    """Delete a rule this repo installed that the plugin no longer ships. None = left alone."""
+    frontmatter = extract_frontmatter(target_file.read_text())
+    if frontmatter is None or frontmatter_value(frontmatter, "managed-by") != MANAGED_BY:
+        return None
+    target_file.unlink()
+    return f"removed {target_file.name}: no longer in plugin"
+
+
 def replace_stale_symlink(target_dir: Path) -> None:
     if target_dir.is_symlink():
         target_dir.unlink()
@@ -110,13 +119,23 @@ def main() -> None:
     target_dir.mkdir(parents=True, exist_ok=True)
 
     results = [install_rule(source_file, target_dir) for source_file in sorted(plugin_rules_dir.glob("*.md"))]
+
+    source_names = {source_file.name for source_file in plugin_rules_dir.glob("*.md")}
+    for target_file in sorted(target_dir.glob("*.md")):
+        if target_file.name in source_names:
+            continue
+        result = remove_orphaned_rule(target_file)
+        if result is not None:
+            results.append(result)
+
     for result in results:
         print(result)
 
     installed = sum(result.startswith("installed ") for result in results)
     updated = sum(result.startswith("updated ") for result in results)
+    removed = sum(result.startswith("removed ") for result in results)
     skipped = sum(result.startswith("skipped ") or result.startswith("up to date ") for result in results)
-    print(f"\n{installed} installed, {updated} updated, {skipped} skipped")
+    print(f"\n{installed} installed, {updated} updated, {removed} removed, {skipped} skipped")
 
 
 if __name__ == "__main__":

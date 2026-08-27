@@ -51,9 +51,7 @@ Core coding best practices — skills and rules for cleaner code.
 - `powershell.md` — PowerShell scripting conventions.
 - `powershell-pester-5.md` — PowerShell testing with Pester 5.
 - `rust.md` — Rust conventions.
-- `ansible.md` — Ansible playbook conventions.
 - `markdown-style.md` — markdown style rules the auto-fixer cannot enforce.
-- `hooks.md` — conventions for writing Claude Code hooks.
 - `nicecode-test.md` — `nicecode status` smoke-test command.
 
 ## Skills

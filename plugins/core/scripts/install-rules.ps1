@@ -95,6 +95,21 @@ function Install-Rule {
     return "up to date $($SourceFile.Name) ($targetVersion)"
 }
 
+function Remove-OrphanedRule {
+    param([System.IO.FileInfo]$TargetFile)
+
+    # Deletes a rule this repo installed that the plugin no longer ships. $null = left alone.
+    $frontmatter = Get-FrontmatterLines -Path $TargetFile.FullName
+    $managedBy = if ($null -eq $frontmatter) { $null } else { Get-FrontmatterValue -FrontmatterLines $frontmatter -Key "managed-by" }
+
+    if ($managedBy -ne $ManagedBy) {
+        return $null
+    }
+
+    Remove-Item -Path $TargetFile.FullName -Force
+    return "removed $($TargetFile.Name): no longer in plugin"
+}
+
 $existingTarget = Get-Item -Path $TargetDir -Force -ErrorAction SilentlyContinue
 if ($existingTarget -and $existingTarget.LinkType) {
     Remove-Item -Path $TargetDir -Force
@@ -102,15 +117,25 @@ if ($existingTarget -and $existingTarget.LinkType) {
 
 New-Item -ItemType Directory -Force -Path $TargetDir | Out-Null
 
-$results = Get-ChildItem -Path $PluginRulesDir -Filter "*.md" |
-    Sort-Object Name |
-    ForEach-Object { Install-Rule -SourceFile $_ -TargetDir $TargetDir }
+$sourceFiles = Get-ChildItem -Path $PluginRulesDir -Filter "*.md" | Sort-Object Name
+
+$results = @($sourceFiles | ForEach-Object { Install-Rule -SourceFile $_ -TargetDir $TargetDir })
+
+$sourceNames = @($sourceFiles | ForEach-Object { $_.Name })
+$results += @(
+    Get-ChildItem -Path $TargetDir -Filter "*.md" |
+        Sort-Object Name |
+        Where-Object { $sourceNames -notcontains $_.Name } |
+        ForEach-Object { Remove-OrphanedRule -TargetFile $_ } |
+        Where-Object { $null -ne $_ }
+)
 
 $results | ForEach-Object { Write-Output $_ }
 
 $installed = ($results | Where-Object { $_.StartsWith("installed ") }).Count
 $updated = ($results | Where-Object { $_.StartsWith("updated ") }).Count
+$removed = ($results | Where-Object { $_.StartsWith("removed ") }).Count
 $skipped = ($results | Where-Object { $_.StartsWith("skipped ") -or $_.StartsWith("up to date ") }).Count
 
 Write-Output ""
-Write-Output "$installed installed, $updated updated, $skipped skipped"
+Write-Output "$installed installed, $updated updated, $removed removed, $skipped skipped"

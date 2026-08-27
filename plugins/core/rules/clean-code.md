@@ -1,6 +1,6 @@
 ---
 managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # Clean Code Principles
@@ -22,6 +22,8 @@ General principles for all languages.
 - Prefer low number of parameters (0–3).
 - A function that queries state must not change it (Command-Query Separation).
 - A function must do exactly one thing at one level of abstraction.
+- Length is never a reason to split; split only when both halves can be understood
+  and replaced on their own.
 
 ## Design
 
@@ -47,12 +49,14 @@ General principles for all languages.
 - Never swallow exceptions silently; always handle or propagate.
 - Preserve error context when re-throwing; do not lose the original cause.
 - Use specific error/exception types, not generic catch-all types.
-- Make failure modes explicit — errors are part of the interface.
+- Make failure modes explicit for failures the caller can act on; resolve the rest
+  where they arise rather than exporting them.
 
 ## Comments
 
-- Use comments sparingly — each comment is a maintenance liability.
-- Comments explain WHY, not WHAT; code should be self-explanatory.
+- Comments carry what the code cannot say: units, boundary inclusivity, what null means,
+  ownership, invariants, why this exists.
+- Comments explain WHY, not WHAT — a comment derivable from the line beside it is noise.
 - Document non-obvious decisions, business rules, and known trade-offs.
 
 ## Performance

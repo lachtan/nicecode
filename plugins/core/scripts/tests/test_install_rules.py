@@ -174,6 +174,39 @@ class TestInstallRule:
         assert result == "updated rule.md: unknown -> 1.0.0"
 
 
+# -- remove_orphaned_rule ------------------------------------------------------
+
+
+class TestRemoveOrphanedRule:
+    def test_removes_rule_managed_by_this_repo(self, tmp_path):
+        orphan = tmp_path / "hooks.md"
+        write_rule(orphan, version="1.0.0")
+
+        result = install_rules.remove_orphaned_rule(orphan)
+
+        assert not orphan.exists()
+        assert result == "removed hooks.md: no longer in plugin"
+
+    def test_keeps_rule_managed_by_another_repo(self, tmp_path):
+        foreign = tmp_path / "hooks.md"
+        write_rule(foreign, version="1.0.0", managed_by=OTHER_REPO, body="foreign content")
+        original_content = foreign.read_text()
+
+        result = install_rules.remove_orphaned_rule(foreign)
+
+        assert foreign.read_text() == original_content
+        assert result is None
+
+    def test_keeps_rule_without_frontmatter(self, tmp_path):
+        hand_written = tmp_path / "hooks.md"
+        hand_written.write_text("hand-written content\n")
+
+        result = install_rules.remove_orphaned_rule(hand_written)
+
+        assert hand_written.read_text() == "hand-written content\n"
+        assert result is None
+
+
 # -- replace_stale_symlink -----------------------------------------------------
 
 
@@ -277,6 +310,26 @@ class TestMain:
 
         assert not (project_dir / ".claude").exists()
         assert (fake_home / ".claude" / "rules" / "plugins" / "nicecode" / "core" / "a.md").exists()
+
+    def test_removes_orphan_but_keeps_foreign_rule(self, tmp_path, monkeypatch):
+        plugin_root = tmp_path / "plugin"
+        (plugin_root / "rules").mkdir(parents=True)
+        write_rule(plugin_root / "rules" / "a.md", version="1.0.0")
+
+        project_dir = tmp_path / "project"
+        target_dir = project_dir / ".claude" / "rules" / "plugins" / "nicecode" / "core"
+        target_dir.mkdir(parents=True)
+        write_rule(target_dir / "gone.md", version="1.0.0")
+        write_rule(target_dir / "mine.md", version="1.0.0", managed_by=OTHER_REPO)
+
+        monkeypatch.setattr(install_rules, "__file__", str(plugin_root / "scripts" / "install-rules.py"))
+        monkeypatch.setattr("sys.argv", ["install-rules.py", str(project_dir), "--scope", "project"])
+
+        install_rules.main()
+
+        assert (target_dir / "a.md").exists()
+        assert not (target_dir / "gone.md").exists()
+        assert (target_dir / "mine.md").exists()
 
     def test_requires_scope_argument(self, tmp_path, monkeypatch):
         project_dir = tmp_path / "project"

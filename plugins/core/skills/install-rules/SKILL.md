@@ -9,7 +9,7 @@ description: >
 user-invocable: true
 disable-model-invocation: false
 managed-by: https://github.com/lachtan/nicecode
-version: "1.1.0"
+version: "1.2.0"
 ---
 
 # Install Rules
@@ -20,6 +20,10 @@ carries a `version` in its frontmatter, so re-running this only overwrites
 files where the plugin's version is newer than what's already installed —
 files you've customized without a matching `version` are left untouched and
 reported as skipped.
+
+Rules the plugin no longer ships are deleted from the target directory, so a rule
+retired upstream doesn't linger forever. Only files carrying nicecode's own
+`managed-by` are removed — your own rules and rules from another source stay.
 
 ## Steps
 
@@ -52,4 +56,6 @@ reported as skipped.
    - User scope:
      - Linux/macOS: `python3 <resolved-path>/install-rules.py --scope user`
      - Windows: `pwsh -File <resolved-path>/install-rules.ps1 -Scope user`
-5. Report the script's output to the user (installed / updated / skipped counts and files).
+5. Report the script's output to the user (installed / updated / removed / skipped
+   counts and files). Call out removals explicitly — deleting a retired rule is
+   destructive and the user should see which files went.
