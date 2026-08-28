@@ -23,19 +23,24 @@ Each plugin is a self-contained bundle: `core` (rules, skills and hooks), `lab`
 - Exit code 2 = block the tool call, 0 = pass.
 - Use `${CLAUDE_PLUGIN_ROOT}` for paths in `hooks.json` and `|` in the matcher to combine tools (e.g., `Edit|Write`).
 
-### Skill frontmatter
+### Frontmatter
 
-`scripts/nice-check.py` (check B) enforces these on every authored `SKILL.md`:
+`scripts/nice-check.py` (check B) enforces these on every `SKILL.md` and every `rules/*.md` under
+`plugins/`. There is no exempt category: a taken-over file follows the same rules as an authored
+one and records where it came from in `origin`.
+
+- `managed-by` and `version` — on plugin skills, provenance bookkeeping only; on `rules/*.md`,
+  `install-rules.py` actually reads them to decide whether to overwrite an installed copy.
+- `last-change: "YYYY-MM-DD HH:MM:SS"` — local time, quoted (unquoted it parses as a YAML
+  timestamp, not a string). Rewrite it when the body changes — what the file tells Claude to do.
+  A frontmatter-only edit (version bump, a new flag) or a formatting sweep leaves it alone.
+- `license` never appears in frontmatter — a licence lives in a `LICENSE` file or the plugin
+  manifest, and `origin` is what credits the source.
+
+On a `SKILL.md` additionally:
 
 - `name` must match the skill's directory name.
 - `disable-model-invocation` and `user-invocable` are always set explicitly.
-- `managed-by` and `version` on plugin skills — provenance bookkeeping only; no installer reads
-  them, `install-rules.py` handles `rules/` alone.
-- `last-change: "YYYY-MM-DD HH:MM:SS"` — local time, quoted (unquoted it parses as a YAML
-  timestamp, not a string). Rewrite it when the body changes — what the skill tells Claude to do.
-  A frontmatter-only edit (version bump, a new flag) or a formatting sweep leaves it alone.
-
-A vendored skill (one carrying `license:`) is exempt from all of it — it belongs to its author.
 
 ### Versioning
 

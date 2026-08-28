@@ -2,11 +2,11 @@
 name: nice-check
 description: >-
   Use when checking this repo against its own rules before a merge or release, or when
-  auditing what needs fixing — plugin manifests, skill frontmatter, README sync, dead
-  links, hook exit codes and text hygiene. Report only, changes nothing.
+  auditing what needs fixing — plugin manifests, skill and rule frontmatter, README sync,
+  dead links, hook exit codes and text hygiene. Report only, changes nothing.
 disable-model-invocation: true
 user-invocable: true
-last-change: "2026-08-27 08:29:51"
+last-change: "2026-08-28 09:29:19"
 ---
 
 # nice-check
@@ -22,9 +22,9 @@ Audit this repo against the rules it sets for itself. Report only — fixing is 
    ```
 
    It prints one line per finding (`error`/`warning`, check letter, `path:line`, message) and
-   exits 1 when any finding is an error. Checks A–J cover plugin manifests, skill frontmatter,
-   skill-name collisions, plugin README sync, dead relative links, hook configuration, hook exit
-   codes, references between skills, text hygiene and stray tracked files.
+   exits 1 when any finding is an error. Checks A–J cover plugin manifests, the frontmatter of
+   skills and rule files, skill-name collisions, plugin README sync, dead relative links, hook
+   configuration, hook exit codes, references between skills, text hygiene and stray tracked files.
 
 2. Run the tools that already own the rest — do not reimplement these in the script:
 

@@ -240,7 +240,7 @@ def check_manifest_entry(repo: Repo, manifest_rel: str, entry: dict) -> list[Fin
     return []
 
 
-# -- B. skill frontmatter ----------------------------------------------------
+# -- B. frontmatter of skills and rules --------------------------------------
 
 
 def check_skill_frontmatter(repo: Repo) -> list[Finding]:
@@ -260,6 +260,7 @@ def check_skill_frontmatter(repo: Repo) -> list[Finding]:
 
 
 def frontmatter_findings(skill: SkillRef, frontmatter: dict[str, FrontmatterValue]) -> list[Finding]:
+    """Every skill under plugins/ is held to the same rules; a taken-over one records its `origin`."""
     findings = []
     name = frontmatter.get("name")
     if name is None:
@@ -273,13 +274,6 @@ def frontmatter_findings(skill: SkillRef, frontmatter: dict[str, FrontmatterValu
         message = "argument-hint parses as a YAML list, not a string; wrap the value in quotes"
         findings.append(Finding(WARNING, "B", skill.rel, hint.line, message))
 
-    if "license" in frontmatter:
-        return findings  # vendored skill: the rest is the upstream author's business
-    return findings + authored_skill_findings(skill, frontmatter)
-
-
-def authored_skill_findings(skill: SkillRef, frontmatter: dict[str, FrontmatterValue]) -> list[Finding]:
-    findings = []
     description = frontmatter.get("description")
     if description is not None and description.style is not None and not description.style.endswith("-"):
         message = f"description uses `{description.style}`, which keeps a trailing newline; use `{description.style}-`"
@@ -289,23 +283,57 @@ def authored_skill_findings(skill: SkillRef, frontmatter: dict[str, FrontmatterV
         if flag not in frontmatter:
             findings.append(Finding(WARNING, "B", skill.rel, None, f"{flag} is not set explicitly"))
 
-    findings += last_change_findings(skill, frontmatter.get("last-change"))
+    findings += license_findings(skill.rel, frontmatter)
+    findings += last_change_findings(skill.rel, frontmatter.get("last-change"))
 
     if skill.plugin is None:
         return findings  # a repo-local skill has no installer, so nothing manages its version
-    for key in MANAGED_KEYS:
-        if key not in frontmatter:
-            findings.append(Finding(WARNING, "B", skill.rel, None, f"{key} is missing"))
-    return findings
+    return findings + managed_findings(skill.rel, frontmatter)
 
 
-def last_change_findings(skill: SkillRef, value: FrontmatterValue | None) -> list[Finding]:
+def license_findings(rel: str, frontmatter: dict[str, FrontmatterValue]) -> list[Finding]:
+    value = frontmatter.get("license")
     if value is None:
-        return [Finding(WARNING, "B", skill.rel, None, "last-change is missing")]
+        return []
+    message = "license does not belong in frontmatter; `origin` is what records where a file came from"
+    return [Finding(WARNING, "B", rel, value.line, message)]
+
+
+def managed_findings(rel: str, frontmatter: dict[str, FrontmatterValue]) -> list[Finding]:
+    return [Finding(WARNING, "B", rel, None, f"{key} is missing") for key in MANAGED_KEYS if key not in frontmatter]
+
+
+def last_change_findings(rel: str, value: FrontmatterValue | None) -> list[Finding]:
+    if value is None:
+        return [Finding(WARNING, "B", rel, None, "last-change is missing")]
     stamp = unquote(value.raw)
     if LAST_CHANGE.match(stamp):
         return []
-    return [Finding(WARNING, "B", skill.rel, value.line, f"last-change {stamp!r} is not YYYY-MM-DD HH:MM:SS")]
+    return [Finding(WARNING, "B", rel, value.line, f"last-change {stamp!r} is not YYYY-MM-DD HH:MM:SS")]
+
+
+def rule_files(repo: Repo) -> list[Path]:
+    return [rule for plugin_dir in plugin_dirs(repo) for rule in sorted((plugin_dir / "rules").glob("*.md"))]
+
+
+def check_rule_frontmatter(repo: Repo) -> list[Finding]:
+    """A rule file is not a skill: only the provenance bookkeeping applies to it."""
+    findings = []
+    for rule in rule_files(repo):
+        rel = relpath(repo, rule)
+        text, error = load_text(rule)
+        if error:
+            findings.append(Finding(ERROR, "B", rel, None, error))
+            continue
+        try:
+            frontmatter = parse_frontmatter(text)
+        except FrontmatterError as exc:
+            findings.append(Finding(ERROR, "B", rel, None, str(exc)))
+            continue
+        findings += license_findings(rel, frontmatter)
+        findings += last_change_findings(rel, frontmatter.get("last-change"))
+        findings += managed_findings(rel, frontmatter)
+    return findings
 
 
 # -- C. skill name collisions ------------------------------------------------
@@ -516,13 +544,9 @@ def check_skill_cross_references(repo: Repo) -> list[Finding]:
 
 def cross_references(skill: SkillRef, text: str, names: list[str]) -> list[Finding]:
     try:
-        frontmatter = parse_frontmatter(text)
         _, body_start = split_frontmatter(text)
     except FrontmatterError:
         return []  # already reported by check B
-    if "license" in frontmatter:
-        return []  # a vendored skill manages its own internal links
-
     findings = []
     body = text.splitlines()[body_start - 1 :]
     for offset, line in enumerate(body):
@@ -595,6 +619,7 @@ def check_stray_tracked_files(repo: Repo) -> list[Finding]:
 CHECKS = (
     check_plugin_manifests,
     check_skill_frontmatter,
+    check_rule_frontmatter,
     check_skill_collisions,
     check_plugin_readmes,
     check_markdown_links,

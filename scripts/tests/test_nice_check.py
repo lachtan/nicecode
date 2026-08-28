@@ -26,6 +26,14 @@ def make_skill(root: Path, plugin: str | None, name: str, frontmatter: str, body
     return write(root, f"{parent}/{name}/SKILL.md", f"---\n{frontmatter}---\n{body}")
 
 
+def make_rule(root: Path, plugin: str, name: str, frontmatter: str, body: str = "\n# Body\n") -> str:
+    return write(root, f"plugins/{plugin}/rules/{name}.md", f"---\n{frontmatter}---\n{body}")
+
+
+def managed(version: str = "1.0.0") -> str:
+    return f'managed-by: https://example.invalid\nversion: "{version}"\nlast-change: "2026-01-01 12:00:00"\n'
+
+
 def authored(name: str) -> str:
     return (
         f"name: {name}\n"
@@ -145,7 +153,7 @@ class TestCheckPluginManifests:
         assert "invalid JSON" in findings[0].message
 
 
-# -- B. skill frontmatter ----------------------------------------------------
+# -- B. frontmatter of skills and rules --------------------------------------
 
 
 class TestCheckSkillFrontmatter:
@@ -195,10 +203,29 @@ class TestCheckSkillFrontmatter:
             "version is missing",
         ]
 
-    def test_skips_a_vendored_skill_carrying_a_license(self, tmp_path):
-        make_skill(tmp_path, "vendor", "demo", "name: demo\ndescription: >\n  Text.\nlicense: MIT\n")
+    def test_reports_a_license_in_the_frontmatter(self, tmp_path):
+        make_skill(tmp_path, "vendor", "demo", authored("demo") + "license: MIT\n")
 
-        assert nice_check.check_skill_frontmatter(make_repo(tmp_path)) == []
+        findings = nice_check.check_skill_frontmatter(make_repo(tmp_path))
+
+        assert len(findings) == 1
+        assert "license does not belong in frontmatter" in findings[0].message
+
+    def test_holds_a_taken_over_skill_to_the_same_rules(self, tmp_path):
+        frontmatter = "name: demo\ndescription: >\n  Text.\norigin: https://example.invalid\nlicense: MIT\n"
+        make_skill(tmp_path, "vendor", "demo", frontmatter)
+
+        findings = nice_check.check_skill_frontmatter(make_repo(tmp_path))
+
+        assert [finding.message for finding in findings] == [
+            "description uses `>`, which keeps a trailing newline; use `>-`",
+            "disable-model-invocation is not set explicitly",
+            "user-invocable is not set explicitly",
+            "license does not belong in frontmatter; `origin` is what records where a file came from",
+            "last-change is missing",
+            "managed-by is missing",
+            "version is missing",
+        ]
 
     def test_still_checks_a_skill_that_only_records_its_origin(self, tmp_path):
         make_skill(tmp_path, "core", "demo", "name: demo\ndescription: >\n  Text.\norigin: https://example.invalid\n")
@@ -235,15 +262,57 @@ class TestCheckSkillFrontmatter:
 
         assert [finding.message for finding in findings] == ["last-change is missing"]
 
-    def test_does_not_ask_a_vendored_skill_for_last_change(self, tmp_path):
-        make_skill(tmp_path, "vendor", "demo", "name: demo\ndescription: Short.\nlicense: MIT\n")
+    def test_asks_a_taken_over_skill_for_last_change(self, tmp_path):
+        frontmatter = authored("demo").replace('last-change: "2026-01-01 12:00:00"\n', "")
+        make_skill(tmp_path, "vendor", "demo", frontmatter + "origin: https://example.invalid\n")
 
-        assert nice_check.check_skill_frontmatter(make_repo(tmp_path)) == []
+        findings = nice_check.check_skill_frontmatter(make_repo(tmp_path))
+
+        assert [finding.message for finding in findings] == ["last-change is missing"]
 
     def test_reports_a_skill_without_frontmatter_instead_of_raising(self, tmp_path):
         write(tmp_path, "plugins/core/skills/demo/SKILL.md", "# Demo\n")
 
         findings = nice_check.check_skill_frontmatter(make_repo(tmp_path))
+
+        assert findings[0].severity == "error"
+        assert "does not open" in findings[0].message
+
+
+class TestCheckRuleFrontmatter:
+    def test_accepts_a_well_formed_rule(self, tmp_path):
+        make_rule(tmp_path, "core", "python", 'paths:\n  - "**/*.py"\n' + managed())
+
+        assert nice_check.check_rule_frontmatter(make_repo(tmp_path)) == []
+
+    def test_reports_missing_bookkeeping(self, tmp_path):
+        make_rule(tmp_path, "core", "python", 'paths:\n  - "**/*.py"\n')
+
+        findings = nice_check.check_rule_frontmatter(make_repo(tmp_path))
+
+        assert [finding.message for finding in findings] == [
+            "last-change is missing",
+            "managed-by is missing",
+            "version is missing",
+        ]
+
+    def test_reports_a_license_in_the_frontmatter(self, tmp_path):
+        make_rule(tmp_path, "core", "python", managed() + "license: MIT\n")
+
+        findings = nice_check.check_rule_frontmatter(make_repo(tmp_path))
+
+        assert len(findings) == 1
+        assert "license does not belong in frontmatter" in findings[0].message
+
+    def test_does_not_ask_a_rule_for_a_name_or_the_invocation_flags(self, tmp_path):
+        make_rule(tmp_path, "core", "python", "description: Python conventions.\n" + managed())
+
+        assert nice_check.check_rule_frontmatter(make_repo(tmp_path)) == []
+
+    def test_reports_a_rule_without_frontmatter_instead_of_raising(self, tmp_path):
+        write(tmp_path, "plugins/core/rules/python.md", "# Python\n")
+
+        findings = nice_check.check_rule_frontmatter(make_repo(tmp_path))
 
         assert findings[0].severity == "error"
         assert "does not open" in findings[0].message
@@ -477,11 +546,11 @@ class TestCheckSkillCrossReferences:
 
         assert nice_check.check_skill_cross_references(make_repo(tmp_path)) == []
 
-    def test_leaves_a_vendored_skill_alone(self, tmp_path):
-        make_skill(tmp_path, "vendor", "one", "name: one\ndescription: x\nlicense: MIT\n", "\nSee /two.\n")
+    def test_reports_a_taken_over_skill_pointing_at_another_one(self, tmp_path):
+        make_skill(tmp_path, "vendor", "one", authored("one") + "origin: https://example.invalid\n", "\nSee /two.\n")
         make_skill(tmp_path, "core", "two", authored("two"))
 
-        assert nice_check.check_skill_cross_references(make_repo(tmp_path)) == []
+        assert len(nice_check.check_skill_cross_references(make_repo(tmp_path))) == 1
 
 
 # -- I. text hygiene ---------------------------------------------------------
