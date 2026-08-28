@@ -1,14 +1,17 @@
 ---
 name: ponytail
-description: >
+description: >-
   Forces the simplest solution that actually works and pushes back on
   over-engineering. Use on any coding task — writing, refactoring, fixing,
   reviewing, designing, or choosing dependencies — and on "ponytail", "be lazy",
   "yagni", "simplest solution", "do less", or complaints about bloat,
   boilerplate, or over-engineering. Not for non-coding requests.
+disable-model-invocation: false
 user-invocable: true
 origin: https://github.com/DietrichGebert/ponytail
-license: MIT
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
+last-change: "2026-07-01 10:21:02"
 ---
 
 # Ponytail

@@ -1,13 +1,15 @@
 ---
 name: ponytail-audit
-description: >
+description: >-
   Audit the whole repo (or a given path) for over-engineering and hand back
   a ranked delete-list. Runs only when the user explicitly invokes it.
 disable-model-invocation: true
 user-invocable: true
 argument-hint: "[path]"
 origin: https://github.com/DietrichGebert/ponytail
-license: MIT
+managed-by: https://github.com/lachtan/nicecode
+version: "1.0.0"
+last-change: "2026-07-01 06:00:44"
 ---
 
 # Ponytail Audit

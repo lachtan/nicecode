@@ -1,6 +1,7 @@
 ---
 managed-by: https://github.com/lachtan/nicecode
 version: "1.0.0"
+last-change: "2026-07-14 05:18:46"
 ---
 
 # Python — use uv
