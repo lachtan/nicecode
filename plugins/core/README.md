@@ -41,6 +41,7 @@ you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) li
 ## Rules
 
 - `clean-code.md` — cross-language clean-code principles (naming, functions, design, error handling).
+- `comments.md` — when a comment earns its place; the default is zero comments.
 - `bash.md` — Bash scripting conventions.
 - `python.md` — Python conventions.
 - `python-uv.md` — always use `uv` for Python (never `pip`/`venv`/`pipx`).
