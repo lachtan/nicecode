@@ -58,7 +58,6 @@ you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) li
 
 - `best-practice` — do a task the idiomatic way from official docs, ignoring how the repo already does it.
 - `chat` — answers a question without reading project files or invoking skills.
-- `coding-discipline` — behavioral guidelines to reduce common LLM coding mistakes.
 - `commit` — interactive git commit workflow with formatting rules.
 - `deep-review` — multi-agent local code review with scope detection, parallel reviewers, and validation.
 - `explain` — thorough analysis of a file or module: what it does, how it connects, how it can break.
