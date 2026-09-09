@@ -15,6 +15,9 @@ if they don't).
   each said separately.
 - `debug` — blocks any fix until the cause is named, and stops after three failed
   fixes to question the premise instead of trying a fourth.
+- `final-review` — reviews a finished implementation against the plan it followed: writes a
+  brief of the goal, the closed decisions and the behavior that had to stay frozen, then hands
+  it with the diff to a subagent that sees nothing else. Counterpart to `plan-review`.
 - `ops-review` — reviews an infrastructure change (Ansible, Terraform, container and
   deployment manifests, CI config, deploy scripts) against its own stated goal, with
   idempotency and cross-file reference integrity as the main axes.
