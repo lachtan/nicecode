@@ -27,7 +27,7 @@ CHECKS = [
     Check("ruff", (".py",), ("ruff", "format")),
     Check("shellcheck", (".sh",), ("shellcheck",)),
     Check("markdownlint", (".md",), ("markdownlint-cli2", "--fix")),
-    Check("mermaid", (".md",), ("npx", "--yes", "md-mermaid-lint")),
+    Check("mermaid", (".md",), ("md-mermaid-lint",)),
     Check("psscriptanalyzer", (".ps1", ".psm1", ".psd1"), ("pwsh", "-NoProfile", "-File", str(FORMATTER_PS1))),
 ]
 

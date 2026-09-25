@@ -18,7 +18,7 @@ TOOLS = [
     ("ruff", "a.py"),
     ("shellcheck", "a.sh"),
     ("markdownlint-cli2", "a.md"),
-    ("npx", "a.md"),
+    ("md-mermaid-lint", "a.md"),
     ("pwsh", "a.PS1"),
 ]
 
@@ -101,7 +101,7 @@ def test_unrunnable_tool_goes_to_claude(tmp_path):
 
 def test_all_markdown_findings_go_in_one_message(tmp_path):
     fake_tool(tmp_path, "markdownlint-cli2", 1, "MD032 blanks")
-    fake_tool(tmp_path, "npx", 1, "mermaid parse error")
+    fake_tool(tmp_path, "md-mermaid-lint", 1, "mermaid parse error")
     context = context_of(run_hook(edit_input("a.md"), tmp_path))
     assert "[markdownlint]" in context
     assert "MD032 blanks" in context
@@ -110,7 +110,7 @@ def test_all_markdown_findings_go_in_one_message(tmp_path):
 
 
 def test_only_failing_check_is_reported(tmp_path):
-    fake_tool(tmp_path, "npx", 1, "mermaid parse error")
+    fake_tool(tmp_path, "md-mermaid-lint", 1, "mermaid parse error")
     context = context_of(run_hook(edit_input("a.md"), tmp_path))
     assert "[mermaid]" in context
     assert "[markdownlint]" not in context

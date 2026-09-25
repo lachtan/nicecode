@@ -44,7 +44,7 @@ is passed to Claude so it can fix the file. Checks are listed in `CHECKS` in `ch
 - ruff — `uv tool install ruff`
 - shellcheck — `apt install shellcheck`
 - markdownlint-cli2 — `npm install -g markdownlint-cli2`
-- npx (runs `md-mermaid-lint`) — ships with Node.js / npm
+- md-mermaid-lint — `npm install -g md-mermaid-lint` (its puppeteer dependency downloads Chrome on install)
 - pwsh — see [Installing PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
 - PSScriptAnalyzer — `Install-Module PSScriptAnalyzer -Scope CurrentUser`
 
