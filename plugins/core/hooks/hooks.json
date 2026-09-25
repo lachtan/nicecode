@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/check-uv.py"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/check-uv.py"
           }
         ]
       }
@@ -17,32 +17,23 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/format-python.sh"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/format-python.py"
           },
           {
             "type": "command",
-            "command": "pwsh -File ${CLAUDE_PLUGIN_ROOT}/hooks/format-powershell.ps1"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/format-powershell.py"
           },
           {
             "type": "command",
-            "command": "pwsh -File ${CLAUDE_PLUGIN_ROOT}/hooks/fix-markdown.ps1"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/fix-markdown.py"
           },
           {
             "type": "command",
-            "command": "pwsh -File ${CLAUDE_PLUGIN_ROOT}/hooks/mermaid-lint.ps1"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mermaid-lint.py"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/check-bash.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "pwsh -File ${CLAUDE_PLUGIN_ROOT}/hooks/remove-nul.ps1"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/check-bash.py"
           }
         ]
       }

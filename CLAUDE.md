@@ -19,7 +19,7 @@ Each plugin is a self-contained bundle: `core` (rules, skills and hooks), `lab`
 
 ### Hook conventions
 
-- Hook scripts in `hooks/` receive JSON via stdin (`json.load(sys.stdin)` in Python).
+- Hook scripts in `hooks/scripts/` receive JSON via stdin (`json.load(sys.stdin)` in Python).
 - Exit code 2 = block the tool call, 0 = pass.
 - Use `${CLAUDE_PLUGIN_ROOT}` for paths in `hooks.json` and `|` in the matcher to combine tools (e.g., `Edit|Write`).
 

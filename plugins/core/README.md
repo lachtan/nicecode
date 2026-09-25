@@ -31,12 +31,22 @@ you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) li
 ## Hooks
 
 - `PreToolUse` (Bash) → `check-uv.py` — guards against running Python tooling without `uv`.
-- `PostToolUse` (Edit/Write) → `format-python.sh` — auto-formats Python files.
-- `PostToolUse` (Edit/Write) → `format-powershell.ps1` — auto-formats PowerShell files.
-- `PostToolUse` (Edit/Write) → `fix-markdown.ps1` — auto-fixes markdown formatting.
-- `PostToolUse` (Edit/Write) → `mermaid-lint.ps1` — lints Mermaid diagrams in markdown.
-- `PostToolUse` (Edit/Write) → `check-bash.sh` — validates bash scripts.
-- `PostToolUse` (Edit/Write/Bash) → `remove-nul.ps1` — strips null bytes from output.
+- `PostToolUse` (Edit/Write) → `format-python.py` — auto-formats Python files.
+- `PostToolUse` (Edit/Write) → `format-powershell.py` — auto-formats PowerShell files.
+- `PostToolUse` (Edit/Write) → `fix-markdown.py` — auto-fixes markdown formatting.
+- `PostToolUse` (Edit/Write) → `mermaid-lint.py` — lints Mermaid diagrams in markdown.
+- `PostToolUse` (Edit/Write) → `check-bash.py` — validates bash scripts.
+
+The scripts live in `hooks/scripts/` and need only `python3`. The tools they run are
+optional: a hook whose tool is missing is skipped silently, and whatever a tool reports
+is passed to Claude so it can fix the file.
+
+- ruff — `uv tool install ruff`
+- shellcheck — `apt install shellcheck`
+- markdownlint-cli2 — `npm install -g markdownlint-cli2`
+- npx (runs `md-mermaid-lint`) — ships with Node.js / npm
+- pwsh — see [Installing PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
+- PSScriptAnalyzer — `Install-Module PSScriptAnalyzer -Scope CurrentUser`
 
 ## Rules
 

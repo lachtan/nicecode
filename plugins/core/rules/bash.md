@@ -2,8 +2,8 @@
 paths:
   - "**/*.sh"
 managed-by: https://github.com/lachtan/nicecode
-version: "1.1.0"
-last-change: "2026-07-11 11:23:17"
+version: "1.1.1"
+last-change: "2026-09-25 13:47:56"
 ---
 
 # Bash Script Conventions
@@ -46,5 +46,5 @@ last-change: "2026-07-11 11:23:17"
 
 ## ShellCheck
 
-- All scripts must pass `shellcheck`. Formatting is auto-checked by the `check-bash.sh` PostToolUse hook.
+- All scripts must pass `shellcheck`. Formatting is auto-checked by the `check-bash.py` PostToolUse hook.
 - To suppress a check: `# shellcheck disable=SCxxxx` with a comment explaining why.

@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-HOOK = Path(__file__).parent.parent / "check-uv.py"
+HOOK = Path(__file__).parent.parent / "scripts" / "check-uv.py"
 
 
 def run_hook(command: str) -> subprocess.CompletedProcess:

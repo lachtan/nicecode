@@ -2,13 +2,13 @@
 paths:
   - "**/*.md"
 managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-07-11 07:54:50"
+version: "1.0.1"
+last-change: "2026-09-25 13:47:56"
 ---
 
 # Markdown Style Guide
 
-Formatting (blank lines, trailing whitespace, heading style, list markers) is auto-fixed by the `fix-markdown.ps1` PostToolUse hook. Do not run the linter manually.
+Formatting (blank lines, trailing whitespace, heading style, list markers) is auto-fixed by the `fix-markdown.py` PostToolUse hook. Do not run the linter manually.
 
 Focus on these rules that the auto-fixer cannot enforce:
 
