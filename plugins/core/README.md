@@ -64,6 +64,14 @@ you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) li
 - `install-rules` — installs/updates the versioned rule files into this project.
 - `install-statusline` — installs/updates the statusline scripts and wires `statusLine` in settings.json.
 - `ops-guide` — how to write a step-by-step procedure a human will run at a console.
+- `plan-loop` — review loop for an implementation plan: a fresh `plan-reviewer` subagent reviews it,
+  the plan is revised, repeat until nothing is left to fix or 3 rounds pass. Explicit request only.
+- `plan-review` — judges whether an implementation plan can be executed without guessing: verifies the
+  file paths and symbols it claims exist, and flags decisions deferred to implementation time.
 - `search-first` — check whether something already exists (repo, dependencies, stdlib) before writing new code.
 - `skill-authoring` — conventions for writing SKILL.md files so skills trigger reliably.
 - `summary` — summarize the current conversation and save it to a markdown file.
+
+## Agents
+
+- `plan-reviewer.md` — reviews one plan file with the `plan-review` checklist; spawned by `plan-loop`.

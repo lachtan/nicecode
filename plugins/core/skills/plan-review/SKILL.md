@@ -1,14 +1,14 @@
 ---
 name: plan-review
 description: >-
-  Use when reviewing an implementation plan (a `.md` file) before implementation starts —
-  to judge whether it can be implemented without guessing.
+  Use when the user asks to review an implementation plan (a `.md` file) before implementation
+  starts — to judge whether it can be implemented without guessing.
 argument-hint: "[plan.md]"
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-08-27 10:00:15"
+version: "1.1.0"
+last-change: "2026-09-25 11:40:45"
 ---
 
 # Implementation plan review
@@ -83,7 +83,7 @@ Plans may be written in any language. Match the *meaning* below, not English key
 9. **Unverified assumptions** — the plan rests on a claim about foreign code, a library or a protocol
    that it never checks. If the claim is false, part of the plan collapses with it.
 10. **Speculative scope** — an abstraction, layer, generality or extension point the request did not
-    ask for. See `clean-code.md` under `.claude/rules/` ("Prefer the simpler solution").
+    ask for. See [clean-code.md](../../rules/clean-code.md) ("Prefer the simpler solution").
 11. **Order and divisibility** — steps depend on each other in the wrong order, or the plan cannot be
     done in parts that each leave the build and tests green.
     *Not a finding:* a small plan that is naturally a single step.
