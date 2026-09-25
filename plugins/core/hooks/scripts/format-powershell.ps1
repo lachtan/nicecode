@@ -1,8 +1,9 @@
-# Formats one PowerShell file in place with PSScriptAnalyzer; called by format-powershell.py
+# Formats one PowerShell file in place with PSScriptAnalyzer; called by check-edited-file.py
 
 param([string]$Path)
 
-# PSScriptAnalyzer is optional; without it the file is left as is.
+$ErrorActionPreference = 'Stop'
+
 if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
     exit 0
 }

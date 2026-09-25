@@ -27,13 +27,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/nicecode/scripts/fix-markdown.py",
-            "statusMessage": "Auto-fix markdown formatting after edits"
-          },
-          {
-            "type": "command",
-            "command": "python3 .claude/hooks/nicecode/scripts/mermaid-lint.py",
-            "statusMessage": "Validate Mermaid diagrams in markdown files"
+            "command": "python3 .claude/hooks/nicecode/scripts/check-edited-file.py",
+            "statusMessage": "Lint and format the edited file"
           }
         ]
       },

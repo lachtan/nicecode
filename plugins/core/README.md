@@ -31,15 +31,15 @@ you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) li
 ## Hooks
 
 - `PreToolUse` (Bash) → `check-uv.py` — guards against running Python tooling without `uv`.
-- `PostToolUse` (Edit/Write) → `format-python.py` — auto-formats Python files.
-- `PostToolUse` (Edit/Write) → `format-powershell.py` — auto-formats PowerShell files.
-- `PostToolUse` (Edit/Write) → `fix-markdown.py` — auto-fixes markdown formatting.
-- `PostToolUse` (Edit/Write) → `mermaid-lint.py` — lints Mermaid diagrams in markdown.
-- `PostToolUse` (Edit/Write) → `check-bash.py` — validates bash scripts.
+- `PostToolUse` (Edit/Write) → `check-edited-file.py` — lints or formats the edited file:
+  - `.py` — `ruff format`
+  - `.sh` — `shellcheck`
+  - `.md` — `markdownlint-cli2 --fix`, then Mermaid diagrams via `md-mermaid-lint`
+  - `.ps1`/`.psm1`/`.psd1` — PSScriptAnalyzer `Invoke-Formatter`
 
 The scripts live in `hooks/scripts/` and need only `python3`. The tools they run are
-optional: a hook whose tool is missing is skipped silently, and whatever a tool reports
-is passed to Claude so it can fix the file.
+optional: a check whose tool is missing is skipped silently, and whatever a tool reports
+is passed to Claude so it can fix the file. Checks are listed in `CHECKS` in `check-edited-file.py`.
 
 - ruff — `uv tool install ruff`
 - shellcheck — `apt install shellcheck`
