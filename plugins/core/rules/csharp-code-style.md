@@ -2,8 +2,8 @@
 paths:
   - "**/*.cs"
 managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-07-11 07:54:50"
+version: "1.1.0"
+last-change: "2026-09-25 11:13:51"
 ---
 
 # C# Code Style & Conventions
@@ -19,7 +19,10 @@ last-change: "2026-07-11 07:54:50"
 - Always add an empty line between method declarations for readability
 - In switch statements, add an empty line between case blocks for better readability
 - Ensure that the final return statement of a method is on its own line
-- Comments can be written in Czech language without diacritical marks
+- Comments can be written in Czech language with diacritics
+- Always use braces `{}` for `if`, `else`, `for`, `foreach`, and `while` blocks, even for single-line bodies
+- Prefer raw string literals (`"""..."""`) for multi-line strings (SQL queries, JSON templates, etc.) over string concatenation or verbatim strings
+- Line endings must be CRLF
 
 ## Modern C# patterns
 
@@ -66,11 +69,13 @@ Prefer modern C# syntax over legacy patterns:
 - Enabled via property `<IsNrtEnabled>true</IsNrtEnabled>` (default for non-3rd party projects)
 - Use `is null` / `is not null` instead of `== null` / `!= null`
 - Trust the C# null annotations - don't add null checks when the type system says a value cannot be null
+- Do not use the null-forgiving operator `!` to silence nullable warnings — fix the annotation, add a guard, or assert with `RsjDebug.NotNull()` / `RsjRelease.NotNull()`
 - Helpers: `RsjDebug.NotNull()`, `RsjRelease.NotNull()`, `.TryGet()`, `.GetValue()`
 - For LINQ null filtering: `items.WhereNotNull()` instead of `.Where(i => i is not null)`
 
 ## Performance
 
+- Production CAT code must minimize allocations by default (not tests/tooling/slow-path code).
 - Avoid N+1 queries, unnecessary allocations, boxing
 - Use `Span<T>` or `Memory<T>` for buffer operations
 - Prefer efficient LINQ - avoid repeated enumeration
@@ -85,14 +90,17 @@ Prefer modern C# syntax over legacy patterns:
 ## Code design
 
 - Use named arguments in object construction to keep property names explicit.
+- Members (constructors, methods, properties, setters) that exist only for test injection or test inspection should be `internal`, not `public`. Expose to tests via `[assembly: InternalsVisibleTo("...Tests")]`.
 - Keep classes small and focused on a single responsibility. When a class grows too large, split it into smaller types.
 - Write methods that do exactly one thing. Extract logic into well-named helper methods instead of writing long method bodies.
 - Do not add comments that just restate what the code does. Only add comments to explain non-obvious logic or business decisions.
+- Lead a comment with the main point stated clearly, then expand only as needed for completeness — never start with a shorthand or reference that is explained only later. Keep it as short as full coverage of the logic allows.
 - Avoid deep nesting — max 2-3 levels. Use early returns and guard clauses to reduce indentation.
 - Do not repeat logic — extract duplicated code into a shared method.
 - Prefer composition over inheritance.
 - Replace magic numbers and strings with named constants or enums.
 - Names of methods, classes, and variables must reveal their intent clearly.
+- Use `LocalPath` (`Rsj.Common2.Utils.IO`) for all file system operations instead of raw `System.IO` calls
 
 ## Testing
 
@@ -101,6 +109,17 @@ Prefer modern C# syntax over legacy patterns:
 - Naming pattern: `MethodName_Scenario_ExpectedBehavior`
 - Do not use "Arrange", "Act", "Assert" comments
 - **Always verify build before running tests** - run `dotnet build` first to ensure code compiles, then run `dotnet test`. Never use `--no-build` flag after code changes.
+
+## Time durations
+
+- Never pass a raw numeric value (`int`, `long`, `double`) to APIs that accept a duration — the unit is not visible at the call site. Always pass a `TimeSpan` built via `TimeSpanX.From*` (not `TimeSpan.From*` — built-in methods round to the nearest millisecond). Applies to `Task.Delay`, `Thread.Sleep`, `CancellationTokenSource` ctor / `CancelAfter`, `SemaphoreSlim.WaitAsync`, `Timer`, `WaitHandle.WaitOne`, `HttpClient.Timeout`, and any custom API.
+- When designing a new API that takes a duration, the parameter type must be `TimeSpan` — never `int`/`long`/`double` milliseconds.
+
+## Time Measurement
+
+- Do not measure elapsed time with `DateTime.UtcNow` / `DateTime.Now`.
+- Prefer `Stopwatch.GetTimestamp()` + `Stopwatch.GetElapsedTime(start)` — allocation-free.
+- `new Stopwatch()` or `Stopwatch.StartNew()` is also acceptable when allocation does not matter (tests, slow path, one-off code).
 
 ## Async patterns
 

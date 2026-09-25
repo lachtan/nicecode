@@ -2,64 +2,39 @@
 paths:
   - "**/*.cs"
 managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-07-11 07:54:50"
+version: "1.1.0"
+last-change: "2026-09-25 11:13:51"
 ---
 
-# C# Documentation Best Practices
+# C# Doc Comments
 
-- Add XML comments to public members only when they provide meaningful value beyond the signature — do not restate what is already obvious from the name, type, and parameters.
-- Internal members: document only when the logic is complex or the intent is not self-explanatory.
+## When to write one
 
-## Guidance for all APIs
+- Write a doc comment only when it says something the declaration does not. For a type, the
+  declaration is its name and the members it exposes.
+- Use `<param>`, `<typeparam>` and `<returns>` only for what the name and the type do not say:
+  a unit, a valid range, what `null` means.
+- Use `<exception>` for what the member itself throws, and state the condition, not just the fact
+  that it throws. Document an exception thrown by a member it calls only where callers are likely
+  to run into it.
+- Use `<remarks>` only for a usage note that does not fit into the one-sentence summary: a
+  required call order, a constraint the caller has to respect.
+- Use `<inheritdoc/>` on an implementation of a documented interface, and add your own text
+  only for the behaviour that differs.
+- Say who disposes of what, and whether a member is safe to call concurrently, wherever the
+  signature does not make it clear.
 
-- Use `<summary>` to provide a brief, one sentence, description of what the type or member does. Start the summary with a present-tense, third-person verb.
-- Use `<remarks>` for additional information, which can include implementation details, usage notes, or any other relevant context.
-- Use `<see langword>` for language-specific keywords like `null`, `true`, `false`, `int`, `bool`, etc.
-- Use `<c>` for inline code snippets.
-- Use `<example>` for usage examples on how to use the member.
-  - Use `<code>` for code blocks. `<code>` tags should be placed within an `<example>` tag. Add the language of the code example using the `language` attribute, for example, `<code language="csharp">`.
-- Use `<see cref>` to reference other types or members inline (in a sentence).
-- Use `<seealso>` for standalone (not in a sentence) references to other types or members in the "See also" section of the online docs.
-- Use `<inheritdoc/>` to inherit documentation from base classes or interfaces.
-  - Unless there is major behavior change, in which case you should document the differences.
+## Form
 
-## Methods
-
-- Use `<param>` to describe method parameters.
-  - The description should be a noun phrase that doesn't specify the data type.
-  - Begin with an introductory article.
-  - If the parameter is a flag enum, start the description with "A bitwise combination of the enumeration values that specifies...".
-  - If the parameter is a non-flag enum, start the description with "One of the enumeration values that specifies...".
-  - If the parameter is a Boolean, the wording should be of the form "`<see langword="true" />` to ...; otherwise, `<see langword="false" />`.".
-  - If the parameter is an "out" parameter, the wording should be of the form "When this method returns, contains .... This parameter is treated as uninitialized.".
-- Use `<paramref>` to reference parameter names in documentation.
-- Use `<typeparam>` to describe type parameters in generic types or methods.
-- Use `<typeparamref>` to reference type parameters in documentation.
-- Use `<returns>` to describe what the method returns.
-  - The description should be a noun phrase that doesn't specify the data type.
-  - Begin with an introductory article.
-  - If the return type is Boolean, the wording should be of the form "`<see langword="true" />` if ...; otherwise, `<see langword="false" />`.".
-
-## Constructors
-
-- The summary wording should be "Initializes a new instance of the `<Class>` class [or struct].".
-
-## Properties
-
-- The `<summary>` should start with:
-  - "Gets or sets..." for a read-write property.
-  - "Gets..." for a read-only property.
-  - "Gets [or sets] a value that indicates whether..." for properties that return a Boolean value.
-- Use `<value>` to describe the value of the property.
-  - The description should be a noun phrase that doesn't specify the data type.
-  - If the property has a default value, add it in a separate sentence, for example, "The default is `<see langword="false" />`".
-  - If the value type is Boolean, the wording should be of the form "`<see langword="true" />` if ...; otherwise, `<see langword="false" />`. The default is ...".
-
-## Exceptions
-
-- Use `<exception cref>` to document exceptions thrown by constructors, properties, indexers, methods, operators, and events.
-- Document all exceptions thrown directly by the member.
-- For exceptions thrown by nested members, document only the exceptions users are most likely to encounter.
-- The description of the exception describes the condition under which it's thrown.
-  - Omit "Thrown if ..." or "If ..." at the beginning of the sentence. Just state the condition directly, for example "An error occurred when accessing a Message Queuing API."
+- Put all text inside block tags: `<summary>`, `<param>`, `<typeparam>`, `<returns>`,
+  `<exception>`, `<remarks>`, `<example>`.
+- Keep the text of each tag to one sentence and two lines at most. Only `<remarks>` and
+  `<example>` may run longer.
+- Do not use inline tags inside the text:
+  - a type, member or parameter name in plain text, not `<see cref="..."/>` or
+    `<paramref name="..."/>`
+  - `true`, `false` and `null` in plain text, not `<see langword="..."/>`
+  - no `<c>`
+- Do not use `<seealso>`; name the related type in a sentence.
+- Use `<example>` with a `<code>` block inside it where a usage example is clearer than a
+  sentence.
