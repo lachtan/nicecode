@@ -29,6 +29,11 @@ if they don't).
 - `quick-review` — single-pass read-only review of changed code against clean-code rules,
   security and correctness. Overlaps the bundled `/code-review`.
 - `skillify` — capture the current session's repeatable process into a reusable skill.
+- `tests-review` — audits existing tests with removal as the expected outcome: finds behaviour
+  already covered elsewhere and merges near-identical tests. Criteria come from core's
+  `csharp-mstest.md` rule.
+- `tests-write` — the order of work for adding tests to C# code that already exists; the
+  criteria for a good test come from core's `csharp-mstest.md` rule.
 
 `brainstorm` and `debug` are rewritten derivatives of
 [obra/superpowers](https://github.com/obra/superpowers) v6.3.0 (MIT, Jesse Vincent);
