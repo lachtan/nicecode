@@ -9,6 +9,9 @@ if they don't).
 - `brainstorm` — turns an idea into an agreed design through questions before any code:
   classifies the request as spike / bounded / architectural so the ceremony scales, and
   leaves the approval gate to plan mode instead of rebuilding one.
+- `challenge` — argues against a proposed architecture, migration or refactor before it is
+  built: strongest case against, untested assumption, exit cost and the boring alternative.
+  Invoked manually.
 - `craft-code` — one prompt for the whole coding task: a ladder that stops at the simplest
   rung that holds, interface and error rules while you write, and a red-flag pass before you
   call it done. Merges what `coding-discipline`, `strategic-design` and the ponytail ladder
