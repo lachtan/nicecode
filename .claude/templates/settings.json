@@ -1,0 +1,19 @@
+{
+  "effortLevel": "medium",
+  "model": "opus",
+  "cleanupPeriodDays": 10000,
+  "env": {
+    "ANTHROPIC_MODEL": "opus",
+    "CLAUDE_CODE_SCROLL_SPEED": "3",
+    "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
+  "permissions": {
+    "defaultMode": "auto",
+    "additionalDirectories": []
+  }
+}
