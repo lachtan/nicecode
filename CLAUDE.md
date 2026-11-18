@@ -11,7 +11,7 @@ NiceCode is a Claude Code plugin marketplace. The guiding principle is **simplic
 Marketplace (`.claude-plugin/marketplace.json`) → Plugins (`plugins/<name>/.claude-plugin/plugin.json`) → rules, skills, hooks.
 
 Each plugin is a self-contained bundle: `core` (rules, skills and hooks), `lab`
-(work in progress), `ponytail` (vendored) and `mattpocock` (external source).
+(work in progress), `ponytail` (vendored), `rsj` (team skills) and `mattpocock` (external source).
 
 ## Development
 

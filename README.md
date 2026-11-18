@@ -14,6 +14,7 @@ C#, PowerShell, Python, Bash, Rust
 /plugin install lab@nicecode
 /plugin install mattpocock@nicecode
 /plugin install ponytail@nicecode
+/plugin install rsj@nicecode
 ```
 
 Per project:
@@ -40,6 +41,7 @@ the gitignored `.claude/settings.local.json` and applies only to you, only in th
 - [lab](plugins/lab/README.md) — experimental work-in-progress skills and components before they move to core.
 - mattpocock — skills from [mattpocock/skills](https://github.com/mattpocock/skills) (engineering + productivity).
 - [ponytail](plugins/ponytail/README.md) — anti-over-engineering layer: opt-in lazy-senior-dev reflex toggled with `/ponytail`.
+- [rsj](plugins/rsj/README.md) — rsj wisdom: announce actions before running them, never take a question as approval.
 
 ## Rules
 

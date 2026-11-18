@@ -34,6 +34,12 @@
       "version": "1.1.1",
       "repository": "https://github.com/DietrichGebert/ponytail",
       "license": "MIT"
+    },
+    {
+      "name": "rsj",
+      "source": "./plugins/rsj",
+      "description": "RSJ Wisdom",
+      "version": "0.1.0"
     }
   ]
 }
