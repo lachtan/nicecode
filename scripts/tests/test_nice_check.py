@@ -318,26 +318,6 @@ class TestCheckRuleFrontmatter:
         assert "does not open" in findings[0].message
 
 
-# -- C. skill name collisions ------------------------------------------------
-
-
-class TestCheckSkillCollisions:
-    def test_reports_the_same_name_in_two_plugins(self, tmp_path):
-        make_skill(tmp_path, "core", "shared", authored("shared"))
-        make_skill(tmp_path, "lab", "shared", authored("shared"))
-
-        findings = nice_check.check_skill_collisions(make_repo(tmp_path))
-
-        assert findings[0].severity == "error"
-        assert "plugins/lab/skills/shared/SKILL.md" in findings[0].message
-
-    def test_accepts_distinct_names(self, tmp_path):
-        make_skill(tmp_path, "core", "one", authored("one"))
-        make_skill(tmp_path, "lab", "two", authored("two"))
-
-        assert nice_check.check_skill_collisions(make_repo(tmp_path)) == []
-
-
 # -- D. plugin README vs reality ---------------------------------------------
 
 

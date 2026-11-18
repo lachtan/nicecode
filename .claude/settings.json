@@ -1,49 +1,4 @@
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup|resume|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/plugins/ponytail/skills/ponytail/ponytail.py\""
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/plugins/ponytail/skills/ponytail/ponytail.py\""
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .claude/hooks/nicecode/scripts/check-edited-file.py",
-            "statusMessage": "Lint and format the edited file"
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/scripts/sync-symlinks.py\"",
-            "statusMessage": "Sync .claude/ symlinks with plugin skills/commands/agents"
-          }
-        ]
-      }
-    ]
-  },
   "extraKnownMarketplaces": {
     "claude-code-plugins": {
       "source": {

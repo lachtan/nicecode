@@ -123,8 +123,7 @@ def relpath(repo: Repo, path: Path) -> str:
 
 
 def tracked_real_files(repo: Repo) -> list[str]:
-    """Tracked paths that are ordinary files; the symlinks in .claude/ are directories."""
-    return [rel for rel in repo.tracked if not (repo.root / rel).is_symlink() and (repo.root / rel).is_file()]
+    return [rel for rel in repo.tracked if (repo.root / rel).is_file()]
 
 
 def plugin_dirs(repo: Repo) -> list[Path]:
@@ -135,7 +134,7 @@ def plugin_dirs(repo: Repo) -> list[Path]:
 def real_skill_dirs(skills_dir: Path) -> list[Path]:
     if not skills_dir.is_dir():
         return []
-    return [d for d in sorted(skills_dir.iterdir()) if d.is_dir() and not d.is_symlink() and (d / "SKILL.md").is_file()]
+    return [d for d in sorted(skills_dir.iterdir()) if d.is_dir() and (d / "SKILL.md").is_file()]
 
 
 def discover_skills(repo: Repo) -> list[SkillRef]:
@@ -333,24 +332,6 @@ def check_rule_frontmatter(repo: Repo) -> list[Finding]:
         findings += license_findings(rel, frontmatter)
         findings += last_change_findings(rel, frontmatter.get("last-change"))
         findings += managed_findings(rel, frontmatter)
-    return findings
-
-
-# -- C. skill name collisions ------------------------------------------------
-
-
-def check_skill_collisions(repo: Repo) -> list[Finding]:
-    by_name: dict[str, list[SkillRef]] = {}
-    for skill in discover_skills(repo):
-        if skill.plugin is not None:
-            by_name.setdefault(skill.name, []).append(skill)
-
-    findings = []
-    for name, skills in sorted(by_name.items()):
-        if len(skills) > 1:
-            others = ", ".join(skill.rel for skill in skills[1:])
-            message = f"skill name {name!r} is also defined by {others}; sync-symlinks.py drops both and unlinks it"
-            findings.append(Finding(ERROR, "C", skills[0].rel, None, message))
     return findings
 
 
@@ -620,7 +601,6 @@ CHECKS = (
     check_plugin_manifests,
     check_skill_frontmatter,
     check_rule_frontmatter,
-    check_skill_collisions,
     check_plugin_readmes,
     check_markdown_links,
     check_hook_configs,
