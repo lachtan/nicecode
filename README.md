@@ -39,7 +39,7 @@ the gitignored `.claude/settings.local.json` and applies only to you, only in th
 
 - [core](plugins/core/README.md) — coding best practices: hooks, rules, and skills.
 - [lab](plugins/lab/README.md) — experimental work-in-progress skills and components before they move to core.
-- mattpocock — skills from [mattpocock/skills](https://github.com/mattpocock/skills) (engineering + productivity).
+- [mattpocock](plugins/mattpocock/README.md) — vendored subset of [mattpocock/skills](https://github.com/mattpocock/skills): `grill-me`, `research`.
 - [ponytail](plugins/ponytail/README.md) — anti-over-engineering layer: opt-in lazy-senior-dev reflex toggled with `/ponytail`.
 - [rsj](plugins/rsj/README.md) — rsj wisdom: announce actions before running them, never take a question as approval.
 
