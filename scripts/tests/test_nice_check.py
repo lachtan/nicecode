@@ -22,12 +22,12 @@ def make_repo(root: Path, tracked=(), eol=None) -> nice_check.Repo:
 
 
 def make_skill(root: Path, plugin: str | None, name: str, frontmatter: str, body: str = "\n# Body\n") -> str:
-    parent = f"plugins/{plugin}/skills" if plugin else ".claude/skills"
+    parent = f"src/{plugin}/skills" if plugin else ".claude/skills"
     return write(root, f"{parent}/{name}/SKILL.md", f"---\n{frontmatter}---\n{body}")
 
 
 def make_rule(root: Path, plugin: str, name: str, frontmatter: str, body: str = "\n# Body\n") -> str:
-    return write(root, f"plugins/{plugin}/rules/{name}.md", f"---\n{frontmatter}---\n{body}")
+    return write(root, f"src/{plugin}/rules/{name}.md", f"---\n{frontmatter}---\n{body}")
 
 
 def managed(version: str = "1.0.0") -> str:
@@ -58,10 +58,6 @@ def repo_local(name: str) -> str:
 
 def messages(findings) -> list[str]:
     return [f"{finding.path}:{finding.line}: {finding.message}" for finding in findings]
-
-
-def write_marketplace(root: Path, plugins: list[dict]) -> None:
-    write(root, ".claude-plugin/marketplace.json", json.dumps({"name": "test", "plugins": plugins}))
 
 
 # -- frontmatter parsing -----------------------------------------------------
@@ -108,49 +104,6 @@ class TestParseFrontmatter:
             assert "never closed" in str(exc)
         else:
             raise AssertionError("expected FrontmatterError")
-
-
-# -- A. plugin manifests -----------------------------------------------------
-
-
-class TestCheckPluginManifests:
-    def test_reports_a_description_that_drifted(self, tmp_path):
-        write_marketplace(tmp_path, [{"name": "core", "source": "./plugins/core", "description": "One"}])
-        write(tmp_path, "plugins/core/.claude-plugin/plugin.json", json.dumps({"name": "core", "description": "Two"}))
-
-        findings = nice_check.check_plugin_manifests(make_repo(tmp_path))
-
-        assert len(findings) == 1
-        assert "description differs" in findings[0].message
-
-    def test_accepts_identical_descriptions(self, tmp_path):
-        write_marketplace(tmp_path, [{"name": "core", "source": "./plugins/core", "description": "Same"}])
-        write(tmp_path, "plugins/core/.claude-plugin/plugin.json", json.dumps({"name": "core", "description": "Same"}))
-
-        assert nice_check.check_plugin_manifests(make_repo(tmp_path)) == []
-
-    def test_skips_a_plugin_whose_source_is_an_object(self, tmp_path):
-        source = {"source": "github", "repo": "someone/skills"}
-        write_marketplace(tmp_path, [{"name": "external", "source": source, "description": "Remote"}])
-        (tmp_path / "plugins").mkdir()
-
-        assert nice_check.check_plugin_manifests(make_repo(tmp_path)) == []
-
-    def test_reports_a_plugin_directory_missing_from_the_marketplace(self, tmp_path):
-        write_marketplace(tmp_path, [])
-        (tmp_path / "plugins" / "orphan").mkdir(parents=True)
-
-        findings = nice_check.check_plugin_manifests(make_repo(tmp_path))
-
-        assert "plugins/orphan is not listed" in findings[0].message
-
-    def test_reports_invalid_json_instead_of_raising(self, tmp_path):
-        write(tmp_path, ".claude-plugin/marketplace.json", "{not json")
-
-        findings = nice_check.check_plugin_manifests(make_repo(tmp_path))
-
-        assert findings[0].severity == "error"
-        assert "invalid JSON" in findings[0].message
 
 
 # -- B. frontmatter of skills and rules --------------------------------------
@@ -271,7 +224,7 @@ class TestCheckSkillFrontmatter:
         assert [finding.message for finding in findings] == ["last-change is missing"]
 
     def test_reports_a_skill_without_frontmatter_instead_of_raising(self, tmp_path):
-        write(tmp_path, "plugins/core/skills/demo/SKILL.md", "# Demo\n")
+        write(tmp_path, "src/core/skills/demo/SKILL.md", "# Demo\n")
 
         findings = nice_check.check_skill_frontmatter(make_repo(tmp_path))
 
@@ -310,7 +263,7 @@ class TestCheckRuleFrontmatter:
         assert nice_check.check_rule_frontmatter(make_repo(tmp_path)) == []
 
     def test_reports_a_rule_without_frontmatter_instead_of_raising(self, tmp_path):
-        write(tmp_path, "plugins/core/rules/python.md", "# Python\n")
+        write(tmp_path, "src/core/rules/python.md", "# Python\n")
 
         findings = nice_check.check_rule_frontmatter(make_repo(tmp_path))
 
@@ -324,42 +277,42 @@ class TestCheckRuleFrontmatter:
 class TestCheckPluginReadmes:
     def test_accepts_a_skill_mentioned_only_as_a_slash_command(self, tmp_path):
         make_skill(tmp_path, "core", "demo", authored("demo"))
-        write(tmp_path, "plugins/core/README.md", "# core\n\nType `/demo` to run it.\n")
+        write(tmp_path, "src/core/README.md", "# core\n\nType `/demo` to run it.\n")
 
         assert nice_check.check_plugin_readmes(make_repo(tmp_path)) == []
 
     def test_accepts_a_skill_mentioned_only_as_a_path(self, tmp_path):
         make_skill(tmp_path, "core", "demo", authored("demo"))
-        write(tmp_path, "plugins/core/README.md", "# core\n\nSee skills/demo/SKILL.md.\n")
+        write(tmp_path, "src/core/README.md", "# core\n\nSee skills/demo/SKILL.md.\n")
 
         assert nice_check.check_plugin_readmes(make_repo(tmp_path)) == []
 
     def test_reports_a_skill_the_readme_never_mentions(self, tmp_path):
         make_skill(tmp_path, "core", "demo", authored("demo"))
-        write(tmp_path, "plugins/core/README.md", "# core\n\nNothing here.\n")
+        write(tmp_path, "src/core/README.md", "# core\n\nNothing here.\n")
 
         findings = nice_check.check_plugin_readmes(make_repo(tmp_path))
 
         assert findings[0].message == "demo is not mentioned in the README"
 
     def test_reports_a_rule_the_readme_never_mentions(self, tmp_path):
-        write(tmp_path, "plugins/core/rules/clean-code.md", "# Clean code\n")
-        write(tmp_path, "plugins/core/README.md", "# core\n\nNothing here.\n")
+        write(tmp_path, "src/core/rules/clean-code.md", "# Clean code\n")
+        write(tmp_path, "src/core/README.md", "# core\n\nNothing here.\n")
 
         findings = nice_check.check_plugin_readmes(make_repo(tmp_path))
 
         assert findings[0].message == "clean-code is not mentioned in the README"
 
     def test_reports_a_readme_entry_with_nothing_behind_it(self, tmp_path):
-        write(tmp_path, "plugins/core/README.md", "# core\n\n- `ghost` - long gone\n")
+        write(tmp_path, "src/core/README.md", "# core\n\n- `ghost` - long gone\n")
 
         findings = nice_check.check_plugin_readmes(make_repo(tmp_path))
 
         assert "README lists `ghost`" in findings[0].message
 
     def test_ignores_a_bullet_that_names_a_real_file(self, tmp_path):
-        write(tmp_path, "plugins/core/scripts/install.sh", "#!/usr/bin/env bash\n")
-        write(tmp_path, "plugins/core/README.md", "# core\n\n- `install.sh` - installs things\n")
+        write(tmp_path, "src/core/scripts/install.sh", "#!/usr/bin/env bash\n")
+        write(tmp_path, "src/core/README.md", "# core\n\n- `install.sh` - installs things\n")
 
         assert nice_check.check_plugin_readmes(make_repo(tmp_path)) == []
 
@@ -370,11 +323,11 @@ class TestCheckPluginReadmes:
 class TestCheckMarkdownLinks:
     def link_repo(self, tmp_path, rel: str, text: str) -> nice_check.Repo:
         tracked = [write(tmp_path, rel, text)]
-        tracked.append(write(tmp_path, "plugins/core/README.md", "# core\n"))
+        tracked.append(write(tmp_path, "src/core/README.md", "# core\n"))
         return make_repo(tmp_path, tracked)
 
     def test_reports_a_dotted_link_leaving_the_repo_into_nothing(self, tmp_path):
-        repo = self.link_repo(tmp_path, "plugins/lab/skills/demo/SKILL.md", "See [rules](../../rules/clean-code.md).\n")
+        repo = self.link_repo(tmp_path, "src/lab/skills/demo/SKILL.md", "See [rules](../../rules/clean-code.md).\n")
 
         findings = nice_check.check_markdown_links(repo)
 
@@ -382,26 +335,31 @@ class TestCheckMarkdownLinks:
         assert findings[0].line == 1
 
     def test_accepts_a_dotted_link_that_resolves(self, tmp_path):
-        repo = self.link_repo(tmp_path, "plugins/lab/README.md", "See [core](../core/README.md).\n")
+        repo = self.link_repo(tmp_path, "src/lab/README.md", "See [core](../core/README.md).\n")
 
         assert nice_check.check_markdown_links(repo) == []
 
     def test_ignores_illustrative_targets(self, tmp_path):
         body = "[text](url) [file.ts:42](file.ts#L42) [path/to/file.ext:42](path/to/file.ext#L42)\n"
-        repo = self.link_repo(tmp_path, "plugins/core/rules/markdown-style.md", body)
+        repo = self.link_repo(tmp_path, "src/core/rules/markdown-style.md", body)
 
         assert nice_check.check_markdown_links(repo) == []
 
     def test_checks_a_bare_target_starting_at_a_repo_root_entry(self, tmp_path):
-        repo = self.link_repo(tmp_path, "README.md", "[core](plugins/core/README.md) [gone](plugins/gone/README.md)\n")
+        repo = self.link_repo(tmp_path, "README.md", "[core](src/core/README.md) [gone](src/gone/README.md)\n")
 
         findings = nice_check.check_markdown_links(repo)
 
         assert len(findings) == 1
-        assert "plugins/gone/README.md" in findings[0].message
+        assert "src/gone/README.md" in findings[0].message
 
     def test_ignores_the_fragment_of_an_existing_target(self, tmp_path):
-        repo = self.link_repo(tmp_path, "README.md", "[core](plugins/core/README.md#L4)\n")
+        repo = self.link_repo(tmp_path, "README.md", "[core](src/core/README.md#L4)\n")
+
+        assert nice_check.check_markdown_links(repo) == []
+
+    def test_leaves_generated_output_alone(self, tmp_path):
+        repo = self.link_repo(tmp_path, "plugins/core/README.md", "See [gone](./gone.md).\n")
 
         assert nice_check.check_markdown_links(repo) == []
 
@@ -472,26 +430,26 @@ class TestCheckHookConfigs:
 
 class TestCheckHookExitCodes:
     def test_reports_exit_one_in_a_hook(self, tmp_path):
-        tracked = [write(tmp_path, "plugins/core/hooks/check.sh", "#!/usr/bin/env bash\nexit 1\n")]
+        tracked = [write(tmp_path, "src/core/hooks/check.sh", "#!/usr/bin/env bash\nexit 1\n")]
 
         findings = nice_check.check_hook_exit_codes(make_repo(tmp_path, tracked))
 
         assert findings[0].line == 2
 
     def test_reports_sys_exit_one_in_a_hook(self, tmp_path):
-        tracked = [write(tmp_path, "plugins/core/hooks/check.py", "import sys\nsys.exit(1)\n")]
+        tracked = [write(tmp_path, "src/core/hooks/check.py", "import sys\nsys.exit(1)\n")]
 
         findings = nice_check.check_hook_exit_codes(make_repo(tmp_path, tracked))
 
         assert findings[0].line == 2
 
     def test_accepts_the_allowed_exit_codes(self, tmp_path):
-        tracked = [write(tmp_path, "plugins/core/hooks/check.sh", "exit 0\nexit 2\n")]
+        tracked = [write(tmp_path, "src/core/hooks/check.sh", "exit 0\nexit 2\n")]
 
         assert nice_check.check_hook_exit_codes(make_repo(tmp_path, tracked)) == []
 
     def test_leaves_hook_tests_alone(self, tmp_path):
-        tracked = [write(tmp_path, "plugins/core/hooks/tests/test_check.py", "sys.exit(1)\n")]
+        tracked = [write(tmp_path, "src/core/hooks/tests/test_check.py", "sys.exit(1)\n")]
 
         assert nice_check.check_hook_exit_codes(make_repo(tmp_path, tracked)) == []
 
@@ -607,6 +565,13 @@ class TestCheckTextHygiene:
 
         assert "generator placeholder" in findings[0].message
 
+    def test_leaves_generated_output_alone(self, tmp_path):
+        tracked = [write(tmp_path, "plugins/core/a.sh", "echo hi  ")]
+
+        repo = make_repo(tmp_path, tracked, {"plugins/core/a.sh": "crlf"})
+
+        assert nice_check.check_text_hygiene(repo) == []
+
     def test_reports_a_file_that_is_not_utf8(self, tmp_path):
         (tmp_path / "a.md").write_bytes(b"\xff\xfe binary\n")
 
@@ -636,14 +601,12 @@ class TestCheckStrayTrackedFiles:
 
 class TestRunChecks:
     def test_broken_input_is_a_finding_and_the_other_checks_still_run(self, tmp_path):
-        write(tmp_path, ".claude-plugin/marketplace.json", "{broken\n")
-        write(tmp_path, "plugins/core/skills/demo/SKILL.md", "# no frontmatter\n")
-        tracked = [".claude-plugin/marketplace.json", write(tmp_path, "a.sh", "echo hi  \n")]
+        write(tmp_path, "src/core/skills/demo/SKILL.md", "# no frontmatter\n")
+        tracked = [write(tmp_path, "a.sh", "echo hi  \n")]
 
         findings = nice_check.run_checks(make_repo(tmp_path, tracked))
 
         assert [(finding.check, finding.severity) for finding in findings] == [
-            ("A", "error"),
             ("B", "error"),
             ("D", "warning"),
             ("I", "warning"),

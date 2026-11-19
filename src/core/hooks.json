@@ -1,0 +1,6 @@
+{
+  "hooks": [
+    {"event": "before-tool", "tools": ["shell"], "command": "python3 {plugin_root}/hooks/scripts/check-uv.py"},
+    {"event": "after-tool", "tools": ["edit"], "command": "python3 {plugin_root}/hooks/scripts/check-edited-file.py"}
+  ]
+}

@@ -20,6 +20,9 @@ ERROR = "error"
 WARNING = "warning"
 SEVERITY_ORDER = {ERROR: 0, WARNING: 1}
 
+SOURCE_DIR = "src"
+OUTPUT_DIR = "plugins"
+
 MAX_LINE_LENGTH = 120
 # Python is left to ruff so a long line is not reported twice; markdown and data files
 # are left alone because MD013 is switched off in .markdownlint-cli2.yaml.
@@ -126,9 +129,18 @@ def tracked_real_files(repo: Repo) -> list[str]:
     return [rel for rel in repo.tracked if (repo.root / rel).is_file()]
 
 
+def subdirectories(directory: Path) -> list[Path]:
+    return sorted(p for p in directory.iterdir() if p.is_dir()) if directory.is_dir() else []
+
+
 def plugin_dirs(repo: Repo) -> list[Path]:
-    plugins = repo.root / "plugins"
-    return sorted(p for p in plugins.iterdir() if p.is_dir()) if plugins.is_dir() else []
+    """Plugin sources; plugins/ is generated from them by scripts/build.py."""
+    return subdirectories(repo.root / SOURCE_DIR)
+
+
+def is_generated(rel: str) -> bool:
+    """Generated output repeats every finding of its source, so the file checks skip it."""
+    return rel.startswith(f"{OUTPUT_DIR}/")
 
 
 def real_skill_dirs(skills_dir: Path) -> list[Path]:
@@ -205,40 +217,6 @@ def unquote(raw: str) -> str:
     return raw
 
 
-# -- A. plugin manifests -----------------------------------------------------
-
-
-def check_plugin_manifests(repo: Repo) -> list[Finding]:
-    manifest_rel = ".claude-plugin/marketplace.json"
-    manifest, error = load_json(repo.root / manifest_rel)
-    if error:
-        return [Finding(ERROR, "A", manifest_rel, None, error)]
-
-    findings = []
-    listed = set()
-    for entry in manifest.get("plugins", []):
-        listed.add(entry.get("name"))
-        findings += check_manifest_entry(repo, manifest_rel, entry)
-    for plugin_dir in plugin_dirs(repo):
-        if plugin_dir.name not in listed:
-            findings.append(Finding(ERROR, "A", manifest_rel, None, f"plugins/{plugin_dir.name} is not listed here"))
-    return findings
-
-
-def check_manifest_entry(repo: Repo, manifest_rel: str, entry: dict) -> list[Finding]:
-    name = entry.get("name", "<unnamed>")
-    source = entry.get("source")
-    if not isinstance(source, str):
-        return []  # an external source (an object): there is no local plugin.json to compare against
-    plugin_rel = f"{source.removeprefix('./')}/.claude-plugin/plugin.json"
-    plugin, error = load_json(repo.root / plugin_rel)
-    if error:
-        return [Finding(ERROR, "A", manifest_rel, None, f"{name}: {plugin_rel} - {error}")]
-    if plugin.get("description") != entry.get("description"):
-        return [Finding(ERROR, "A", plugin_rel, None, f"{name}: description differs from {manifest_rel}")]
-    return []
-
-
 # -- B. frontmatter of skills and rules --------------------------------------
 
 
@@ -259,7 +237,7 @@ def check_skill_frontmatter(repo: Repo) -> list[Finding]:
 
 
 def frontmatter_findings(skill: SkillRef, frontmatter: dict[str, FrontmatterValue]) -> list[Finding]:
-    """Every skill under plugins/ is held to the same rules; a taken-over one records its `origin`."""
+    """Every skill under src/ is held to the same rules; a taken-over one records its `origin`."""
     findings = []
     name = frontmatter.get("name")
     if name is None:
@@ -405,7 +383,7 @@ def check_markdown_links(repo: Repo) -> list[Finding]:
     root_entries = {rel.split("/")[0] for rel in repo.tracked}
     findings = []
     for rel in tracked_real_files(repo):
-        if not rel.endswith(".md"):
+        if not rel.endswith(".md") or is_generated(rel):
             continue
         text, error = load_text(repo.root / rel)
         if error:
@@ -434,7 +412,10 @@ def dead_links(repo: Repo, rel: str, text: str, root_entries: set[str]) -> list[
 
 def hook_configs(repo: Repo) -> list[tuple[Path, Path]]:
     """(config file, root that ${CLAUDE_PLUGIN_ROOT} stands for)."""
-    configs = [(plugin_dir / "hooks" / "hooks.json", plugin_dir) for plugin_dir in plugin_dirs(repo)]
+    # The generated config, because that is what the harness runs.
+    configs = [
+        (plugin_dir / "hooks" / "hooks.json", plugin_dir) for plugin_dir in subdirectories(repo.root / OUTPUT_DIR)
+    ]
     configs = [pair for pair in configs if pair[0].is_file()]
     settings = repo.root / ".claude" / "settings.json"
     if settings.is_file():
@@ -490,7 +471,7 @@ def expand_hook_path(repo: Repo, token: str, plugin_root: Path) -> Path:
 def check_hook_exit_codes(repo: Repo) -> list[Finding]:
     findings = []
     for rel in tracked_real_files(repo):
-        if not rel.startswith("plugins/") or "/hooks/" not in rel or "/tests/" in rel:
+        if not rel.startswith(f"{SOURCE_DIR}/") or "/hooks/" not in rel or "/tests/" in rel:
             continue
         text, error = load_text(repo.root / rel)
         if error:
@@ -498,7 +479,7 @@ def check_hook_exit_codes(repo: Repo) -> list[Finding]:
             continue
         for number, line in enumerate(text.splitlines(), 1):
             if EXIT_ONE.search(line):
-                message = "a hook may only exit 0 (pass) or 2 (block); see plugins/core/rules/bash.md"
+                message = "a hook may only exit 0 (pass) or 2 (block); see src/core/rules/bash.md"
                 findings.append(Finding(ERROR, "G", rel, number, message))
     return findings
 
@@ -545,9 +526,11 @@ def check_text_hygiene(repo: Repo) -> list[Finding]:
     findings = [
         Finding(WARNING, "I", rel, None, "CRLF line endings; .editorconfig asks for lf")
         for rel, eol in sorted(repo.eol.items())
-        if eol == "crlf"
+        if eol == "crlf" and not is_generated(rel)
     ]
     for rel in tracked_real_files(repo):
+        if is_generated(rel):
+            continue
         text, error = load_text(repo.root / rel)
         if error:
             findings.append(Finding(ERROR, "I", rel, None, error))
@@ -598,7 +581,6 @@ def check_stray_tracked_files(repo: Repo) -> list[Finding]:
 # -- report ------------------------------------------------------------------
 
 CHECKS = (
-    check_plugin_manifests,
     check_skill_frontmatter,
     check_rule_frontmatter,
     check_plugin_readmes,

@@ -1,0 +1,8 @@
+ponytail:
+YAGNI — does this need to exist?
+reuse what's already in the repo before writing it
+standard library & native platform before new deps
+one line before fifty
+shortest working diff
+code first, <=3 lines of prose.
+Never strip input validation at trust boundaries, error handling, security, or accessibility.

@@ -13,4 +13,4 @@ dependencies = [
 line-length = 120
 
 [tool.pytest.ini_options]
-testpaths = ["plugins", "scripts"]
+testpaths = ["src", "scripts"]

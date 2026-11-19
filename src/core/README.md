@@ -1,0 +1,87 @@
+# core
+
+Core coding best practices — skills and rules for cleaner code.
+
+## Review skills vs. the bundled ones
+
+Claude Code ships its own review skills — `/code-review` (several finder angles plus a verify pass,
+`--fix` to apply the findings, `--comment` to post them on a PR) and `/simplify` (applies the
+cleanups straight away). Reach for those when you want the fixes applied for you.
+
+`/deep-review` here is the read-only counterpart: it audits explicitly against
+`rules/clean-code.md` and every applicable `CLAUDE.md`, and never touches a file — it reports,
+you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) live in the
+[lab](../lab/README.md) plugin while their overlap with the bundled skills is still unproven.
+
+## Scripts
+
+- `install-rules.py` / `install-rules.ps1` — copy `rules/*.md` into
+  `.claude/rules/plugins/nicecode/core/`, using each file's frontmatter
+  `version` to skip already up-to-date files and overwrite stale ones. Require
+  an explicit `--scope project` (into the current project) or `--scope user`
+  (into the home directory, applies to every project) — run explicitly (see
+  the `install-rules` skill) — there is no automatic trigger.
+- `install-statusline.sh` — copies `statusline.sh`/`statusline.py`/`statusline.ps1`
+  into `.claude/scripts/plugins/nicecode/core/` and sets `statusLine` in the
+  matching `settings.json`, using a `version` marker in `statusline.sh` to skip
+  up-to-date bundles and never overwriting a `statusLine` already set to
+  something else. Same `--scope project`/`--scope user` convention (see the
+  `install-statusline` skill) — bash + `jq` only, run explicitly.
+
+## Hooks
+
+- `PreToolUse` (Bash) → `check-uv.py` — guards against running Python tooling without `uv`.
+- `PostToolUse` (Edit/Write) → `check-edited-file.py` — lints or formats the edited file:
+  - `.py` — `ruff format`
+  - `.sh` — `shellcheck`
+  - `.md` — `markdownlint-cli2 --fix`, then Mermaid diagrams via `md-mermaid-lint`
+  - `.ps1`/`.psm1`/`.psd1` — PSScriptAnalyzer `Invoke-Formatter`
+
+The scripts live in `hooks/scripts/` and need only `python3`. The tools they run are
+optional: a check whose tool is missing is skipped silently, and whatever a tool reports
+is passed to Claude so it can fix the file. Checks are listed in `CHECKS` in `check-edited-file.py`.
+
+- ruff — `uv tool install ruff`
+- shellcheck — `apt install shellcheck`
+- markdownlint-cli2 — `npm install -g markdownlint-cli2`
+- md-mermaid-lint — `npm install -g md-mermaid-lint` (its puppeteer dependency downloads Chrome on install)
+- pwsh — see [Installing PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
+- PSScriptAnalyzer — `Install-Module PSScriptAnalyzer -Scope CurrentUser`
+
+## Rules
+
+- `clean-code.md` — cross-language clean-code principles (naming, functions, design, error handling).
+- `comments.md` — when a comment earns its place; the default is zero comments.
+- `bash.md` — Bash scripting conventions.
+- `python.md` — Python conventions.
+- `python-uv.md` — always use `uv` for Python (never `pip`/`venv`/`pipx`).
+- `csharp-code-style.md` — C# code style.
+- `csharp-doc-style.md` — C# XML documentation style.
+- `csharp-mstest.md` — C# unit testing with MSTest.
+- `powershell.md` — PowerShell scripting conventions.
+- `powershell-pester-5.md` — PowerShell testing with Pester 5.
+- `rust.md` — Rust conventions.
+- `markdown-style.md` — markdown style rules the auto-fixer cannot enforce.
+- `nicecode-test.md` — `nicecode status` smoke-test command.
+
+## Skills
+
+- `best-practice` — do a task the idiomatic way from official docs, ignoring how the repo already does it.
+- `chat` — answers a question without reading project files or invoking skills.
+- `commit` — interactive git commit workflow with formatting rules.
+- `deep-review` — multi-agent local code review with scope detection, parallel reviewers, and validation.
+- `explain` — thorough analysis of a file or module: what it does, how it connects, how it can break.
+- `install-rules` — installs/updates the versioned rule files into this project.
+- `install-statusline` — installs/updates the statusline scripts and wires `statusLine` in settings.json.
+- `ops-guide` — how to write a step-by-step procedure a human will run at a console.
+- `plan-loop` — review loop for an implementation plan: a fresh `plan-reviewer` subagent reviews it,
+  the plan is revised, repeat until nothing is left to fix or 3 rounds pass. Explicit request only.
+- `plan-review` — judges whether an implementation plan can be executed without guessing: verifies the
+  file paths and symbols it claims exist, and flags decisions deferred to implementation time.
+- `search-first` — check whether something already exists (repo, dependencies, stdlib) before writing new code.
+- `skill-authoring` — conventions for writing SKILL.md files so skills trigger reliably.
+- `summary` — summarize the current conversation and save it to a markdown file.
+
+## Agents
+
+- `plan-reviewer.md` — reviews one plan file with the `plan-review` checklist; spawned by `plan-loop`.

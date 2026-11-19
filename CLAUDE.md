@@ -8,25 +8,40 @@ NiceCode is a Claude Code plugin marketplace. The guiding principle is **simplic
 
 ## Architecture
 
-Marketplace (`.claude-plugin/marketplace.json`) → Plugins (`plugins/<name>/.claude-plugin/plugin.json`) → rules, skills, hooks.
+Source (`src/`) → `scripts/build.py` → generated output: marketplace (`.claude-plugin/marketplace.json`)
+→ plugins (`plugins/<name>/`) → rules, skills, hooks.
+
+- `src/marketplace.json` — the catalog, the only place plugin metadata (name, description, version) lives.
+- `src/<name>/` — the plugin's files; everything except tests and the neutral `hooks.json` is copied as is.
+- `plugins/`, `.claude-plugin/` — generated and committed, so the repo installs straight from git.
+  Never edit them by hand; `build.py --check` (run by `scripts/test.sh` and CI) fails when they drift.
 
 Each plugin is a self-contained bundle: `core` (rules, skills and hooks), `lab`
 (work in progress), `ponytail` (vendored), `rsj` (team skills) and `mattpocock` (vendored subset of mattpocock/skills).
 
 ## Development
 
-Plugins are not wired into this repo's `.claude/`; test them by installing them from this marketplace. Skills are the main form; `core` ships one agent (`plan-reviewer`, spawned by `plan-loop`). Always edit source files in `plugins/<plugin>/`. `.claude/skills/nice-check/` is a repo-local skill with no plugin behind it.
+Plugins are not wired into this repo's `.claude/`; test them by installing them from this marketplace. Skills are the main form; `core` ships one agent (`plan-reviewer`, spawned by `plan-loop`). Always edit source files in `src/<plugin>/`, then run `uv run scripts/build.py` and commit `src/` together with the output. `.claude/skills/nice-check/` is a repo-local skill with no plugin behind it.
 
 ### Hook conventions
 
 - Hook scripts in `hooks/scripts/` receive JSON via stdin (`json.load(sys.stdin)` in Python).
 - Exit code 2 = block the tool call, 0 = pass.
-- Use `${CLAUDE_PLUGIN_ROOT}` for paths in `hooks.json` and `|` in the matcher to combine tools (e.g., `Edit|Write`).
+- Hooks are declared in the neutral `src/<plugin>/hooks.json`, which `build.py` translates into `plugins/<plugin>/hooks/hooks.json`:
+
+  ```json
+  {"hooks": [{"event": "before-tool", "tools": ["shell"], "command": "python3 {plugin_root}/hooks/scripts/check-uv.py"}]}
+  ```
+
+  - `event`: `before-tool` | `after-tool` | `session-start` | `prompt-submit`
+    (→ `PreToolUse` | `PostToolUse` | `SessionStart` | `UserPromptSubmit`).
+  - `tools`: `shell` (→ `Bash`) | `edit` (→ `Edit|Write`); required on `*-tool` events, forbidden on the others.
+  - `{plugin_root}` becomes `${CLAUDE_PLUGIN_ROOT}`.
 
 ### Frontmatter
 
 `scripts/nice-check.py` (check B) enforces these on every `SKILL.md` and every `rules/*.md` under
-`plugins/`. There is no exempt category: a taken-over file follows the same rules as an authored
+`src/`. There is no exempt category: a taken-over file follows the same rules as an authored
 one and records where it came from in `origin`.
 
 - `managed-by` and `version` — on plugin skills, provenance bookkeeping only; on `rules/*.md`,
@@ -44,13 +59,13 @@ On a `SKILL.md` additionally:
 
 ### Versioning
 
-Bump `version` in `.claude-plugin/marketplace.json` on release.
+Bump `version` in `src/marketplace.json` on release, then rebuild.
 
 ### Tests
 
 Always run tests via `uvx pytest`, never bare `pytest`.
 
-Hook tests: `uvx pytest plugins/core/hooks/tests/`
+Hook tests: `uvx pytest src/core/hooks/tests/`
 
 ## Documentation
 

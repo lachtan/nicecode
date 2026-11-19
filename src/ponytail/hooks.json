@@ -1,0 +1,6 @@
+{
+  "hooks": [
+    {"event": "session-start", "command": "python3 {plugin_root}/skills/ponytail/ponytail.py"},
+    {"event": "prompt-submit", "command": "python3 {plugin_root}/skills/ponytail/ponytail.py"}
+  ]
+}
