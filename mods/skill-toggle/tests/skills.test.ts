@@ -2,7 +2,7 @@
 
 import type { EngineInterface, PluginRegisterInput, PluginRegisterResult } from "claude-code";
 import { expect, test } from "claude-code/testing";
-import { disableSkills } from "./skills";
+import { disableSkills } from "../hooks/skills";
 
 type RegisterNext = Parameters<typeof disableSkills>[2];
 

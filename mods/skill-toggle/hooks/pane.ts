@@ -32,7 +32,7 @@ export async function renderPane(engine: EngineInterface, event: RenderInput<"Pa
       rows.push(Button({ key: skill, plain: true, label: `${mark} ${name}`, onPress: () => toggleSkill(engine, skill) }));
     }
   }
-  rows.push(Button({ label: "Apply (reload plugins)", onPress: () => reloadPlugins(engine) }));
+  rows.push(Button({ key: "apply", label: "Apply (reload plugins)", onPress: () => reloadPlugins(engine) }));
 
   return Box({ flexDirection: "column", children: rows });
 }
