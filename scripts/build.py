@@ -15,6 +15,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -29,6 +30,13 @@ CODEX_CATEGORY = "Productivity"
 NEUTRAL_HOOKS = "hooks.json"
 OPTIONAL_PLUGIN_KEYS = ("repository", "license")
 VERSION = re.compile(r"^\d+\.\d+\.\d+$")
+# Files whose frontmatter gets the generated keys; paths are relative to the plugin directory.
+STAMPED = re.compile(r"skills/[^/]+/SKILL\.md|rules/[^/]+\.md|agents/[^/]+\.md")
+GENERATED_KEYS = ("managed-by", "version", "last-change")
+# install-rules overwrites only the files that carry this marker.
+MANAGED_BY = "https://github.com/lachtan/nicecode"
+FRONTMATTER_DELIMITER = "---\n"
+STAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 EVENTS = {
     "before-tool": "PreToolUse",
@@ -61,6 +69,18 @@ def git_files(root: Path, directory: str) -> list[str]:
     paths = {path for path in result.stdout.decode().split("\0") if path}
     # --cached still lists a tracked file that was deleted from the worktree.
     return sorted(path for path in paths if (root / path).is_file())
+
+
+def committed_text(root: Path, path: str) -> str | None:
+    """The file as HEAD has it; None when HEAD does not have it."""
+    command = ["git", "-C", str(root), "show", f"HEAD:{path}"]
+    result = subprocess.run(command, capture_output=True, check=False)
+    return result.stdout.decode() if result.returncode == 0 else None
+
+
+def worktree_text(root: Path, path: str) -> str | None:
+    file = root / path
+    return file.read_text(encoding="utf-8") if file.is_file() else None
 
 
 def load_catalog(root: Path) -> dict:
@@ -159,6 +179,57 @@ def codex_marketplace(catalog: dict) -> dict:
     return {"name": catalog["name"], "interface": {"displayName": catalog["owner"]["name"]}, "plugins": entries}
 
 
+def frontmatter_end(lines: list[str]) -> int | None:
+    """Index of the closing delimiter; None when the text has no frontmatter."""
+    if not lines or lines[0] != FRONTMATTER_DELIMITER:
+        return None
+    return next((index for index, line in enumerate(lines[1:], 1) if line == FRONTMATTER_DELIMITER), None)
+
+
+def is_generated_line(line: str) -> bool:
+    return line.startswith(tuple(f"{key}:" for key in GENERATED_KEYS))
+
+
+def strip_generated(text: str) -> str:
+    lines = text.splitlines(keepends=True)
+    end = frontmatter_end(lines)
+    if end is None:
+        return text
+    return "".join(line for index, line in enumerate(lines) if index >= end or not is_generated_line(line))
+
+
+def generated_value(text: str, key: str) -> str | None:
+    lines = text.splitlines(keepends=True)
+    end = frontmatter_end(lines) or 0
+    prefix = f"{key}:"
+    for line in lines[1:end]:
+        if line.startswith(prefix):
+            return line.removeprefix(prefix).strip().strip("\"'")
+    return None
+
+
+def stamp(source: str, worktree: str | None, committed: str | None, plugin_version: str, now: datetime) -> str:
+    """Append managed-by, version and last-change to the frontmatter; the last two change only when the source does.
+
+    The version is the plugin's version when the file last changed against HEAD, so a plugin
+    version bumped after a build still reaches the file. last-change comes from the worktree
+    output, so a second build, and so --check, renders the same bytes.
+    """
+    lines = source.splitlines(keepends=True)
+    end = frontmatter_end(lines)
+    if end is None:
+        return source
+    version, last_change = plugin_version, None
+    if committed is not None and strip_generated(committed) == source:
+        version = generated_value(committed, "version") or plugin_version
+        last_change = generated_value(committed, "last-change")
+    elif worktree is not None and strip_generated(worktree) == source:
+        last_change = generated_value(worktree, "last-change")
+    last_change = last_change or now.strftime(STAMP_FORMAT)
+    generated = [f"managed-by: {MANAGED_BY}\n", f'version: "{version}"\n', f'last-change: "{last_change}"\n']
+    return "".join(lines[:end] + generated + lines[end:])
+
+
 def hook_matcher(hook: dict) -> str | None:
     event, tools = hook["event"], hook.get("tools")
     if event not in TOOL_EVENTS:
@@ -198,14 +269,21 @@ def translate_hooks(neutral: dict) -> dict:
     return {"hooks": hooks}
 
 
-def render_plugin(root: Path, plugin: dict, files: list[str]) -> dict[str, OutputFile]:
+def render_plugin(root: Path, plugin: dict, files: list[str], now: datetime) -> dict[str, OutputFile]:
     name = plugin["name"]
     source, output = root / SOURCE_DIR / name, f"{OUTPUT_DIR}/{name}"
     rendered = {}
     for path in files:
-        if is_shipped(path):
-            file = source / path
-            rendered[f"{output}/{path}"] = OutputFile(file.read_bytes(), file.stat().st_mode & 0o111 != 0)
+        if not is_shipped(path):
+            continue
+        file, target = source / path, f"{output}/{path}"
+        content = file.read_bytes()
+        if STAMPED.fullmatch(path):
+            text = stamp(
+                content.decode(), worktree_text(root, target), committed_text(root, target), plugin["version"], now
+            )
+            content = text.encode()
+        rendered[target] = OutputFile(content, file.stat().st_mode & 0o111 != 0)
     rendered[f"{output}/.claude-plugin/plugin.json"] = json_file(claude_plugin_manifest(plugin))
     rendered[f"{output}/.codex-plugin/plugin.json"] = json_file(codex_plugin_manifest(plugin))
     if NEUTRAL_HOOKS in files:
@@ -217,7 +295,7 @@ def render_plugin(root: Path, plugin: dict, files: list[str]) -> dict[str, Outpu
     return rendered
 
 
-def render(root: Path) -> dict[str, OutputFile]:
+def render(root: Path, now: datetime) -> dict[str, OutputFile]:
     """Every generated file, keyed by its path relative to root."""
     catalog = load_catalog(root)
     sources = source_plugin_files(root)
@@ -227,7 +305,7 @@ def render(root: Path) -> dict[str, OutputFile]:
         CODEX_MARKETPLACE: json_file(codex_marketplace(catalog)),
     }
     for plugin in catalog["plugins"]:
-        rendered |= render_plugin(root, plugin, sources[plugin["name"]])
+        rendered |= render_plugin(root, plugin, sources[plugin["name"]], now)
     return rendered
 
 
@@ -272,7 +350,7 @@ def remove_empty_parents(root: Path, path: Path) -> None:
 
 def main(argv: list[str], root: Path = ROOT) -> int:
     try:
-        rendered = render(root)
+        rendered = render(root, datetime.now().astimezone())
     except BuildError as exc:
         print(f"build: {exc}", file=sys.stderr)
         return 1

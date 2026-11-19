@@ -3,9 +3,6 @@ name: explain
 description: Thoroughly examine and analyze a file or module — what it does, how it connects, and how it could break.
 disable-model-invocation: true
 user-invocable: true
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-03-23 08:18:20"
 ---
 
 # Explain a file or module

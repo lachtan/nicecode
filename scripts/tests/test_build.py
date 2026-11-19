@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import subprocess
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,8 @@ _mod_path = Path(__file__).resolve().parent.parent / "build.py"
 _spec = importlib.util.spec_from_file_location("build", _mod_path)
 build = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(build)
+
+NOW = datetime(2026, 11, 19, 12, 0, 0, tzinfo=UTC)
 
 
 def plugin_entry(name: str, version: object = "1.0.0") -> dict:
@@ -98,12 +101,68 @@ class TestTranslateHooks:
             build.translate_hooks({"hooks": [entry]})
 
 
+# -- frontmatter stamps ------------------------------------------------------
+
+SOURCE = "---\nname: one\n---\n\n# One\n"
+
+
+def stamped(version: str, last_change: str, source: str = SOURCE) -> str:
+    generated = f'managed-by: {build.MANAGED_BY}\nversion: "{version}"\nlast-change: "{last_change}"\n'
+    return source.replace("---\n\n", f"{generated}---\n\n")
+
+
+def commit_all(repo: Path) -> None:
+    identity = ["-c", "user.name=tester", "-c", "user.email=tester@example.invalid"]
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(repo), *identity, "commit", "-q", "-m", "build"], check=True)
+
+
+class TestStamp:
+    def test_stamps_a_new_file_with_the_plugin_version_and_now(self):
+        assert build.stamp(SOURCE, None, None, "2.0.0", NOW) == stamped("2.0.0", "2026-11-19 12:00:00")
+
+    def test_keeps_both_values_of_a_file_unchanged_since_head(self):
+        committed = stamped("1.0.0", "2026-01-01 08:00:00")
+        worktree = stamped("2.0.0", "2026-11-18 08:00:00")
+
+        assert build.stamp(SOURCE, worktree, committed, "2.0.0", NOW) == committed
+
+    def test_gives_a_file_changed_since_head_the_plugin_version(self):
+        committed = stamped("1.0.0", "2026-01-01 08:00:00", "---\nname: one\n---\n\n# Old\n")
+        worktree = stamped("1.0.0", "2026-11-18 08:00:00")
+
+        assert build.stamp(SOURCE, worktree, committed, "2.0.0", NOW) == stamped("2.0.0", "2026-11-18 08:00:00")
+
+    def test_stamps_now_when_the_built_output_is_stale(self):
+        worktree = stamped("1.0.0", "2026-11-18 08:00:00", "---\nname: one\n---\n\n# Old\n")
+
+        assert build.stamp(SOURCE, worktree, None, "2.0.0", NOW) == stamped("2.0.0", "2026-11-19 12:00:00")
+
+    def test_leaves_a_file_without_frontmatter_alone(self):
+        assert build.stamp("# One\n", None, None, "2.0.0", NOW) == "# One\n"
+
+    def test_reads_the_committed_output_from_head(self, tmp_path):
+        repo = make_repo(tmp_path, [plugin_entry("demo")], {"src/demo/skills/one/SKILL.md": SOURCE})
+        build.main([], repo)
+        commit_all(repo)
+        output = (repo / "plugins/demo/skills/one/SKILL.md").read_text()
+        catalog = repo / "src/marketplace.json"
+        catalog.write_text(catalog.read_text().replace('"1.0.0"', '"2.0.0"'))
+        (repo / "src/demo/rules").mkdir()
+        (repo / "src/demo/rules/two.md").write_text(SOURCE)
+
+        rendered = build.render(repo, NOW)
+
+        assert rendered["plugins/demo/skills/one/SKILL.md"].content.decode() == output
+        assert rendered["plugins/demo/rules/two.md"].content.decode() == stamped("2.0.0", "2026-11-19 12:00:00")
+
+
 # -- rendering ---------------------------------------------------------------
 
 
 class TestRender:
     def test_writes_the_claude_manifests(self, tmp_path):
-        rendered = build.render(demo_repo(tmp_path))
+        rendered = build.render(demo_repo(tmp_path), NOW)
 
         manifest = json.loads(rendered["plugins/demo/.claude-plugin/plugin.json"].content)
         marketplace = json.loads(rendered[".claude-plugin/marketplace.json"].content)
@@ -112,7 +171,7 @@ class TestRender:
         assert marketplace["plugins"][0]["source"] == "./plugins/demo"
 
     def test_writes_the_codex_manifests(self, tmp_path):
-        rendered = build.render(demo_repo(tmp_path))
+        rendered = build.render(demo_repo(tmp_path), NOW)
 
         manifest = json.loads(rendered["plugins/demo/.codex-plugin/plugin.json"].content)
         marketplace = json.loads(rendered[".agents/plugins/marketplace.json"].content)
@@ -144,7 +203,7 @@ class TestRender:
             "src/demo/hooks.json": json.dumps({"hooks": [hook("session-start")]}),
         }
 
-        rendered = build.render(make_repo(tmp_path, [plugin_entry("demo")], files))
+        rendered = build.render(make_repo(tmp_path, [plugin_entry("demo")], files), NOW)
 
         assert sorted(path for path in rendered if path.startswith("plugins/")) == [
             "plugins/demo/.claude-plugin/plugin.json",
@@ -160,7 +219,7 @@ class TestRender:
             "src/demo/__pycache__/a.pyc": "",
         }
 
-        rendered = build.render(make_repo(tmp_path, [plugin_entry("demo")], files))
+        rendered = build.render(make_repo(tmp_path, [plugin_entry("demo")], files), NOW)
 
         assert not any("__pycache__" in path for path in rendered)
 
@@ -168,33 +227,33 @@ class TestRender:
         repo = make_repo(tmp_path, [plugin_entry("demo")], {"src/demo/scripts/run.sh": "#!/bin/sh\n"})
         (repo / "src/demo/scripts/run.sh").chmod(0o755)
 
-        assert build.render(repo)["plugins/demo/scripts/run.sh"].is_executable
+        assert build.render(repo, NOW)["plugins/demo/scripts/run.sh"].is_executable
 
     def test_rejects_a_plugin_missing_from_the_catalog(self, tmp_path):
         repo = make_repo(tmp_path, [], {"src/orphan/README.md": "# Orphan\n"})
 
         with pytest.raises(build.BuildError, match="not listed in src/marketplace.json: orphan"):
-            build.render(repo)
+            build.render(repo, NOW)
 
     def test_rejects_a_catalog_entry_without_a_plugin(self, tmp_path):
         repo = make_repo(tmp_path, [plugin_entry("ghost")], {})
 
         with pytest.raises(build.BuildError, match="missing from src/: ghost"):
-            build.render(repo)
+            build.render(repo, NOW)
 
     @pytest.mark.parametrize("version", ["1.0", "v1.0.0", 1, None])
     def test_rejects_an_invalid_version(self, tmp_path, version):
         repo = make_repo(tmp_path, [plugin_entry("demo", version)], {"src/demo/README.md": "# Demo\n"})
 
         with pytest.raises(build.BuildError, match="is not a MAJOR.MINOR.PATCH string"):
-            build.render(repo)
+            build.render(repo, NOW)
 
     def test_names_the_hook_file_of_an_invalid_hook(self, tmp_path):
         files = {"src/demo/hooks.json": json.dumps({"hooks": [hook("on-exit")]})}
         repo = make_repo(tmp_path, [plugin_entry("demo")], files)
 
         with pytest.raises(build.BuildError, match="src/demo/hooks.json: unknown event"):
-            build.render(repo)
+            build.render(repo, NOW)
 
 
 # -- writing and checking ----------------------------------------------------

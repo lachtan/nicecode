@@ -6,9 +6,6 @@ description: >-
   there are any good, or wants to know whether a test file is worth what it costs.
 disable-model-invocation: false
 user-invocable: true
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-09-25 11:40:45"
 ---
 
 # Reviewing existing tests

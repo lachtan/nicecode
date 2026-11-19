@@ -7,9 +7,6 @@ description: >-
 disable-model-invocation: false
 user-invocable: true
 origin: tomas.bouda@rsj.com
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-11-18 12:41:56"
 ---
 
 # You are not a ninja

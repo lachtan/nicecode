@@ -5,9 +5,6 @@ description: >-
   formats this session's context as a copy-pasteable brief for a fresh session.
 disable-model-invocation: false
 user-invocable: true
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-09-11 12:48:38"
 ---
 
 # Handoff

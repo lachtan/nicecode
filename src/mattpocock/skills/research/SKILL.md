@@ -4,9 +4,6 @@ description: Investigate a question against high-trust primary sources and captu
 disable-model-invocation: false
 user-invocable: true
 origin: https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/research/SKILL.md
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-11-18 15:05:01"
 ---
 
 Spin up a **background agent** to do the research, so you keep working while it reads. Start it with a fresh context window.

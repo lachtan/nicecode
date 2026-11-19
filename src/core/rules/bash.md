@@ -1,9 +1,6 @@
 ---
 paths:
   - "**/*.sh"
-managed-by: https://github.com/lachtan/nicecode
-version: "1.1.2"
-last-change: "2026-09-25 14:46:28"
 ---
 
 # Bash Script Conventions

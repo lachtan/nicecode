@@ -8,19 +8,16 @@ description: >-
   "refresh nicecode rules", or reports that rules aren't loading.
 user-invocable: true
 disable-model-invocation: false
-managed-by: https://github.com/lachtan/nicecode
-version: "1.2.0"
-last-change: "2026-08-27 05:53:34"
 ---
 
 # Install Rules
 
 Copies `core`'s rule files into `.claude/rules/plugins/nicecode/core/`, either
 under the current project or under the user's home directory. Each rule file
-carries a `version` in its frontmatter, so re-running this only overwrites
-files where the plugin's version is newer than what's already installed —
-files you've customized without a matching `version` are left untouched and
-reported as skipped.
+carries a `last-change` timestamp in its frontmatter, so re-running this only
+overwrites files the plugin changed later than what's already installed —
+files without nicecode's `managed-by` are left untouched and reported as
+skipped.
 
 Rules the plugin no longer ships are deleted from the target directory, so a rule
 retired upstream doesn't linger forever. Only files carrying nicecode's own

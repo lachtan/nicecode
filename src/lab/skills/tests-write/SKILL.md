@@ -6,9 +6,6 @@ description: >-
   of a class, method or module whose implementation is already written.
 disable-model-invocation: false
 user-invocable: true
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-09-25 11:40:45"
 ---
 
 # Writing tests for existing code

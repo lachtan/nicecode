@@ -17,7 +17,7 @@ you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) li
 
 - `install-rules.py` / `install-rules.ps1` — copy `rules/*.md` into
   `.claude/rules/plugins/nicecode/core/`, using each file's frontmatter
-  `version` to skip already up-to-date files and overwrite stale ones. Require
+  `last-change` to skip already up-to-date files and overwrite stale ones. Require
   an explicit `--scope project` (into the current project) or `--scope user`
   (into the home directory, applies to every project) — run explicitly (see
   the `install-rules` skill) — there is no automatic trigger.

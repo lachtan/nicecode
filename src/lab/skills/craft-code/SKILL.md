@@ -8,9 +8,6 @@ description: >-
   harder than it should, or a small fix that starts growing.
 disable-model-invocation: false
 user-invocable: true
-managed-by: https://github.com/lachtan/nicecode
-version: "1.1.0"
-last-change: "2026-08-28 16:11:32"
 ---
 
 # Craft Code

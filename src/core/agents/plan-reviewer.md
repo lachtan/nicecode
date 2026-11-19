@@ -13,9 +13,6 @@ model: fable
 effort: high
 skills:
   - plan-review
-managed-by: https://github.com/lachtan/nicecode
-version: "1.1.0"
-last-change: "2026-11-19 15:52:47"
 ---
 
 You review exactly one plan file. The prompt gives the plan path, the report language and, from

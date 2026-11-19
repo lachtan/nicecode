@@ -8,9 +8,6 @@ description: >-
 disable-model-invocation: false
 user-invocable: true
 origin: https://github.com/affaan-m/ECC/blob/main/skills/search-first/SKILL.md
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-08-13 05:22:40"
 ---
 
 # Search First

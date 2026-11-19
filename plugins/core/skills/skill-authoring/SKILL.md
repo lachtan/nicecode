@@ -7,8 +7,8 @@ description: >-
 disable-model-invocation: false
 user-invocable: true
 managed-by: https://github.com/lachtan/nicecode
-version: "1.1.0"
-last-change: "2026-08-27 08:38:23"
+version: "1.10.0"
+last-change: "2026-11-19 16:28:35"
 ---
 
 # Skill Authoring
@@ -43,7 +43,8 @@ Rules for writing SKILL.md files so skills trigger reliably and stay cheap once 
   the skill.
 - Record `last-change: "YYYY-MM-DD HH:MM:SS"` (local time, in quotes — unquoted it parses as a YAML
   timestamp rather than a string) and rewrite it whenever you change the body. Bumping `version` or
-  reformatting the markdown is not a change to what the skill says, so the stamp stays.
+  reformatting the markdown is not a change to what the skill says, so the stamp stays. When a
+  build step generates `last-change` and `version`, leave both out of the source.
 - Check whether other optional fields apply and add only the ones that do:
   `allowed-tools`/`disallowed-tools` (permission scoping), `argument-hint`/`arguments`
   (slash-command parameters), `model`/`effort` (override), `context: fork` + `agent` (isolated

@@ -56,11 +56,26 @@ function Get-FrontmatterValue {
 function Get-RuleVersion {
     param([string[]]$FrontmatterLines)
 
-    $rawValue = Get-FrontmatterValue -FrontmatterLines $FrontmatterLines -Key "version"
-    if ($null -eq $rawValue) {
-        return $null
+    $version = Get-FrontmatterValue -FrontmatterLines $FrontmatterLines -Key "version"
+    if ($null -eq $version) {
+        return "unknown"
     }
-    return [version]$rawValue
+    return $version
+}
+
+function Test-SourceIsNewer {
+    param(
+        [string[]]$SourceFrontmatter,
+        [string[]]$TargetFrontmatter
+    )
+
+    # last-change is "YYYY-MM-DD HH:MM:SS", so string order is time order.
+    $sourceChange = Get-FrontmatterValue -FrontmatterLines $SourceFrontmatter -Key "last-change"
+    $targetChange = Get-FrontmatterValue -FrontmatterLines $TargetFrontmatter -Key "last-change"
+    if ($null -eq $targetChange) {
+        return $true
+    }
+    return $null -ne $sourceChange -and [string]::CompareOrdinal($sourceChange, $targetChange) -gt 0
 }
 
 function Install-Rule {
@@ -92,7 +107,7 @@ function Install-Rule {
 
     $targetVersion = Get-RuleVersion -FrontmatterLines $targetFrontmatter
 
-    if ($null -eq $targetVersion -or ($sourceVersion -and ($sourceVersion -gt $targetVersion))) {
+    if (Test-SourceIsNewer -SourceFrontmatter $sourceFrontmatter -TargetFrontmatter $targetFrontmatter) {
         Copy-Item -Path $SourceFile.FullName -Destination $targetFile -Force
         return "updated $($SourceFile.Name): $targetVersion -> $sourceVersion"
     }

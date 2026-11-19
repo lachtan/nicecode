@@ -15,13 +15,20 @@ OTHER_REPO = "https://github.com/someone-else/other-repo"
 
 
 def write_rule(
-    path: Path, *, version: str | None, managed_by: str | None = install_rules.MANAGED_BY, body: str = "content"
+    path: Path,
+    *,
+    version: str | None,
+    last_change: str | None = "2026-01-01 08:00:00",
+    managed_by: str | None = install_rules.MANAGED_BY,
+    body: str = "content",
 ) -> None:
     frontmatter_lines = []
     if managed_by is not None:
         frontmatter_lines.append(f"managed-by: {managed_by}")
     if version is not None:
         frontmatter_lines.append(f'version: "{version}"')
+    if last_change is not None:
+        frontmatter_lines.append(f'last-change: "{last_change}"')
     frontmatter = f"---\n{chr(10).join(frontmatter_lines)}\n---\n" if frontmatter_lines else ""
     path.write_text(f"{frontmatter}{body}\n")
 
@@ -65,17 +72,6 @@ class TestFrontmatterValue:
         assert install_rules.frontmatter_value(["paths:", '  - "**/*.py"'], "version") is None
 
 
-# -- parse_version ----------------------------------------------------------------
-
-
-class TestParseVersion:
-    def test_parses_version(self):
-        assert install_rules.parse_version(['version: "1.2.3"']) == install_rules.Version(1, 2, 3)
-
-    def test_missing_version(self):
-        assert install_rules.parse_version(["paths:", '  - "**/*.py"']) is None
-
-
 # -- install_rule ---------------------------------------------------------------
 
 
@@ -101,13 +97,27 @@ class TestInstallRule:
         target.mkdir()
 
         rule = source / "rule.md"
-        write_rule(rule, version="1.1.0", body="new content")
+        write_rule(rule, version="1.1.0", last_change="2026-02-01 08:00:00", body="new content")
         write_rule(target / "rule.md", version="1.0.0", body="old content")
 
         result = install_rules.install_rule(rule, target)
 
         assert (target / "rule.md").read_text() == rule.read_text()
         assert result == "updated rule.md: 1.0.0 -> 1.1.0"
+
+    def test_updates_a_newer_source_with_the_same_version(self, tmp_path):
+        source = tmp_path / "source"
+        source.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+
+        rule = source / "rule.md"
+        write_rule(rule, version="1.0.0", last_change="2026-02-01 08:00:00", body="new content")
+        write_rule(target / "rule.md", version="1.0.0", body="old content")
+
+        install_rules.install_rule(rule, target)
+
+        assert (target / "rule.md").read_text() == rule.read_text()
 
     def test_skips_when_up_to_date(self, tmp_path):
         source = tmp_path / "source"
@@ -150,14 +160,14 @@ class TestInstallRule:
         rule = source / "rule.md"
         write_rule(rule, version="1.0.0")
         target_rule = target / "rule.md"
-        write_rule(target_rule, version="99.0.0", managed_by=OTHER_REPO, body="foreign content")
+        write_rule(target_rule, version="99.0.0", last_change=None, managed_by=OTHER_REPO, body="foreign content")
 
         result = install_rules.install_rule(rule, target)
 
         assert target_rule.read_text() == f'---\nmanaged-by: {OTHER_REPO}\nversion: "99.0.0"\n---\nforeign content\n'
         assert result == "skipped rule.md: not managed by this repo, not overwriting"
 
-    def test_updates_when_managed_but_version_unparseable(self, tmp_path):
+    def test_updates_when_managed_but_last_change_missing(self, tmp_path):
         source = tmp_path / "source"
         source.mkdir()
         target = tmp_path / "target"
@@ -166,7 +176,7 @@ class TestInstallRule:
         rule = source / "rule.md"
         write_rule(rule, version="1.0.0")
         target_rule = target / "rule.md"
-        write_rule(target_rule, version=None, body="corrupted")
+        write_rule(target_rule, version=None, last_change=None, body="corrupted")
 
         result = install_rules.install_rule(rule, target)
 

@@ -60,9 +60,9 @@ or register its status line, so those two are installed on request. Ask Claude:
 Claude asks for a scope first: `project` installs into the current project, `user` into
 `~/.claude/` so it applies everywhere.
 
-Updating is the same request again. Files are versioned: a newer plugin version overwrites
-the installed copy, while rule files you wrote yourself and a `statusLine` you set to
-something else are left alone.
+Updating is the same request again. A rule file changed since the installed copy, or a newer
+statusline version, overwrites what is installed, while rule files you wrote yourself and a
+`statusLine` you set to something else are left alone.
 
 For the `project` scope, gitignore the copies — the installer regenerates them:
 

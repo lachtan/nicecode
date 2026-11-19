@@ -7,9 +7,6 @@ description: >-
 disable-model-invocation: false
 user-invocable: true
 origin: https://github.com/obra/superpowers/tree/v6.3.0/skills/systematic-debugging
-managed-by: https://github.com/lachtan/nicecode
-version: "6.3.0"
-last-change: "2026-08-28 09:28:03"
 ---
 
 # Debugging

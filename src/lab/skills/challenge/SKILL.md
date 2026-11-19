@@ -6,9 +6,6 @@ description: >-
 disable-model-invocation: true
 user-invocable: true
 origin: https://levelup.gitconnected.com/your-ai-writes-mediocre-code-because-you-never-told-it-how-you-write-code-a2163e4defe9
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-10-19 11:36:59"
 ---
 
 # Challenge

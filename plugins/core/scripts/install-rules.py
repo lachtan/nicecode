@@ -3,22 +3,11 @@
 import argparse
 import shutil
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 RULES_SUBDIR = Path(".claude") / "rules" / "plugins" / "nicecode" / "core"
 FRONTMATTER_DELIMITER = "---"
 MANAGED_BY = "https://github.com/lachtan/nicecode"
-
-
-@dataclass(order=True, frozen=True)
-class Version:
-    major: int
-    minor: int
-    patch: int
-
-    def __str__(self) -> str:
-        return f"{self.major}.{self.minor}.{self.patch}"
 
 
 def extract_frontmatter(text: str) -> list[str] | None:
@@ -39,37 +28,35 @@ def frontmatter_value(frontmatter_lines: list[str], key: str) -> str | None:
     return None
 
 
-def parse_version(frontmatter_lines: list[str]) -> Version | None:
-    raw_value = frontmatter_value(frontmatter_lines, "version")
-    if raw_value is None:
-        return None
-    major, minor, patch = raw_value.split(".")
-    return Version(int(major), int(minor), int(patch))
+def format_version(frontmatter_lines: list[str]) -> str:
+    return frontmatter_value(frontmatter_lines, "version") or "unknown"
 
 
-def format_version(version: Version | None) -> str:
-    return str(version) if version is not None else "unknown"
+def is_newer(source_frontmatter: list[str], target_frontmatter: list[str]) -> bool:
+    """last-change is "YYYY-MM-DD HH:MM:SS", so string order is time order."""
+    source_change = frontmatter_value(source_frontmatter, "last-change")
+    target_change = frontmatter_value(target_frontmatter, "last-change")
+    return target_change is None or (source_change is not None and source_change > target_change)
 
 
 def install_rule(source_file: Path, target_dir: Path) -> str:
     source_frontmatter = extract_frontmatter(source_file.read_text()) or []
-    source_version = parse_version(source_frontmatter)
     target_file = target_dir / source_file.name
 
     if not target_file.exists():
         shutil.copy2(source_file, target_file)
-        return f"installed {source_file.name} ({format_version(source_version)})"
+        return f"installed {source_file.name} ({format_version(source_frontmatter)})"
 
     target_frontmatter = extract_frontmatter(target_file.read_text())
     if target_frontmatter is None or frontmatter_value(target_frontmatter, "managed-by") != MANAGED_BY:
         return f"skipped {source_file.name}: not managed by this repo, not overwriting"
 
-    target_version = parse_version(target_frontmatter)
-    if target_version is None or (source_version is not None and source_version > target_version):
+    if is_newer(source_frontmatter, target_frontmatter):
         shutil.copy2(source_file, target_file)
-        return f"updated {source_file.name}: {format_version(target_version)} -> {format_version(source_version)}"
+        old_version, new_version = format_version(target_frontmatter), format_version(source_frontmatter)
+        return f"updated {source_file.name}: {old_version} -> {new_version}"
 
-    return f"up to date {source_file.name} ({format_version(target_version)})"
+    return f"up to date {source_file.name} ({format_version(target_frontmatter)})"
 
 
 def remove_orphaned_rule(target_file: Path) -> str | None:

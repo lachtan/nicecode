@@ -6,7 +6,6 @@ description: >-
   dead links, hook exit codes and text hygiene. Report only, changes nothing.
 disable-model-invocation: true
 user-invocable: true
-last-change: "2026-11-19 12:07:16"
 ---
 
 # nice-check

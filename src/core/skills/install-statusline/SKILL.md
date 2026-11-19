@@ -8,9 +8,6 @@ description: >-
   "set up statusline", "sync statusline", or "update statusline".
 user-invocable: true
 disable-model-invocation: false
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-07-11 11:41:33"
 ---
 
 # Install Statusline

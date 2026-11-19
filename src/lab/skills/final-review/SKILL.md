@@ -16,9 +16,6 @@ allowed-tools:
   - Read
   - Glob
   - Grep
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-09-09 09:35:47"
 ---
 
 # Final review

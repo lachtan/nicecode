@@ -15,9 +15,6 @@ allowed-tools:
   - Glob
   - Grep
 origin: https://github.com/anthropics/claude-code/blob/main/plugins/code-review/commands/code-review.md
-managed-by: https://github.com/lachtan/nicecode
-version: "1.2.0"
-last-change: "2026-08-27 05:54:13"
 ---
 
 # Deep code review

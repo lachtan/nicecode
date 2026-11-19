@@ -17,9 +17,6 @@ allowed-tools:
   - WebFetch
   - AskUserQuestion
   - ExitPlanMode
-managed-by: https://github.com/lachtan/nicecode
-version: "1.1.0"
-last-change: "2026-11-19 15:52:47"
 ---
 
 # Plan review loop

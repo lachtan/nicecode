@@ -1,9 +1,6 @@
 ---
 paths:
   - "**/*.Tests.ps1"
-managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-07-11 07:54:50"
 ---
 
 # Pester v5 Guidelines

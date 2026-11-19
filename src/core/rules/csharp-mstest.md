@@ -3,9 +3,6 @@ paths:
   - "**/*Tests*/**/*.cs"
   - "**/*Test.cs"
   - "**/*Tests.cs"
-managed-by: https://github.com/lachtan/nicecode
-version: "1.1.0"
-last-change: "2026-09-25 11:13:51"
 ---
 
 # MSTest
