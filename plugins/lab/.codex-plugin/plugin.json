@@ -1,0 +1,9 @@
+{
+  "name": "lab",
+  "version": "0.9.0",
+  "description": "Lab for work-in-progress skills and components before they move to core",
+  "author": {
+    "name": "lachtan"
+  },
+  "skills": "./skills/"
+}

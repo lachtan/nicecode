@@ -8,12 +8,13 @@ NiceCode is a Claude Code plugin marketplace. The guiding principle is **simplic
 
 ## Architecture
 
-Source (`src/`) → `scripts/build.py` → generated output: marketplace (`.claude-plugin/marketplace.json`)
-→ plugins (`plugins/<name>/`) → rules, skills, hooks.
+Source (`src/`) → `scripts/build.py` → generated output: marketplaces (`.claude-plugin/marketplace.json`
+for Claude Code, `.agents/plugins/marketplace.json` for Codex) → plugins (`plugins/<name>/`, one tree with
+both `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`) → rules, skills, hooks.
 
 - `src/marketplace.json` — the catalog, the only place plugin metadata (name, description, version) lives.
 - `src/<name>/` — the plugin's files; everything except tests and the neutral `hooks.json` is copied as is.
-- `plugins/`, `.claude-plugin/` — generated and committed, so the repo installs straight from git.
+- `plugins/`, `.claude-plugin/`, `.agents/` — generated and committed, so the repo installs straight from git.
   Never edit them by hand; `build.py --check` (run by `scripts/test.sh` and CI) fails when they drift.
 
 Each plugin is a self-contained bundle: `core` (rules, skills and hooks), `lab`
@@ -25,7 +26,9 @@ Plugins are not wired into this repo's `.claude/`; test them by installing them 
 
 ### Hook conventions
 
-- Hook scripts in `hooks/scripts/` receive JSON via stdin (`json.load(sys.stdin)` in Python).
+- Hook scripts in `hooks/scripts/` receive JSON via stdin (`json.load(sys.stdin)` in Python). Codex reads the
+  same `hooks.json` and sends the same payload, except for an edit: `apply_patch` puts the patch text in
+  `tool_input.command` and has no `tool_input.file_path`.
 - Exit code 2 = block the tool call, 0 = pass.
 - Hooks are declared in the neutral `src/<plugin>/hooks.json`, which `build.py` translates into `plugins/<plugin>/hooks/hooks.json`:
 

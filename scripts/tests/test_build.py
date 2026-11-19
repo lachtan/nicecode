@@ -111,6 +111,31 @@ class TestRender:
         assert marketplace["metadata"] == {"description": "Test marketplace"}
         assert marketplace["plugins"][0]["source"] == "./plugins/demo"
 
+    def test_writes_the_codex_manifests(self, tmp_path):
+        rendered = build.render(demo_repo(tmp_path))
+
+        manifest = json.loads(rendered["plugins/demo/.codex-plugin/plugin.json"].content)
+        marketplace = json.loads(rendered[".agents/plugins/marketplace.json"].content)
+        assert manifest == {
+            "name": "demo",
+            "version": "1.0.0",
+            "description": "demo plugin",
+            "author": {"name": "tester"},
+            "skills": "./skills/",
+        }
+        assert marketplace == {
+            "name": "test",
+            "interface": {"displayName": "Test"},
+            "plugins": [
+                {
+                    "name": "demo",
+                    "source": {"source": "local", "path": "./plugins/demo"},
+                    "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+                    "category": "Productivity",
+                }
+            ],
+        }
+
     def test_ships_neither_tests_nor_the_neutral_hooks(self, tmp_path):
         files = {
             "src/demo/skills/one/SKILL.md": "# One\n",
@@ -123,6 +148,7 @@ class TestRender:
 
         assert sorted(path for path in rendered if path.startswith("plugins/")) == [
             "plugins/demo/.claude-plugin/plugin.json",
+            "plugins/demo/.codex-plugin/plugin.json",
             "plugins/demo/hooks/hooks.json",
             "plugins/demo/skills/one/SKILL.md",
         ]

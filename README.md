@@ -35,6 +35,20 @@ claude plugin install core@nicecode --scope=local
 `.claude/settings.json` and shared with every collaborator via git; `local` goes into
 the gitignored `.claude/settings.local.json` and applies only to you, only in that repo.
 
+### Codex
+
+The same plugins install in [Codex](https://developers.openai.com/codex/plugins):
+
+```bash
+codex plugin marketplace add lachtan/nicecode
+codex plugin add core@nicecode
+codex plugin add ponytail@nicecode
+```
+
+Or pick them from `/plugins` inside Codex. Codex asks you to trust plugin hooks before they
+run; review them under `/hooks`. Codex gets the skills and hooks, not the rules and not the
+`plan-reviewer` agent.
+
 ## Plugins
 
 - [core](plugins/core/README.md) — coding best practices: hooks, rules, and skills.

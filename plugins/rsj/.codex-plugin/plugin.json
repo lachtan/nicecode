@@ -1,0 +1,9 @@
+{
+  "name": "rsj",
+  "version": "0.2.0",
+  "description": "RSJ Wisdom",
+  "author": {
+    "name": "lachtan"
+  },
+  "skills": "./skills/"
+}

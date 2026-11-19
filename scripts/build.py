@@ -22,6 +22,9 @@ SOURCE_DIR = "src"
 OUTPUT_DIR = "plugins"
 CATALOG = f"{SOURCE_DIR}/marketplace.json"
 CLAUDE_MARKETPLACE = ".claude-plugin/marketplace.json"
+CODEX_MARKETPLACE = ".agents/plugins/marketplace.json"
+# The only category the Codex docs show; they do not list the allowed values.
+CODEX_CATEGORY = "Productivity"
 # The neutral hook file sits in the plugin root, apart from the generated hooks/hooks.json.
 NEUTRAL_HOOKS = "hooks.json"
 OPTIONAL_PLUGIN_KEYS = ("repository", "license")
@@ -132,6 +135,30 @@ def claude_marketplace(catalog: dict) -> dict:
     }
 
 
+def codex_plugin_manifest(plugin: dict) -> dict:
+    return {
+        "name": plugin["name"],
+        "version": plugin["version"],
+        "description": plugin["description"],
+        "author": plugin["author"],
+        **optional_keys(plugin),
+        "skills": "./skills/",
+    }
+
+
+def codex_marketplace(catalog: dict) -> dict:
+    entries = [
+        {
+            "name": plugin["name"],
+            "source": {"source": "local", "path": f"./{OUTPUT_DIR}/{plugin['name']}"},
+            "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+            "category": CODEX_CATEGORY,
+        }
+        for plugin in catalog["plugins"]
+    ]
+    return {"name": catalog["name"], "interface": {"displayName": catalog["owner"]["name"]}, "plugins": entries}
+
+
 def hook_matcher(hook: dict) -> str | None:
     event, tools = hook["event"], hook.get("tools")
     if event not in TOOL_EVENTS:
@@ -180,6 +207,7 @@ def render_plugin(root: Path, plugin: dict, files: list[str]) -> dict[str, Outpu
             file = source / path
             rendered[f"{output}/{path}"] = OutputFile(file.read_bytes(), file.stat().st_mode & 0o111 != 0)
     rendered[f"{output}/.claude-plugin/plugin.json"] = json_file(claude_plugin_manifest(plugin))
+    rendered[f"{output}/.codex-plugin/plugin.json"] = json_file(codex_plugin_manifest(plugin))
     if NEUTRAL_HOOKS in files:
         neutral = json.loads((source / NEUTRAL_HOOKS).read_text(encoding="utf-8"))
         try:
@@ -194,7 +222,10 @@ def render(root: Path) -> dict[str, OutputFile]:
     catalog = load_catalog(root)
     sources = source_plugin_files(root)
     check_catalog_matches_sources(catalog, set(sources))
-    rendered = {CLAUDE_MARKETPLACE: json_file(claude_marketplace(catalog))}
+    rendered = {
+        CLAUDE_MARKETPLACE: json_file(claude_marketplace(catalog)),
+        CODEX_MARKETPLACE: json_file(codex_marketplace(catalog)),
+    }
     for plugin in catalog["plugins"]:
         rendered |= render_plugin(root, plugin, sources[plugin["name"]])
     return rendered

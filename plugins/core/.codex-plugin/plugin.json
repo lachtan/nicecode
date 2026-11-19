@@ -1,0 +1,9 @@
+{
+  "name": "core",
+  "version": "1.9.0",
+  "description": "Core coding best practices — skills and rules for cleaner code",
+  "author": {
+    "name": "lachtan"
+  },
+  "skills": "./skills/"
+}

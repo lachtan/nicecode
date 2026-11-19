@@ -127,3 +127,54 @@ def test_missing_file_path_is_ignored(tmp_path):
     result = run_hook(json.dumps({"tool_input": {}}), tmp_path)
     assert result.returncode == 0
     assert result.stdout == ""
+
+
+# -- which files get checked: Claude's file_path, Codex's apply_patch ----------
+
+
+def checked_paths(payload: dict, path_dir: Path) -> list[str]:
+    """Runs the hook with a fake ruff that fails and names every file it was given."""
+    tool = path_dir / "ruff"
+    tool.write_text('#!/bin/sh\necho "checked $2"\nexit 1\n')
+    tool.chmod(0o755)
+    result = run_hook(json.dumps(payload), path_dir)
+    assert result.returncode == 0
+    if not result.stdout:
+        return []
+    return [line.removeprefix("checked ") for line in context_of(result).splitlines() if line.startswith("checked ")]
+
+
+def patch_input(body: str, cwd: str = "/work") -> dict:
+    return {"cwd": cwd, "tool_input": {"command": f"*** Begin Patch\n{body}\n*** End Patch"}}
+
+
+def test_claude_file_path_is_checked(tmp_path):
+    assert checked_paths({"cwd": "/work", "tool_input": {"file_path": "/abs/a.py"}}, tmp_path) == ["/abs/a.py"]
+
+
+def test_codex_added_file_is_checked(tmp_path):
+    assert checked_paths(patch_input("*** Add File: /abs/new.py\n+x = 1"), tmp_path) == ["/abs/new.py"]
+
+
+def test_codex_updated_file_is_checked(tmp_path):
+    assert checked_paths(patch_input("*** Update File: /abs/a.py\n@@\n-x=1\n+x = 1"), tmp_path) == ["/abs/a.py"]
+
+
+def test_codex_moved_file_is_checked_under_its_new_name(tmp_path):
+    body = "*** Update File: /abs/a.py\n*** Move to: /abs/b.py\n@@\n-x=1\n+x = 1"
+
+    assert checked_paths(patch_input(body), tmp_path) == ["/abs/b.py"]
+
+
+def test_codex_deleted_file_is_not_checked(tmp_path):
+    assert checked_paths(patch_input("*** Delete File: /abs/a.py"), tmp_path) == []
+
+
+def test_codex_relative_path_resolves_against_cwd(tmp_path):
+    assert checked_paths(patch_input("*** Add File: sub/a.py\n+x = 1", cwd="/work"), tmp_path) == ["/work/sub/a.py"]
+
+
+def test_codex_patch_with_several_files_checks_each(tmp_path):
+    body = "*** Add File: /abs/a.py\n+x = 1\n*** Delete File: /abs/gone.py\n*** Update File: /abs/b.py\n@@\n-y\n+y = 2"
+
+    assert checked_paths(patch_input(body), tmp_path) == ["/abs/a.py", "/abs/b.py"]
