@@ -7,8 +7,8 @@ argument-hint: "[plan.md]"
 user-invocable: true
 disable-model-invocation: false
 managed-by: https://github.com/lachtan/nicecode
-version: "1.1.0"
-last-change: "2026-09-25 11:40:45"
+version: "1.2.0"
+last-change: "2026-11-19 15:52:47"
 ---
 
 # Implementation plan review
@@ -81,7 +81,11 @@ Plans may be written in any language. Match the *meaning* below, not English key
 8. **Unacknowledged decisions** — the plan states a value or choice it invented (a limit, retry count,
    name, format) as if it were a given, with no sentence saying it is a decision and why.
 9. **Unverified assumptions** — the plan rests on a claim about foreign code, a library or a protocol
-   that it never checks. If the claim is false, part of the plan collapses with it.
+   that it never checks. If the claim is false, part of the plan collapses with it. Includes a check
+   the plan defers to implementation although it can be done now (reading code or documentation,
+   running a command) — that is blocking. Do not check the claim yourself; under *how to fill it*
+   name what the author must check.
+   *Not a finding:* a check that cannot be done before implementing.
 10. **Speculative scope** — an abstraction, layer, generality or extension point the request did not
     ask for. See [clean-code.md](../../rules/clean-code.md) ("Prefer the simpler solution").
 11. **Order and divisibility** — steps depend on each other in the wrong order, or the plan cannot be

@@ -75,7 +75,7 @@ is passed to Claude so it can fix the file. Checks are listed in `CHECKS` in `ch
 - `install-statusline` — installs/updates the statusline scripts and wires `statusLine` in settings.json.
 - `ops-guide` — how to write a step-by-step procedure a human will run at a console.
 - `plan-loop` — review loop for an implementation plan: a fresh `plan-reviewer` subagent reviews it,
-  the plan is revised, repeat until nothing is left to fix or 3 rounds pass. Explicit request only.
+  the plan is revised, repeat until no blocking finding is left or 3 rounds pass. Explicit request only.
 - `plan-review` — judges whether an implementation plan can be executed without guessing: verifies the
   file paths and symbols it claims exist, and flags decisions deferred to implementation time.
 - `search-first` — check whether something already exists (repo, dependencies, stdlib) before writing new code.
