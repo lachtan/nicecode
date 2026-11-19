@@ -15,4 +15,4 @@ nobody reviewed. The copy is pinned to upstream commit
   the findings as a Markdown file in the repo.
 
 To take over another skill, copy its `SKILL.md` body from the same commit unchanged, add this
-repo's frontmatter (see `CLAUDE.md`) and list it here.
+repo's frontmatter (`scripts/nice-check.py` reports what is missing) and list it here.

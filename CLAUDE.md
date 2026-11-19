@@ -1,89 +1,46 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Project Overview
-
-NiceCode is a Claude Code plugin marketplace. The guiding principle is **simplicity first**.
+NiceCode is a plugin marketplace for Claude Code and Codex. The guiding principle is
+**simplicity first**.
 
 ## Architecture
 
-Source (`src/`) → `scripts/build.py` → generated output: marketplaces (`.claude-plugin/marketplace.json`
-for Claude Code, `.agents/plugins/marketplace.json` for Codex) → plugins (`plugins/<name>/`, one tree with
-both `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`) → rules, skills, hooks.
+`scripts/build.py` renders `src/` into the generated output.
 
-- `src/marketplace.json` — the catalog, the only place plugin metadata (name, description, version) lives.
-- `src/<name>/` — the plugin's files; everything except tests and the neutral `hooks.json` is copied as is.
-- `plugins/`, `.claude-plugin/`, `.agents/` — generated and committed, so the repo installs straight from git.
-  Never edit them by hand; `build.py --check` (run by `scripts/test.sh` and CI) fails when they drift.
+- `src/` — the only place to edit. `src/marketplace.json` is the catalog and the only place
+  plugin metadata (name, description, version) lives; `src/<plugin>/` holds the plugin's files.
+- `plugins/`, `.claude-plugin/`, `.agents/` — generated and committed, so the repo installs
+  straight from git. Never edit them by hand.
 
-Each plugin is a self-contained bundle: `core` (rules, skills and hooks), `lab`
-(work in progress), `ponytail` (vendored), `rsj` (team skills) and `mattpocock` (vendored subset of mattpocock/skills).
+## Workflow
 
-## Development
+1. Edit `src/`.
+2. Run `uv run scripts/build.py`.
+3. Run `scripts/test.sh` (all tests plus a check that the output matches `src/`) and
+   `uv run scripts/nice-check.py` (frontmatter, README sync, links, hooks).
+4. Commit `src/` together with the generated output.
 
-Plugins are not wired into this repo's `.claude/`; test them by installing them from this marketplace. Skills are the main form; `core` ships one agent (`plan-reviewer`, spawned by `plan-loop`). Always edit source files in `src/<plugin>/`, then run `uv run scripts/build.py` and commit `src/` together with the output. `.claude/skills/nice-check/` is a repo-local skill with no plugin behind it.
+- Run a single test file with `uvx pytest <path>`, never bare `pytest`.
+- Plugins are not wired into this repo's `.claude/`; an edit takes effect only after the
+  plugin is installed from this marketplace.
+- On release, bump `version` in `src/marketplace.json`, then rebuild.
+- When a plugin is added, removed, renamed or restructured, update `README.md` and the
+  plugin's own `README.md`.
 
-### Hook conventions
+## Gotchas
 
-- Hook scripts in `hooks/scripts/` receive JSON via stdin (`json.load(sys.stdin)` in Python). Codex reads the
-  same `hooks.json` and sends the same payload, except for an edit: `apply_patch` puts the patch text in
-  `tool_input.command` and has no `tool_input.file_path`.
-- Exit code 2 = block the tool call, 0 = pass.
-- Hooks are declared in the neutral `src/<plugin>/hooks.json`, which `build.py` translates into `plugins/<plugin>/hooks/hooks.json`:
+- Hooks are declared in the neutral `src/<plugin>/hooks.json`, which `build.py` translates
+  into Claude Code's format; copy an existing entry.
+- Codex runs the same hook scripts with the same payload, except for an edit: `apply_patch`
+  puts the patch text in `tool_input.command` and has no `tool_input.file_path`.
+- `last-change` in the frontmatter of a `SKILL.md` or `rules/*.md` is rewritten when the body
+  changes — what the file tells Claude to do — not for a frontmatter-only edit or a
+  formatting sweep.
+- Vendored skills follow the same frontmatter rules as authored ones and record their source
+  in `origin`.
 
-  ```json
-  {"hooks": [{"event": "before-tool", "tools": ["shell"], "command": "python3 {plugin_root}/hooks/scripts/check-uv.py"}]}
-  ```
+## Conventions
 
-  - `event`: `before-tool` | `after-tool` | `session-start` | `prompt-submit`
-    (→ `PreToolUse` | `PostToolUse` | `SessionStart` | `UserPromptSubmit`).
-  - `tools`: `shell` (→ `Bash`) | `edit` (→ `Edit|Write`); required on `*-tool` events, forbidden on the others.
-  - `{plugin_root}` becomes `${CLAUDE_PLUGIN_ROOT}`.
-
-### Frontmatter
-
-`scripts/nice-check.py` (check B) enforces these on every `SKILL.md` and every `rules/*.md` under
-`src/`. There is no exempt category: a taken-over file follows the same rules as an authored
-one and records where it came from in `origin`.
-
-- `managed-by` and `version` — on plugin skills, provenance bookkeeping only; on `rules/*.md`,
-  `install-rules.py` actually reads them to decide whether to overwrite an installed copy.
-- `last-change: "YYYY-MM-DD HH:MM:SS"` — local time, quoted (unquoted it parses as a YAML
-  timestamp, not a string). Rewrite it when the body changes — what the file tells Claude to do.
-  A frontmatter-only edit (version bump, a new flag) or a formatting sweep leaves it alone.
-- `license` never appears in frontmatter — a licence lives in a `LICENSE` file or the plugin
-  manifest, and `origin` is what credits the source.
-
-On a `SKILL.md` additionally:
-
-- `name` must match the skill's directory name.
-- `disable-model-invocation` and `user-invocable` are always set explicitly.
-
-### Versioning
-
-Bump `version` in `src/marketplace.json` on release, then rebuild.
-
-### Tests
-
-Always run tests via `uvx pytest`, never bare `pytest`.
-
-Hook tests: `uvx pytest src/core/hooks/tests/`
-
-## Documentation
-
-- When plugins change significantly (added, removed, renamed, or their structure changes), check `README.md` and update it to stay in sync with the code.
-- [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces) — official docs for marketplace structure.
-- [Plugins](https://code.claude.com/docs/en/plugins) — official docs for plugin creation.
-
-## Git
-
+- Everything committed is in English — descriptions, rules, READMEs, code, comments and
+  commit messages.
 - Do not add `Co-Authored-By` lines to commit messages.
-
-## Claude Code
-
-Talk to the user in Czech — chat, questions, plans and review reports.
-
-Everything committed to the repo is in English: plugin and skill descriptions,
-rules, READMEs, code, comments and commit messages. A file that gets committed
-is English even when the conversation that produced it was Czech.

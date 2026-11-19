@@ -1,135 +1,89 @@
 # NiceCode
 
-Best practices for writing clean, readable, and simple code with Claude Code. Simplicity first.
+A plugin marketplace for Claude Code and Codex: rules, skills and hooks for clean, readable,
+simple code in C#, PowerShell, Python, Bash and Rust.
 
-## Languages
+The guiding principle is simplicity first, after
+[Code Simplicity](https://www.amazon.com/dp/1449313892) by Max Kanat-Alexander: complexity is
+the root cause of most bugs and maintenance cost.
 
-C#, PowerShell, Python, Bash, Rust
+## Plugins
 
-## Installation
+| Plugin | What it gives you |
+| --- | --- |
+| [core](plugins/core/README.md) | Coding rules, skills and hooks — start here. |
+| [lab](plugins/lab/README.md) | Experimental skills before they move to `core`. |
+| [mattpocock](plugins/mattpocock/README.md) | `grill-me` and `research`, vendored from [mattpocock/skills](https://github.com/mattpocock/skills). |
+| [ponytail](plugins/ponytail/README.md) | Anti-over-engineering reflex, toggled with `/ponytail`. |
+| [rsj](plugins/rsj/README.md) | Announce actions before running them; never take a question as approval. |
 
-```
-/plugin marketplace add lachtan/nicecode
-/plugin install core@nicecode
-/plugin install lab@nicecode
-/plugin install mattpocock@nicecode
-/plugin install ponytail@nicecode
-/plugin install rsj@nicecode
-```
+## Install
 
-Per project:
-
-```bash
-claude plugin marketplace add lachtan/nicecode --scope=project
-claude plugin install core@nicecode --scope=project
-```
-
-Per repo, just for you (not shared with collaborators):
+### Claude Code
 
 ```bash
-claude plugin marketplace add lachtan/nicecode --scope=local
-claude plugin install core@nicecode --scope=local
+claude plugin marketplace add lachtan/nicecode
+claude plugin install core@nicecode
 ```
 
-`user` (the default) applies across all of your projects; `project` is committed to
-`.claude/settings.json` and shared with every collaborator via git; `local` goes into
-the gitignored `.claude/settings.local.json` and applies only to you, only in that repo.
+Install the other plugins the same way (`lab@nicecode`, …). Inside a session, the same
+commands work as `/plugin marketplace add` and `/plugin install`.
+
+Both commands take `--scope`:
+
+| Scope | Applies to | Stored in |
+| --- | --- | --- |
+| `user` (default) | you, in every project | `~/.claude/settings.json` |
+| `project` | every collaborator of the repo | `.claude/settings.json` (committed) |
+| `local` | you, in this repo only | `.claude/settings.local.json` (gitignored) |
 
 ### Codex
-
-The same plugins install in [Codex](https://developers.openai.com/codex/plugins):
 
 ```bash
 codex plugin marketplace add lachtan/nicecode
 codex plugin add core@nicecode
-codex plugin add ponytail@nicecode
 ```
 
-Or pick them from `/plugins` inside Codex. Codex asks you to trust plugin hooks before they
-run; review them under `/hooks`. Codex gets the skills and hooks, not the rules and not the
-`plan-reviewer` agent.
+Or pick the plugins from `/plugins` inside [Codex](https://developers.openai.com/codex/plugins).
+Codex asks you to trust plugin hooks before they run; review them under `/hooks`. It gets the
+skills and hooks, but not the rules or the `plan-reviewer` agent.
 
-## Plugins
+## Rules and status line
 
-- [core](plugins/core/README.md) — coding best practices: hooks, rules, and skills.
-- [lab](plugins/lab/README.md) — experimental work-in-progress skills and components before they move to core.
-- [mattpocock](plugins/mattpocock/README.md) — vendored subset of [mattpocock/skills](https://github.com/mattpocock/skills): `grill-me`, `research`.
-- [ponytail](plugins/ponytail/README.md) — anti-over-engineering layer: opt-in lazy-senior-dev reflex toggled with `/ponytail`.
-- [rsj](plugins/rsj/README.md) — rsj wisdom: announce actions before running them, never take a question as approval.
+Installing `core` gives you its skills and hooks. Claude Code does not load a plugin's rules
+or register its status line, so those two are installed on request. Ask Claude:
 
-## Rules
+- **"install rules"** — copies the rule files into `.claude/rules/plugins/nicecode/core/`.
+- **"install statusline"** — copies the scripts into `.claude/scripts/plugins/nicecode/core/`
+  and points `statusLine` in `settings.json` at them. Needs `bash` and `jq`.
 
-The plugin system does not load plugin rules automatically, and nothing installs them for
-you in the background either — installation is an explicit, on-request action.
+Claude asks for a scope first: `project` installs into the current project, `user` into
+`~/.claude/` so it applies everywhere.
 
-Ask Claude to "install rules" or "install rules globally" (the `install-rules` skill).
-It will ask you to choose a scope, then locate its own install script and run it —
-you don't need to know where the plugin is installed on disk.
+Updating is the same request again. Files are versioned: a newer plugin version overwrites
+the installed copy, while rule files you wrote yourself and a `statusLine` you set to
+something else are left alone.
 
-`--scope project` copies `rules/*.md` into `<project>/.claude/rules/plugins/nicecode/core/`
-so Claude Code picks them up as local project rules. `--scope user` copies them into
-`~/.claude/rules/plugins/nicecode/core/` instead, so they load in every project you open
-(project-scope rules still take precedence on conflict). Each rule file carries a `version`
-in its frontmatter; re-running the script only overwrites files whose plugin version is
-newer than what's installed, and leaves hand-edited files (no matching `version`) alone.
+For the `project` scope, gitignore the copies — the installer regenerates them:
 
-If you're developing this repo itself, you can run the script directly instead:
-
-```bash
-python3 plugins/core/scripts/install-rules.py --scope project      # current directory
-python3 plugins/core/scripts/install-rules.py --scope user         # every project
-pwsh -File plugins/core/scripts/install-rules.ps1 -Scope project   # current directory
-pwsh -File plugins/core/scripts/install-rules.ps1 -Scope user      # every project
-```
-
-(`--scope project` also accepts an explicit target directory as a positional
-argument / `-ProjectDir` if you want to install somewhere other than the current
-directory.)
-
-These are real copied files, not symlinks, so they work identically on every platform.
-For `--scope project`, add the install target to `.gitignore` since it's regenerated by
-the script (not needed for `--scope user` — that target lives outside any repo):
-
-```
+```gitignore
 .claude/rules/plugins/
-```
-
-## Status line
-
-The plugin system does not let a plugin auto-register a status line either (unlike
-hooks) — installation is the same kind of explicit, on-request action as rules.
-
-Ask Claude to "install statusline" (the `install-statusline` skill). It will ask you to
-choose a scope, then locate its own install script and run it.
-
-`--scope project` copies `statusline.sh`/`statusline.py`/`statusline.ps1` into
-`<project>/.claude/scripts/plugins/nicecode/core/` and points `statusLine` in
-`<project>/.claude/settings.json` at `statusline.sh`. `--scope user` does the same under
-`~/.claude/scripts/plugins/nicecode/core/` and `~/.claude/settings.json`. The three files
-are versioned as one bundle; re-running the script only overwrites them when the
-plugin's version is newer, and never touches a `statusLine` you've already set to
-something else.
-
-If you're developing this repo itself, you can run the script directly instead:
-
-```bash
-bash plugins/core/scripts/install-statusline.sh --scope project   # current directory
-bash plugins/core/scripts/install-statusline.sh --scope user      # every project
-```
-
-This installer is bash-only (needs `bash` and `jq`; git-bash or WSL on Windows) — the
-installed statusline itself still falls back to `pwsh` when `python3` isn't available.
-For `--scope project`, add the install target to `.gitignore`:
-
-```
 .claude/scripts/plugins/
 ```
 
-## Philosophy
+### Without Claude
 
-The guiding principle is simplicity first, inspired by [Code Simplicity](https://www.amazon.com/dp/1449313892) by Max Kanat-Alexander: the most important property of software is simplicity, and complexity is the root cause of most bugs and maintenance cost.
+From a clone of this repo:
 
-## Documentation
+```bash
+python3 plugins/core/scripts/install-rules.py --scope user
+pwsh -File plugins/core/scripts/install-rules.ps1 -Scope user
+bash plugins/core/scripts/install-statusline.sh --scope user
+```
 
-- [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
-- [Plugins](https://code.claude.com/docs/en/plugins)
+With the `project` scope, the target defaults to the current directory; pass another one as
+a positional argument (`-ProjectDir` in PowerShell).
+
+## Contributing
+
+Plugin sources live in `src/`; `plugins/` is generated from them. See [CLAUDE.md](CLAUDE.md).
