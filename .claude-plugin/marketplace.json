@@ -52,6 +52,12 @@
       "source": "./mods/skill-toggle",
       "description": "Disable chosen skills of installed plugins",
       "version": "0.1.0"
+    },
+    {
+      "name": "vsbar",
+      "source": "./mods/vsbar",
+      "description": "Status line for the Claude Code VS Code extension: host, branch, model, effort, context and output tokens",
+      "version": "0.1.0"
     }
   ]
 }

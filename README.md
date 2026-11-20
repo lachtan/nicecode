@@ -18,6 +18,7 @@ the root cause of most bugs and maintenance cost.
 | [rsj](plugins/rsj/README.md) | Announce actions before running them; never take a question as approval. |
 | [skill-toggle](mods/skill-toggle/README.md) | Claude Code only: turn off chosen skills of installed plugins with `/skill-toggle`. |
 | [plugin-rules](mods/plugin-rules/README.md) | Claude Code only: deliver the rules of installed plugins to Claude — install it with `core`. |
+| [vsbar](mods/vsbar/README.md) | Claude Code only: a status line for the VS Code extension. |
 
 ## Install
 
@@ -50,8 +51,8 @@ codex plugin add core@nicecode
 
 Or pick the plugins from `/plugins` inside [Codex](https://developers.openai.com/codex/plugins).
 Codex asks you to trust plugin hooks before they run; review them under `/hooks`. It gets the
-skills and hooks, but not the rules, the `plan-reviewer` agent or the `skill-toggle` and
-`plugin-rules` mods.
+skills and hooks, but not the rules, the `plan-reviewer` agent or the `skill-toggle`,
+`plugin-rules` and `vsbar` mods.
 
 ## Status line
 
@@ -65,6 +66,9 @@ Claude asks for a scope first: `project` installs into the current project, `use
 
 Updating is the same request again. A newer statusline version overwrites what is installed,
 while a `statusLine` you set to something else is left alone.
+
+The VS Code extension does not draw `statusLine`; install the [vsbar](mods/vsbar/README.md) mod
+there instead.
 
 For the `project` scope, gitignore the copies — the installer regenerates them:
 

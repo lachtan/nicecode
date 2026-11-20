@@ -1,0 +1,6 @@
+{
+  "name": "vsbar",
+  "version": "0.1.0",
+  "description": "Status line for the Claude Code VS Code extension: host, branch, model, effort, context and output tokens",
+  "types": "./types/index.d.ts"
+}
