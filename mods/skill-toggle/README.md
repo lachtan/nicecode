@@ -4,11 +4,27 @@ Turn off individual skills of installed plugins. All skills stay on until you tu
 
 Requires Claude Code 2.1.328 or newer.
 
-## Run
+## Project and personal skills
+
+This mod covers plugin skills only. To turn off a skill from `.claude/skills/` (project) or
+`~/.claude/skills/` (personal), use Claude Code's own `/skills` menu: highlight the skill, press
+`Space` until it shows `off`, then `Esc`. The choice is saved under `skillOverrides` in
+`.claude/settings.local.json`, which stays out of git, so it applies only to you in that project:
+
+```json
+{ "skillOverrides": { "deploy": "off" } }
+```
+
+## Install
+
+Claude Code only; Codex does not run mods.
 
 ```sh
-claude --plugin-dir mods/skill-toggle
+claude plugin marketplace add lachtan/nicecode
+claude plugin install skill-toggle@nicecode
 ```
+
+To try local changes without installing, run `claude --plugin-dir mods/skill-toggle`.
 
 ## Use
 
@@ -31,5 +47,5 @@ Each entry is `<plugin>:<skill>`. You can edit the list by hand; it takes effect
 skill of each plugin for the pane. An uninstalled plugin stays in the pane until you delete its
 `skills:<plugin>` key (and its entries in `disabled`).
 
-Running the mod a different way (`--plugin-dir` now, a marketplace install later) may use a
-different file, so the choice may not carry over.
+A marketplace install and a `--plugin-dir` run may use different files, so the choice made in
+one does not carry over to the other.

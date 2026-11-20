@@ -16,6 +16,7 @@ the root cause of most bugs and maintenance cost.
 | [mattpocock](plugins/mattpocock/README.md) | `grill-me` and `research`, vendored from [mattpocock/skills](https://github.com/mattpocock/skills). |
 | [ponytail](plugins/ponytail/README.md) | Anti-over-engineering reflex, toggled with `/ponytail`. |
 | [rsj](plugins/rsj/README.md) | Announce actions before running them; never take a question as approval. |
+| [skill-toggle](mods/skill-toggle/README.md) | Claude Code only: turn off chosen skills of installed plugins with `/skill-toggle`. |
 
 ## Install
 
@@ -46,7 +47,7 @@ codex plugin add core@nicecode
 
 Or pick the plugins from `/plugins` inside [Codex](https://developers.openai.com/codex/plugins).
 Codex asks you to trust plugin hooks before they run; review them under `/hooks`. It gets the
-skills and hooks, but not the rules or the `plan-reviewer` agent.
+skills and hooks, but not the rules, the `plan-reviewer` agent or the `skill-toggle` mod.
 
 ## Rules and status line
 

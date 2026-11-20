@@ -4,6 +4,10 @@
 src/ is the only place to edit. plugins/ and the marketplace files are generated and
 committed, so the repo installs straight from git.
 
+The exception is mods/<name>/: Claude Code only mods that install straight from their own
+directory and keep their metadata in .claude-plugin/plugin.json. They get an entry in the
+Claude marketplace only, since Codex cannot run them.
+
     uv run scripts/build.py          write the output, delete output files src/ no longer produces
     uv run scripts/build.py --check  write nothing; exit 1 and list every file that differs
 
@@ -22,6 +26,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE_DIR = "src"
 OUTPUT_DIR = "plugins"
 CATALOG = f"{SOURCE_DIR}/marketplace.json"
+MODS_DIR = "mods"
+MOD_MANIFEST = ".claude-plugin/plugin.json"
 CLAUDE_MARKETPLACE = ".claude-plugin/marketplace.json"
 CODEX_MARKETPLACE = ".agents/plugins/marketplace.json"
 # The only category the Codex docs show; they do not list the allowed values.
@@ -110,6 +116,26 @@ def check_catalog_matches_sources(catalog: dict, source_plugins: set[str]) -> No
         raise BuildError(f"plugins listed in {CATALOG} but missing from {SOURCE_DIR}/: {', '.join(missing)}")
 
 
+def load_mods(root: Path, catalog: dict) -> list[dict]:
+    """The manifest of every mod, sorted by name."""
+    plugin_names = {plugin["name"] for plugin in catalog["plugins"]}
+    mods = []
+    for path in git_files(root, MODS_DIR):
+        parts = PurePosixPath(path).parts
+        if "/".join(parts[2:]) != MOD_MANIFEST:
+            continue
+        mod = json.loads((root / path).read_text(encoding="utf-8"))
+        if mod.get("name") != parts[1]:
+            raise BuildError(f"{path}: name {mod.get('name')!r} does not match its directory {parts[1]!r}")
+        version = mod.get("version")
+        if not isinstance(version, str) or not VERSION.match(version):
+            raise BuildError(f"{path}: version {version!r} is not a MAJOR.MINOR.PATCH string")
+        if mod["name"] in plugin_names:
+            raise BuildError(f"{path}: name {mod['name']!r} is already a plugin in {CATALOG}")
+        mods.append(mod)
+    return sorted(mods, key=lambda mod: mod["name"])
+
+
 def is_shipped(path: str) -> bool:
     """Tests stay in src/; users never run them."""
     parts = PurePosixPath(path).parts
@@ -136,7 +162,7 @@ def claude_plugin_manifest(plugin: dict) -> dict:
     }
 
 
-def claude_marketplace(catalog: dict) -> dict:
+def claude_marketplace(catalog: dict, mods: list[dict]) -> dict:
     entries = [
         {
             "name": plugin["name"],
@@ -147,6 +173,15 @@ def claude_marketplace(catalog: dict) -> dict:
         }
         for plugin in catalog["plugins"]
     ]
+    for mod in mods:
+        entries.append(
+            {
+                "name": mod["name"],
+                "source": f"./{MODS_DIR}/{mod['name']}",
+                "description": mod["description"],
+                "version": mod["version"],
+            }
+        )
     return {
         "name": catalog["name"],
         "owner": catalog["owner"],
@@ -301,7 +336,7 @@ def render(root: Path, now: datetime) -> dict[str, OutputFile]:
     sources = source_plugin_files(root)
     check_catalog_matches_sources(catalog, set(sources))
     rendered = {
-        CLAUDE_MARKETPLACE: json_file(claude_marketplace(catalog)),
+        CLAUDE_MARKETPLACE: json_file(claude_marketplace(catalog, load_mods(root, catalog))),
         CODEX_MARKETPLACE: json_file(codex_marketplace(catalog)),
     }
     for plugin in catalog["plugins"]:

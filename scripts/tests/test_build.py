@@ -256,6 +256,57 @@ class TestRender:
             build.render(repo, NOW)
 
 
+def mod_files(directory: str, name: str | None = None, version: object = "0.1.0") -> dict[str, str]:
+    manifest = {"name": name or directory, "version": version, "description": f"{directory} mod"}
+    return {
+        f"mods/{directory}/.claude-plugin/plugin.json": json.dumps(manifest),
+        f"mods/{directory}/hooks/register.ts": "",
+    }
+
+
+class TestMods:
+    def test_lists_a_mod_in_the_claude_marketplace_from_its_own_directory(self, tmp_path):
+        files = {"src/demo/skills/one/SKILL.md": "# One\n", **mod_files("toggle")}
+
+        rendered = build.render(make_repo(tmp_path, [plugin_entry("demo")], files), NOW)
+
+        marketplace = json.loads(rendered[".claude-plugin/marketplace.json"].content)
+        assert marketplace["plugins"][1] == {
+            "name": "toggle",
+            "source": "./mods/toggle",
+            "description": "toggle mod",
+            "version": "0.1.0",
+        }
+
+    def test_leaves_a_mod_out_of_codex_and_plugins(self, tmp_path):
+        files = {"src/demo/skills/one/SKILL.md": "# One\n", **mod_files("toggle")}
+
+        rendered = build.render(make_repo(tmp_path, [plugin_entry("demo")], files), NOW)
+
+        codex = json.loads(rendered[".agents/plugins/marketplace.json"].content)
+        assert [plugin["name"] for plugin in codex["plugins"]] == ["demo"]
+        assert not any("toggle" in path for path in rendered)
+
+    def test_rejects_a_mod_whose_name_differs_from_its_directory(self, tmp_path):
+        repo = make_repo(tmp_path, [], mod_files("toggle", name="other"))
+
+        with pytest.raises(build.BuildError, match="does not match its directory 'toggle'"):
+            build.render(repo, NOW)
+
+    def test_rejects_a_mod_with_an_invalid_version(self, tmp_path):
+        repo = make_repo(tmp_path, [], mod_files("toggle", version="1.0"))
+
+        with pytest.raises(build.BuildError, match="mods/toggle/.claude-plugin/plugin.json: version"):
+            build.render(repo, NOW)
+
+    def test_rejects_a_mod_named_like_a_plugin(self, tmp_path):
+        files = {"src/demo/skills/one/SKILL.md": "# One\n", **mod_files("demo")}
+        repo = make_repo(tmp_path, [plugin_entry("demo")], files)
+
+        with pytest.raises(build.BuildError, match="already a plugin"):
+            build.render(repo, NOW)
+
+
 # -- writing and checking ----------------------------------------------------
 
 

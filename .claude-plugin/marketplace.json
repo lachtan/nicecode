@@ -40,6 +40,12 @@
       "source": "./plugins/rsj",
       "description": "RSJ Wisdom",
       "version": "0.2.0"
+    },
+    {
+      "name": "skill-toggle",
+      "source": "./mods/skill-toggle",
+      "description": "Disable chosen skills of installed plugins",
+      "version": "0.1.0"
     }
   ]
 }

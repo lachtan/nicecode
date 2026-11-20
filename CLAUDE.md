@@ -11,6 +11,9 @@ NiceCode is a plugin marketplace for Claude Code and Codex. The guiding principl
   plugin metadata (name, description, version) lives; `src/<plugin>/` holds the plugin's files.
 - `plugins/`, `.claude-plugin/`, `.agents/` — generated and committed, so the repo installs
   straight from git. Never edit them by hand.
+- `mods/<name>/` — Claude Code only mods, outside `src/` because Codex cannot run them. Each
+  installs straight from its own directory and keeps its metadata and version in
+  `.claude-plugin/plugin.json`; `build.py` lists it in the Claude marketplace only.
 
 ## Workflow
 
@@ -20,10 +23,13 @@ NiceCode is a plugin marketplace for Claude Code and Codex. The guiding principl
    `uv run scripts/nice-check.py` (frontmatter, README sync, links, hooks).
 4. Commit `src/` together with the generated output.
 
+- After changing a mod, also run `claude plugin test mods/<name>` and
+  `claude plugin validate mods/<name>`; `test.sh` cannot, since CI has no `claude` binary.
 - Run a single test file with `uvx pytest <path>`, never bare `pytest`.
 - Plugins are not wired into this repo's `.claude/`; an edit takes effect only after the
   plugin is installed from this marketplace.
-- On release, bump `version` in `src/marketplace.json`, then rebuild.
+- On release, bump `version` in `src/marketplace.json` (for a mod, in its
+  `.claude-plugin/plugin.json`), then rebuild.
 - When a plugin is added, removed, renamed or restructured, update `README.md` and the
   plugin's own `README.md`.
 
