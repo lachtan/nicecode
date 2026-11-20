@@ -1,11 +1,9 @@
 {
-  "name": "mattpocock",
-  "version": "1.1.0",
+  "name": "matt",
   "description": "Selected skills from Matt Pocock's library",
   "author": {
     "name": "lachtan"
   },
   "repository": "https://github.com/mattpocock/skills",
-  "license": "MIT",
-  "skills": "./skills/"
+  "license": "MIT"
 }

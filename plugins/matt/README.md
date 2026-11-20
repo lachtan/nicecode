@@ -1,4 +1,4 @@
-# mattpocock
+# matt
 
 A hand-picked subset of [mattpocock/skills](https://github.com/mattpocock/skills), copied into
 this repo instead of pulled from GitHub, so an upstream update cannot bring in behaviour or hooks

@@ -29,10 +29,10 @@
       "category": "Productivity"
     },
     {
-      "name": "mattpocock",
+      "name": "matt",
       "source": {
         "source": "local",
-        "path": "./plugins/mattpocock"
+        "path": "./plugins/matt"
       },
       "policy": {
         "installation": "AVAILABLE",

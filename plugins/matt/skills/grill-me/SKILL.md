@@ -5,8 +5,8 @@ disable-model-invocation: true
 user-invocable: true
 origin: https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/grilling/SKILL.md
 managed-by: https://github.com/lachtan/nicecode
-version: "1.0.0"
-last-change: "2026-11-18 15:05:01"
+version: "2.0.0"
+last-change: "2026-11-20 15:59:22"
 ---
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
