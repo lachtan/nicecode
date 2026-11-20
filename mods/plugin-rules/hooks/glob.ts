@@ -17,11 +17,13 @@ export function compileGlob(glob: string): RegExp | undefined {
       index += 3;
       continue;
     }
+
     if (glob.startsWith("**", index)) {
       pattern += ".*";
       index += 2;
       continue;
     }
+
     const char = glob.charAt(index);
     if (char === "*") {
       pattern += "[^/]*";
@@ -41,7 +43,7 @@ export function compileGlob(glob: string): RegExp | undefined {
     index++;
   }
   if (openBraces > 0) return undefined;
-  return new RegExp("^" + pattern + "$");
+  return new RegExp(`^${pattern}$`);
 }
 
 /**
@@ -50,7 +52,7 @@ export function compileGlob(glob: string): RegExp | undefined {
  */
 export function toMatchPath(filePath: string, cwd: string): string {
   const path = toForwardSlashes(filePath);
-  const rootPrefix = toForwardSlashes(cwd).replace(/\/+$/, "") + "/";
+  const rootPrefix = `${toForwardSlashes(cwd).replace(/\/+$/, "")}/`;
   if (!path.startsWith(rootPrefix)) return path;
   return path.slice(rootPrefix.length);
 }

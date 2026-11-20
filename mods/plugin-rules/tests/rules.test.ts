@@ -36,7 +36,7 @@ test("a block list under paths: gives the globs, quoted or not, beside other key
 
 test("the generated keys go with the frontmatter, and Windows line ends are read", () => {
   const text =
-    "---\r\npaths:\r\n  - \"**/*.sh\"\r\nmanaged-by: https://github.com/lachtan/nicecode\r\n" +
+    '---\r\npaths:\r\n  - "**/*.sh"\r\nmanaged-by: https://github.com/lachtan/nicecode\r\n' +
     'version: "1.1.2"\r\nlast-change: "2026-09-25 14:46:28"\r\n---\r\n\r\n# Bash\r\n';
   const rule = parseRule("core", PATH, text);
   expect(rule?.pathPatterns).toEqual(patternsOf(["**/*.sh"]));
@@ -66,7 +66,13 @@ function engineWithRules(files: Record<string, string>, debugLog: string[] = [])
   const fs = {
     exists: async (path: string) => path.endsWith("/rules") && Object.keys(files).length > 0,
     list: async () => {
-      const entries = Object.keys(files).map((name) => ({ name, kind: "file", size: 0, mtimeMs: 0, isLink: false }));
+      const entries = Object.keys(files).map((name) => ({
+        name,
+        kind: "file",
+        size: 0,
+        mtimeMs: 0,
+        isLink: false,
+      }));
       return [...entries, { name: "drafts.md", kind: "dir", size: 0, mtimeMs: 0, isLink: false }];
     },
     read: async (path: string) => files[path.slice(path.lastIndexOf("/") + 1)] ?? "",

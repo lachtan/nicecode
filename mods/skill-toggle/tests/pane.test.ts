@@ -55,7 +55,7 @@ test("pressing Apply reloads the plugins", async (engine, on) => {
   mock.store(on, { "skills:core": ["core:commit"] });
   const clock = mock.clock(on);
   const commandsRun: string[] = [];
-  on("command.run", { command: RELOAD_COMMAND }, (hookEngine, event) => {
+  on("command.run", { command: RELOAD_COMMAND }, (_hookEngine, event) => {
     commandsRun.push(event.command);
     return { text: "" };
   });
@@ -75,7 +75,7 @@ test("a failed reload shows a toast", async (engine, on) => {
   on("command.run", { command: RELOAD_COMMAND }, () => {
     throw new Error("reload broke");
   });
-  on("ui.toast", (hookEngine, event) => {
+  on("ui.toast", (_hookEngine, event) => {
     toasts.push(event.text);
     return { value: undefined };
   });

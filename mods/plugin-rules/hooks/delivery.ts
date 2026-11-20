@@ -75,7 +75,7 @@ function loopKey(agentId: string | undefined): string {
 }
 
 /** A slash command may never reach the model, so its prompt carries no rules. */
-export const attachRulesToPrompt: Hook<"prompt.submit"> = async (engine, event, next) => {
+export const attachRulesToPrompt: Hook<"prompt.submit"> = async (_engine, event, next) => {
   if (event.command !== undefined) return next(event);
   const rules = selectPendingRules(allRules(), sentIn(MAIN_LOOP));
   if (rules.length === 0) return next(event);
@@ -92,7 +92,7 @@ export const attachRulesToPrompt: Hook<"prompt.submit"> = async (engine, event, 
  * fork already holds its parent's conversation, a resumed run ignores a rewritten prompt, and a workflow agent
  * may ignore it too, with no way to tell from here.
  */
-export const attachRulesToSubagentPrompt: Hook<"agent.spawn"> = async (engine, event, next) => {
+export const attachRulesToSubagentPrompt: Hook<"agent.spawn"> = async (_engine, event, next) => {
   if (event.fork || event.resume !== undefined || event.workflow !== undefined) return next(event);
   const rules = selectPendingRules(allRules(), NOTHING_SENT);
   if (rules.length === 0) return next(event);
@@ -118,14 +118,14 @@ export const attachRulesToToolResult: MatchedHook<"tool.call", typeof FILE_TOOLS
 };
 
 /** A compaction drops what the loop was sent; a precompute or a skipped one changes nothing yet. */
-export const resetAfterCompact: Hook<"session.compact"> = async (engine, event, next) => {
+export const resetAfterCompact: Hook<"session.compact"> = async (_engine, event, next) => {
   const result = await next(event);
   if (event.trigger !== "precompute" && result.skip === undefined) forgetLoop(loopKey(event.agentId));
   return result;
 };
 
 /** After `/clear` or a resume the conversation lacks what it was sent, so every loop starts over. */
-export const resetOnSessionEnd: Hook<"session.end"> = async (engine, event, next) => {
+export const resetOnSessionEnd: Hook<"session.end"> = async (_engine, event, next) => {
   const result = await next(event);
   if (RESETTING_END_REASONS.includes(event.reason)) forgetAll();
   return result;

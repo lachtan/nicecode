@@ -19,13 +19,15 @@ NiceCode is a plugin marketplace for Claude Code and Codex. The guiding principl
 
 1. Edit `src/`.
 2. Run `uv run scripts/build.py`.
-3. Run `scripts/test.sh` (all tests plus a check that the output matches `src/`) and
+3. Run `scripts/test.sh` (all tests, Biome lint and format check of `mods/`, and a check that
+   the output matches `src/`; needs `npm install` once) and
    `uv run scripts/nice-check.py` (frontmatter, README sync, links, hooks).
 4. Commit `src/` together with the generated output.
 
 - After changing a mod, also run `claude plugin test mods/<name>` and
   `claude plugin validate mods/<name>`; `test.sh` cannot, since CI has no `claude` binary.
 - Run a single test file with `uvx pytest <path>`, never bare `pytest`.
+- `npm run fix` applies Biome's formatting and safe lint fixes to `mods/`.
 - Plugins are not wired into this repo's `.claude/`; an edit takes effect only after the
   plugin is installed from this marketplace.
 - On release, bump `version` in `src/marketplace.json` (for a mod, in its

@@ -29,7 +29,14 @@ export async function renderPane(engine: EngineInterface, event: RenderInput<"Pa
       const isDisabled = disabled.includes(skill);
       const mark = isDisabled ? "[ ]" : "[x]";
       const name = skill.replace(`${plugin}:`, "");
-      rows.push(Button({ key: skill, plain: true, label: `${mark} ${name}`, onPress: () => toggleSkill(engine, skill) }));
+      rows.push(
+        Button({
+          key: skill,
+          plain: true,
+          label: `${mark} ${name}`,
+          onPress: () => toggleSkill(engine, skill),
+        }),
+      );
     }
   }
   rows.push(Button({ key: "apply", label: "Apply (reload plugins)", onPress: () => reloadPlugins(engine) }));

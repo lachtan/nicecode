@@ -98,7 +98,7 @@ export const registerPluginRules: Hook<"plugin.register"> = async (engine, event
 };
 
 async function readPluginRules(engine: EngineInterface, plugin: string, root: string): Promise<Rule[]> {
-  const folder = root + "/" + RULES_FOLDER;
+  const folder = `${root}/${RULES_FOLDER}`;
   if (!(await engine.fs.exists(folder))) return [];
 
   const fileNames: string[] = [];
@@ -110,7 +110,7 @@ async function readPluginRules(engine: EngineInterface, plugin: string, root: st
 
   const rules: Rule[] = [];
   for (const fileName of fileNames) {
-    const path = folder + "/" + fileName;
+    const path = `${folder}/${fileName}`;
     const rule = parseRule(plugin, path, await engine.fs.read(path));
     if (rule === undefined) {
       engine.ui.log(`skipped rule ${path}: its paths: is not a block list of valid globs`, { to: "debug" });
