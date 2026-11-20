@@ -1,7 +1,8 @@
 /**
  * Delivery of rules to the model: which rules a loop still lacks, attaching them as context beside a prompt or
- * a file tool's result, and forgetting what a loop was sent once its context is gone. Each rule goes to a loop
- * at most once; a rule is marked sent only once its context is certain to reach the model.
+ * a file tool's result, or to the prompt a subagent starts with, and forgetting what a loop was sent once its
+ * context is gone. Each rule goes to a loop at most once; a rule is marked sent only once its context is certain
+ * to reach the model.
  */
 
 import type { Hook, MatchedHook } from "claude-code";
@@ -12,6 +13,8 @@ import { allRules, type Rule } from "./rules";
 const MAIN_LOOP = "main";
 /** The `session.end` reasons after which the conversation goes on without what it was sent. */
 const RESETTING_END_REASONS: readonly string[] = ["clear", "resume"];
+/** What a subagent about to start was sent: its context is still empty. */
+const NOTHING_SENT: ReadonlySet<string> = new Set();
 
 /** The tools whose `file_path` a rule's `paths:` is matched against. */
 export const FILE_TOOLS = { tool: ["Read", "Edit", "Write"] } as const;
@@ -81,6 +84,22 @@ export const attachRulesToPrompt: Hook<"prompt.submit"> = async (engine, event, 
   const context = [...(event.context ?? []), ...rules.map(formatRule)];
   const result = await next({ ...event, context });
   if (result.drop === undefined) markSent(MAIN_LOOP, rules);
+  return result;
+};
+
+/**
+ * Appends the rules without `paths:` to the prompt a new subagent starts with. Three spawns are left alone: a
+ * fork already holds its parent's conversation, a resumed run ignores a rewritten prompt, and a workflow agent
+ * may ignore it too, with no way to tell from here.
+ */
+export const attachRulesToSubagentPrompt: Hook<"agent.spawn"> = async (engine, event, next) => {
+  if (event.fork || event.resume !== undefined || event.workflow !== undefined) return next(event);
+  const rules = selectPendingRules(allRules(), NOTHING_SENT);
+  if (rules.length === 0) return next(event);
+
+  const prompt = [event.prompt, ...rules.map(formatRule)].join("\n\n");
+  const result = await next({ ...event, prompt });
+  if (result.agentId !== undefined) markSent(result.agentId, rules);
   return result;
 };
 

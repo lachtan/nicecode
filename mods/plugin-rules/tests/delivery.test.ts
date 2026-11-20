@@ -1,12 +1,14 @@
 /**
- * Delivery: each rule reaches a loop once, beside a prompt or a file tool's result, only when its context is
- * certain to reach the model; a compaction or a /clear makes a loop take its rules again.
+ * Delivery: each rule reaches a loop once, beside a prompt or a file tool's result or in the prompt a subagent
+ * starts with, only when its context is certain to reach the model; a compaction or a /clear makes a loop take
+ * its rules again.
  */
 
 import type { EngineInterface, PluginRegisterInput, PromptSubmitInput, PromptSubmitResult } from "claude-code";
 import { expect, test } from "claude-code/testing";
 import {
   attachRulesToPrompt,
+  attachRulesToSubagentPrompt,
   attachRulesToToolResult,
   forgetAll,
   resetAfterCompact,
@@ -18,6 +20,8 @@ import { registerPluginRules } from "../hooks/rules";
 type PromptNext = Parameters<typeof attachRulesToPrompt>[2];
 type ToolNext = Parameters<typeof attachRulesToToolResult>[2];
 type ToolEvent = Parameters<typeof attachRulesToToolResult>[1];
+type SpawnNext = Parameters<typeof attachRulesToSubagentPrompt>[2];
+type SpawnEvent = Parameters<typeof attachRulesToSubagentPrompt>[1];
 type CompactNext = Parameters<typeof resetAfterCompact>[2];
 type CompactEvent = Parameters<typeof resetAfterCompact>[1];
 type EndNext = Parameters<typeof resetOnSessionEnd>[2];
@@ -167,6 +171,60 @@ test("a glob is matched on the path relative to the working directory", async ()
 
   expect(await readFile("/elsewhere/scripts/build.sh")).toEqual([BASH, CLEAN_CODE]);
   expect(await readFile(`${CWD}/scripts/build.sh`)).toEqual([SCRIPTS]);
+});
+
+const TASK = "Count the tests.";
+const SPAWN = { prompt: TASK, fork: false, subagentType: "general-purpose" } as unknown as SpawnEvent;
+const STARTED = { model: "haiku", agentId: SUBAGENT };
+
+/** Stands for the chain beneath: records the prompt the subagent would start with and answers `result`. */
+function spawnNext(handedPrompts: string[], result: object = STARTED): SpawnNext {
+  const next = async (input: SpawnEvent) => {
+    handedPrompts.push(input.prompt);
+    return result;
+  };
+  return next as unknown as SpawnNext;
+}
+
+test("a new subagent starts with the rules without paths: after its task, and is not sent them again", async () => {
+  await startWithCoreRules();
+  const handedPrompts: string[] = [];
+
+  await attachRulesToSubagentPrompt(ENGINE, SPAWN, spawnNext(handedPrompts));
+
+  const prompt = handedPrompts[0] ?? "";
+  expect(prompt.startsWith(`${TASK}\n\nContents of ${CLEAN_CODE} (rules from the core plugin):`)).toBe(true);
+  expect(prompt.includes(BASH)).toBe(false);
+  expect(prompt.includes(SCRIPTS)).toBe(false);
+  expect(await readFile(`${CWD}/a.sh`, SUBAGENT)).toEqual([BASH]);
+});
+
+test("a fork, a resumed run and a workflow agent keep their prompt and mark nothing", async () => {
+  await startWithCoreRules();
+  const leftAlone = [
+    { ...SPAWN, fork: true },
+    { ...SPAWN, resume: { agentId: SUBAGENT } },
+    { ...SPAWN, workflow: { runId: "wf_1", agentIndex: 1 } },
+  ];
+
+  for (const spawn of leftAlone) {
+    const handedPrompts: string[] = [];
+    await attachRulesToSubagentPrompt(ENGINE, spawn as unknown as SpawnEvent, spawnNext(handedPrompts));
+
+    expect(handedPrompts).toEqual([TASK]);
+    expect(sentIn(SUBAGENT).size).toBe(0);
+  }
+});
+
+test("a spawn that answers no agentId marks nothing", async () => {
+  await startWithCoreRules();
+
+  for (const answer of [{ deny: "no" }, { model: "haiku" }]) {
+    const result = await attachRulesToSubagentPrompt(ENGINE, SPAWN, spawnNext([], answer));
+
+    expect(result).toEqual(answer);
+    expect(sentIn(SUBAGENT).size).toBe(0);
+  }
 });
 
 function compactNext(result: object): CompactNext {
