@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 # Copies statusline.sh/.py/.ps1 into the target's .claude/scripts directory and wires
-# the "statusLine" key in its settings.json. Mirrors install-rules.py's --scope /
-# managed-by / version conventions, but tracks one version across the whole
+# the "statusLine" key in its settings.json. Tracks one version across the whole
 # statusline.sh/.py/.ps1 bundle instead of per file.
 set -euo pipefail
 

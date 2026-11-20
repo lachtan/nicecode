@@ -39,7 +39,7 @@ VERSION = re.compile(r"^\d+\.\d+\.\d+$")
 # Files whose frontmatter gets the generated keys; paths are relative to the plugin directory.
 STAMPED = re.compile(r"skills/[^/]+/SKILL\.md|rules/[^/]+\.md|agents/[^/]+\.md")
 GENERATED_KEYS = ("managed-by", "version", "last-change")
-# install-rules overwrites only the files that carry this marker.
+# Marks a file as generated from this repo, so it is never edited by hand.
 MANAGED_BY = "https://github.com/lachtan/nicecode"
 FRONTMATTER_DELIMITER = "---\n"
 STAMP_FORMAT = "%Y-%m-%d %H:%M:%S"

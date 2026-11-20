@@ -17,6 +17,7 @@ the root cause of most bugs and maintenance cost.
 | [ponytail](plugins/ponytail/README.md) | Anti-over-engineering reflex, toggled with `/ponytail`. |
 | [rsj](plugins/rsj/README.md) | Announce actions before running them; never take a question as approval. |
 | [skill-toggle](mods/skill-toggle/README.md) | Claude Code only: turn off chosen skills of installed plugins with `/skill-toggle`. |
+| [plugin-rules](mods/plugin-rules/README.md) | Claude Code only: deliver the rules of installed plugins to Claude — install it with `core`. |
 
 ## Install
 
@@ -25,10 +26,12 @@ the root cause of most bugs and maintenance cost.
 ```bash
 claude plugin marketplace add lachtan/nicecode
 claude plugin install core@nicecode
+claude plugin install plugin-rules@nicecode
 ```
 
-Install the other plugins the same way (`lab@nicecode`, …). Inside a session, the same
-commands work as `/plugin marketplace add` and `/plugin install`.
+Claude Code does not load a plugin's rules; the `plugin-rules` mod delivers them. Install the
+other plugins the same way (`lab@nicecode`, …). Inside a session, the same commands work as
+`/plugin marketplace add` and `/plugin install`.
 
 Both commands take `--scope`:
 
@@ -47,43 +50,46 @@ codex plugin add core@nicecode
 
 Or pick the plugins from `/plugins` inside [Codex](https://developers.openai.com/codex/plugins).
 Codex asks you to trust plugin hooks before they run; review them under `/hooks`. It gets the
-skills and hooks, but not the rules, the `plan-reviewer` agent or the `skill-toggle` mod.
+skills and hooks, but not the rules, the `plan-reviewer` agent or the `skill-toggle` and
+`plugin-rules` mods.
 
-## Rules and status line
+## Status line
 
-Installing `core` gives you its skills and hooks. Claude Code does not load a plugin's rules
-or register its status line, so those two are installed on request. Ask Claude:
-
-- **"install rules"** — copies the rule files into `.claude/rules/plugins/nicecode/core/`.
-- **"install statusline"** — copies the scripts into `.claude/scripts/plugins/nicecode/core/`
-  and points `statusLine` in `settings.json` at them. Needs `bash` and `jq`.
+Claude Code does not register a plugin's status line, so it is installed on request. Ask
+Claude **"install statusline"**: it copies the scripts into
+`.claude/scripts/plugins/nicecode/core/` and points `statusLine` in `settings.json` at them.
+Needs `bash` and `jq`.
 
 Claude asks for a scope first: `project` installs into the current project, `user` into
 `~/.claude/` so it applies everywhere.
 
-Updating is the same request again. A rule file changed since the installed copy, or a newer
-statusline version, overwrites what is installed, while rule files you wrote yourself and a
-`statusLine` you set to something else are left alone.
+Updating is the same request again. A newer statusline version overwrites what is installed,
+while a `statusLine` you set to something else is left alone.
 
 For the `project` scope, gitignore the copies — the installer regenerates them:
 
 ```gitignore
-.claude/rules/plugins/
 .claude/scripts/plugins/
 ```
 
-### Without Claude
-
-From a clone of this repo:
+Without Claude, from a clone of this repo:
 
 ```bash
-python3 plugins/core/scripts/install-rules.py --scope user
-pwsh -File plugins/core/scripts/install-rules.ps1 -Scope user
 bash plugins/core/scripts/install-statusline.sh --scope user
 ```
 
 With the `project` scope, the target defaults to the current directory; pass another one as
-a positional argument (`-ProjectDir` in PowerShell).
+a positional argument.
+
+## Migrating from copied rules
+
+Before `core` 2.0.0 its rules were copied by the `install-rules` skill. With `plugin-rules`
+installed those copies would reach Claude twice, so delete them:
+
+```bash
+rm -rf "$HOME/.claude/rules/plugins/nicecode"
+rm -rf .claude/rules/plugins/nicecode   # in each project that had them
+```
 
 ## Contributing
 

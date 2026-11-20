@@ -15,18 +15,13 @@ you decide. Lighter read-only variants (`/quick-review`, `/preview-simplify`) li
 
 ## Scripts
 
-- `install-rules.py` / `install-rules.ps1` — copy `rules/*.md` into
-  `.claude/rules/plugins/nicecode/core/`, using each file's frontmatter
-  `last-change` to skip already up-to-date files and overwrite stale ones. Require
-  an explicit `--scope project` (into the current project) or `--scope user`
-  (into the home directory, applies to every project) — run explicitly (see
-  the `install-rules` skill) — there is no automatic trigger.
 - `install-statusline.sh` — copies `statusline.sh`/`statusline.py`/`statusline.ps1`
   into `.claude/scripts/plugins/nicecode/core/` and sets `statusLine` in the
   matching `settings.json`, using a `version` marker in `statusline.sh` to skip
   up-to-date bundles and never overwriting a `statusLine` already set to
-  something else. Same `--scope project`/`--scope user` convention (see the
-  `install-statusline` skill) — bash + `jq` only, run explicitly.
+  something else. Requires an explicit `--scope project` (into the current project)
+  or `--scope user` (into the home directory; see the `install-statusline` skill) —
+  bash + `jq` only, run explicitly.
 
 ## Hooks
 
@@ -50,6 +45,9 @@ is passed to Claude so it can fix the file. Checks are listed in `CHECKS` in `ch
 
 ## Rules
 
+Claude Code does not load a plugin's rules; install the
+[plugin-rules](../../mods/plugin-rules/README.md) mod to deliver them.
+
 - `clean-code.md` — cross-language clean-code principles (naming, functions, design, error handling).
 - `comments.md` — when a comment earns its place; the default is zero comments.
 - `bash.md` — Bash scripting conventions.
@@ -71,7 +69,6 @@ is passed to Claude so it can fix the file. Checks are listed in `CHECKS` in `ch
 - `commit` — interactive git commit workflow with formatting rules.
 - `deep-review` — multi-agent local code review with scope detection, parallel reviewers, and validation.
 - `explain` — thorough analysis of a file or module: what it does, how it connects, how it can break.
-- `install-rules` — installs/updates the versioned rule files into this project.
 - `install-statusline` — installs/updates the statusline scripts and wires `statusLine` in settings.json.
 - `ops-guide` — how to write a step-by-step procedure a human will run at a console.
 - `plan-loop` — review loop for an implementation plan: a fresh `plan-reviewer` subagent reviews it,

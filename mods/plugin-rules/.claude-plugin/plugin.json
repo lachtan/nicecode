@@ -1,0 +1,5 @@
+{
+  "name": "plugin-rules",
+  "version": "0.1.0",
+  "description": "Deliver the rules/*.md of installed plugins to the model, no copying needed"
+}

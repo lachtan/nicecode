@@ -11,7 +11,7 @@
       "name": "core",
       "source": "./plugins/core",
       "description": "Core coding best practices — skills and rules for cleaner code",
-      "version": "1.10.0"
+      "version": "2.0.0"
     },
     {
       "name": "lab",
@@ -40,6 +40,12 @@
       "source": "./plugins/rsj",
       "description": "RSJ Wisdom",
       "version": "0.2.0"
+    },
+    {
+      "name": "plugin-rules",
+      "source": "./mods/plugin-rules",
+      "description": "Deliver the rules/*.md of installed plugins to the model, no copying needed",
+      "version": "0.1.0"
     },
     {
       "name": "skill-toggle",
