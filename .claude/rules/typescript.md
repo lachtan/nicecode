@@ -26,6 +26,12 @@ Readability for a human comes first.
 - Name intermediate values; never combine a ternary, a template and a call in one expression.
 - Mark a promise you deliberately do not await with `void`.
 
+## Types
+
+- Type data from outside the code (store values, JSON, files a user can hand-edit) as `unknown` and narrow it
+  with `typeof` / `Array.isArray` / type guards; never cast it to the expected shape.
+- Use `as` only after a check has proven the value; tests may cast fakes with `as unknown as`.
+
 ## No JSX
 
 - Do not use JSX. Call element constructors as plain functions: `Box({ flexDirection: "column", children: rows })`.
@@ -34,7 +40,8 @@ Readability for a human comes first.
 ## Comments
 
 - Every file starts with a `/** ... */` header saying what the file does.
-- JSDoc on an export only when its name does not say enough. Comments explain why, never what.
+- JSDoc on an export only when its name does not say enough: what `undefined` means, a value format
+  (`` /** `<plugin>:<skill>`. */ ``), a side effect. Comments explain why, never what.
 
 ## Style
 
